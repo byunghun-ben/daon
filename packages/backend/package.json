@@ -12,7 +12,6 @@
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
     "db:types": "supabase gen types typescript --project-id obmsbckbzwfwxuoctfnu > src/types/supabase.ts",
-    "db:types:local": "supabase gen types typescript --local > src/types/supabase.ts",
     "db:push": "supabase db push",
     "db:pull": "supabase db pull",
     "db:diff": "supabase db diff",

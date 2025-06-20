@@ -1,8 +1,7 @@
-import { Response } from "express";
 import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
-import type { AuthenticatedRequest } from "../middleware/auth";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
 import {
   CreateDiaryEntrySchema,
   UpdateDiaryEntrySchema,
@@ -17,7 +16,7 @@ import {
 /**
  * Create a new diary entry
  */
-export async function createDiaryEntry(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
     const validatedData = CreateDiaryEntrySchema.parse(req.body);
 
@@ -85,12 +84,12 @@ export async function createDiaryEntry(req: AuthenticatedRequest, res: Response)
     logger.error("Create diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get diary entries with filtering
  */
-export async function getDiaryEntries(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
   try {
     const filters = DiaryFiltersSchema.parse(req.query);
 
@@ -104,14 +103,35 @@ export async function getDiaryEntries(req: AuthenticatedRequest, res: Response):
         milestones(*)
       `);
 
-    // Add child access filter through child_guardians
-    query = query.in("child_id", 
-      supabaseAdmin
-        .from("child_guardians")
-        .select("child_id")
-        .eq("user_id", req.user.id)
-        .not("accepted_at", "is", null)
-    );
+    // Get accessible child IDs first
+    const { data: guardianRelations } = await supabaseAdmin
+      .from("child_guardians")
+      .select("child_id")
+      .eq("user_id", req.user.id)
+      .not("accepted_at", "is", null);
+
+    const accessibleChildIds = guardianRelations?.map((r) => r.child_id) || [];
+
+    // Also include owned children
+    const { data: ownedChildren } = await supabaseAdmin
+      .from("children")
+      .select("id")
+      .eq("owner_id", req.user.id);
+
+    const ownedChildIds = ownedChildren?.map((c) => c.id) || [];
+
+    const allAccessibleChildIds = [...accessibleChildIds, ...ownedChildIds];
+
+    if (allAccessibleChildIds.length === 0) {
+      res.json({
+        diaryEntries: [],
+        pagination: { total: 0, page: 1, limit: 10 },
+      });
+      return;
+    }
+
+    // Add child access filter
+    query = query.in("child_id", allAccessibleChildIds);
 
     // Apply filters
     if (filters.child_id) {
@@ -162,12 +182,12 @@ export async function getDiaryEntries(req: AuthenticatedRequest, res: Response):
     logger.error("Get diary entries error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get a specific diary entry by ID
  */
-export async function getDiaryEntry(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -210,12 +230,12 @@ export async function getDiaryEntry(req: AuthenticatedRequest, res: Response): P
     logger.error("Get diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Update a diary entry
  */
-export async function updateDiaryEntry(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = UpdateDiaryEntrySchema.parse(req.body);
@@ -280,12 +300,12 @@ export async function updateDiaryEntry(req: AuthenticatedRequest, res: Response)
     logger.error("Update diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Delete a diary entry
  */
-export async function deleteDiaryEntry(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const deleteDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -331,12 +351,12 @@ export async function deleteDiaryEntry(req: AuthenticatedRequest, res: Response)
     logger.error("Delete diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Add milestone to a diary entry or standalone
  */
-export async function addMilestone(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const addMilestone = createAuthenticatedHandler(async (req, res) => {
   try {
     const validatedData = MilestoneSchema.parse(req.body);
 
@@ -397,4 +417,4 @@ export async function addMilestone(req: AuthenticatedRequest, res: Response): Pr
     logger.error("Add milestone error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});

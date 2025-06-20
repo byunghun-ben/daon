@@ -9,7 +9,7 @@ import {
 } from "../controllers/diary.controller";
 import { authenticateToken } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication
 router.use(authenticateToken);

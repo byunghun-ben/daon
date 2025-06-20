@@ -1,8 +1,7 @@
-import { Response } from "express";
 import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
-import type { AuthenticatedRequest } from "../middleware/auth";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
 
 // Zod schemas for validation
 const CreateChildSchema = z.object({
@@ -12,10 +11,12 @@ const CreateChildSchema = z.object({
     const now = new Date();
     const maxFutureDate = new Date();
     maxFutureDate.setMonth(now.getMonth() + 10); // 임신 기간 최대 10개월 고려
-    
-    return !isNaN(parsedDate.getTime()) && 
-           parsedDate >= new Date("1900-01-01") && 
-           parsedDate <= maxFutureDate;
+
+    return (
+      !isNaN(parsedDate.getTime()) &&
+      parsedDate >= new Date("1900-01-01") &&
+      parsedDate <= maxFutureDate
+    );
   }, "Birth date must be valid and within reasonable range (can be future for expected birth)"),
   gender: z.enum(["male", "female"], { required_error: "Gender is required" }),
   photo_url: z.string().url().optional(),
@@ -25,16 +26,21 @@ const CreateChildSchema = z.object({
 
 const UpdateChildSchema = z.object({
   name: z.string().min(1).optional(),
-  birth_date: z.string().refine((date) => {
-    const parsedDate = new Date(date);
-    const now = new Date();
-    const maxFutureDate = new Date();
-    maxFutureDate.setMonth(now.getMonth() + 10);
-    
-    return !isNaN(parsedDate.getTime()) && 
-           parsedDate >= new Date("1900-01-01") && 
-           parsedDate <= maxFutureDate;
-  }).optional(),
+  birth_date: z
+    .string()
+    .refine((date) => {
+      const parsedDate = new Date(date);
+      const now = new Date();
+      const maxFutureDate = new Date();
+      maxFutureDate.setMonth(now.getMonth() + 10);
+
+      return (
+        !isNaN(parsedDate.getTime()) &&
+        parsedDate >= new Date("1900-01-01") &&
+        parsedDate <= maxFutureDate
+      );
+    })
+    .optional(),
   gender: z.enum(["male", "female"]).optional(),
   photo_url: z.string().url().optional(),
   birth_weight: z.number().positive().optional(),
@@ -44,7 +50,7 @@ const UpdateChildSchema = z.object({
 /**
  * Create a new child profile
  */
-export async function createChild(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
     const validatedData = CreateChildSchema.parse(req.body);
 
@@ -58,9 +64,9 @@ export async function createChild(req: AuthenticatedRequest, res: Response): Pro
       .single();
 
     if (error) {
-      logger.error("Failed to create child", { 
-        userId: req.user.id, 
-        error 
+      logger.error("Failed to create child", {
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to create child profile" });
       return;
@@ -77,16 +83,16 @@ export async function createChild(req: AuthenticatedRequest, res: Response): Pro
       });
 
     if (guardianError) {
-      logger.error("Failed to create guardian relationship", { 
+      logger.error("Failed to create guardian relationship", {
         childId: child.id,
-        userId: req.user.id, 
-        error: guardianError 
+        userId: req.user.id,
+        error: guardianError,
       });
     }
 
-    logger.info("Child created successfully", { 
-      childId: child.id, 
-      userId: req.user.id 
+    logger.info("Child created successfully", {
+      childId: child.id,
+      userId: req.user.id,
     });
 
     res.status(201).json({
@@ -95,9 +101,9 @@ export async function createChild(req: AuthenticatedRequest, res: Response): Pro
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -105,29 +111,31 @@ export async function createChild(req: AuthenticatedRequest, res: Response): Pro
     logger.error("Create child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get all children for the authenticated user
  */
-export async function getChildren(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getChildren = createAuthenticatedHandler(async (req, res) => {
   try {
     const { data: children, error } = await supabaseAdmin
       .from("children")
-      .select(`
+      .select(
+        `
         *,
         child_guardians!inner(
           role,
           accepted_at
         )
-      `)
+      `
+      )
       .eq("child_guardians.user_id", req.user.id)
       .not("child_guardians.accepted_at", "is", null);
 
     if (error) {
-      logger.error("Failed to get children", { 
-        userId: req.user.id, 
-        error 
+      logger.error("Failed to get children", {
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to get children" });
       return;
@@ -138,25 +146,27 @@ export async function getChildren(req: AuthenticatedRequest, res: Response): Pro
     logger.error("Get children error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get a specific child by ID
  */
-export async function getChild(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getChild = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
     const { data: child, error } = await supabaseAdmin
       .from("children")
-      .select(`
+      .select(
+        `
         *,
         child_guardians!inner(
           role,
           accepted_at,
           users(name, email)
         )
-      `)
+      `
+      )
       .eq("id", id)
       .eq("child_guardians.user_id", req.user.id)
       .not("child_guardians.accepted_at", "is", null)
@@ -168,10 +178,10 @@ export async function getChild(req: AuthenticatedRequest, res: Response): Promis
         return;
       }
 
-      logger.error("Failed to get child", { 
+      logger.error("Failed to get child", {
         childId: id,
-        userId: req.user.id, 
-        error 
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to get child" });
       return;
@@ -182,12 +192,12 @@ export async function getChild(req: AuthenticatedRequest, res: Response): Promis
     logger.error("Get child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Update a child profile
  */
-export async function updateChild(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const updateChild = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = UpdateChildSchema.parse(req.body);
@@ -205,7 +215,9 @@ export async function updateChild(req: AuthenticatedRequest, res: Response): Pro
     }
 
     if (ownership.owner_id !== req.user.id) {
-      res.status(403).json({ error: "Only the child owner can update profile" });
+      res
+        .status(403)
+        .json({ error: "Only the child owner can update profile" });
       return;
     }
 
@@ -217,18 +229,18 @@ export async function updateChild(req: AuthenticatedRequest, res: Response): Pro
       .single();
 
     if (error) {
-      logger.error("Failed to update child", { 
+      logger.error("Failed to update child", {
         childId: id,
-        userId: req.user.id, 
-        error 
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to update child profile" });
       return;
     }
 
-    logger.info("Child updated successfully", { 
-      childId: id, 
-      userId: req.user.id 
+    logger.info("Child updated successfully", {
+      childId: id,
+      userId: req.user.id,
     });
 
     res.json({
@@ -237,9 +249,9 @@ export async function updateChild(req: AuthenticatedRequest, res: Response): Pro
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -247,12 +259,12 @@ export async function updateChild(req: AuthenticatedRequest, res: Response): Pro
     logger.error("Update child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Delete a child profile
  */
-export async function deleteChild(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const deleteChild = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -269,7 +281,9 @@ export async function deleteChild(req: AuthenticatedRequest, res: Response): Pro
     }
 
     if (ownership.owner_id !== req.user.id) {
-      res.status(403).json({ error: "Only the child owner can delete profile" });
+      res
+        .status(403)
+        .json({ error: "Only the child owner can delete profile" });
       return;
     }
 
@@ -279,18 +293,18 @@ export async function deleteChild(req: AuthenticatedRequest, res: Response): Pro
       .eq("id", id);
 
     if (error) {
-      logger.error("Failed to delete child", { 
+      logger.error("Failed to delete child", {
         childId: id,
-        userId: req.user.id, 
-        error 
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to delete child profile" });
       return;
     }
 
-    logger.info("Child deleted successfully", { 
-      childId: id, 
-      userId: req.user.id 
+    logger.info("Child deleted successfully", {
+      childId: id,
+      userId: req.user.id,
     });
 
     res.json({ message: "Child profile deleted successfully" });
@@ -298,4 +312,4 @@ export async function deleteChild(req: AuthenticatedRequest, res: Response): Pro
     logger.error("Delete child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});

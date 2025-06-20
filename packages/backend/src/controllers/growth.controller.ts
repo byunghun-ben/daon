@@ -1,8 +1,7 @@
-import { Response } from "express";
 import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
-import type { AuthenticatedRequest } from "../middleware/auth";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
 import {
   CreateGrowthRecordSchema,
   UpdateGrowthRecordSchema,
@@ -15,7 +14,7 @@ import {
 /**
  * Create a new growth record
  */
-export async function createGrowthRecord(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const createGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
     const validatedData = CreateGrowthRecordSchema.parse(req.body);
 
@@ -83,12 +82,12 @@ export async function createGrowthRecord(req: AuthenticatedRequest, res: Respons
     logger.error("Create growth record error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get growth records with filtering
  */
-export async function getGrowthRecords(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getGrowthRecords = createAuthenticatedHandler(async (req, res) => {
   try {
     const filters = GrowthFiltersSchema.parse(req.query);
 
@@ -101,14 +100,35 @@ export async function getGrowthRecords(req: AuthenticatedRequest, res: Response)
         users(name, email)
       `);
 
-    // Add child access filter through child_guardians
-    query = query.in("child_id", 
-      supabaseAdmin
-        .from("child_guardians")
-        .select("child_id")
-        .eq("user_id", req.user.id)
-        .not("accepted_at", "is", null)
-    );
+    // Get accessible child IDs first
+    const { data: guardianRelations } = await supabaseAdmin
+      .from("child_guardians")
+      .select("child_id")
+      .eq("user_id", req.user.id)
+      .not("accepted_at", "is", null);
+
+    const accessibleChildIds = guardianRelations?.map((r) => r.child_id) || [];
+
+    // Also include owned children
+    const { data: ownedChildren } = await supabaseAdmin
+      .from("children")
+      .select("id")
+      .eq("owner_id", req.user.id);
+
+    const ownedChildIds = ownedChildren?.map((c) => c.id) || [];
+
+    const allAccessibleChildIds = [...accessibleChildIds, ...ownedChildIds];
+
+    if (allAccessibleChildIds.length === 0) {
+      res.json({
+        growthRecords: [],
+        pagination: { total: 0, page: 1, limit: 10 },
+      });
+      return;
+    }
+
+    // Add child access filter
+    query = query.in("child_id", allAccessibleChildIds);
 
     // Apply filters
     if (filters.child_id) {
@@ -159,12 +179,12 @@ export async function getGrowthRecords(req: AuthenticatedRequest, res: Response)
     logger.error("Get growth records error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get a specific growth record by ID
  */
-export async function getGrowthRecord(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -206,12 +226,12 @@ export async function getGrowthRecord(req: AuthenticatedRequest, res: Response):
     logger.error("Get growth record error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Update a growth record
  */
-export async function updateGrowthRecord(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const updateGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = UpdateGrowthRecordSchema.parse(req.body);
@@ -275,12 +295,12 @@ export async function updateGrowthRecord(req: AuthenticatedRequest, res: Respons
     logger.error("Update growth record error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Delete a growth record
  */
-export async function deleteGrowthRecord(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const deleteGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -326,12 +346,12 @@ export async function deleteGrowthRecord(req: AuthenticatedRequest, res: Respons
     logger.error("Delete growth record error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get growth chart data for a child
  */
-export async function getGrowthChart(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getGrowthChart = createAuthenticatedHandler(async (req, res) => {
   try {
     const { child_id } = req.params;
 
@@ -408,4 +428,4 @@ export async function getGrowthChart(req: AuthenticatedRequest, res: Response): 
     logger.error("Get growth chart error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});

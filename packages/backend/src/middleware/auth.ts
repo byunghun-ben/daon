@@ -1,33 +1,28 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
 import { logger } from "../utils/logger";
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role?: string;
-      };
-    }
-  }
+// User type definition
+export interface User {
+  id: string;
+  email: string;
+  role?: string;
+}
+
+// Base request interface with optional user (for middleware)
+interface BaseRequest extends Request {
+  user?: User;
 }
 
 export interface AuthenticatedRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-    role?: string;
-  };
+  user: User;
 }
 
 /**
  * Middleware to verify JWT token from Supabase Auth
  */
 export async function authenticateToken(
-  req: Request,
+  req: BaseRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
@@ -41,7 +36,10 @@ export async function authenticateToken(
     }
 
     // Verify token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
 
     if (error || !user) {
       logger.warn("Invalid token provided", { error: error?.message });
@@ -64,10 +62,19 @@ export async function authenticateToken(
 }
 
 /**
+ * Type guard to check if request has authenticated user
+ */
+export function isAuthenticatedRequest(
+  req: BaseRequest
+): req is AuthenticatedRequest {
+  return req.user !== undefined;
+}
+
+/**
  * Optional authentication middleware - doesn't fail if no token
  */
 export async function optionalAuth(
-  req: Request,
+  req: BaseRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
@@ -76,7 +83,10 @@ export async function optionalAuth(
     const token = authHeader && authHeader.split(" ")[1];
 
     if (token) {
-      const { data: { user }, error } = await supabase.auth.getUser(token);
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(token);
 
       if (!error && user) {
         req.user = {
@@ -98,7 +108,11 @@ export async function optionalAuth(
  * Middleware to check if user has required role
  */
 export function requireRole(role: string) {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
     if (!req.user) {
       res.status(401).json({ error: "Authentication required" });
       return;

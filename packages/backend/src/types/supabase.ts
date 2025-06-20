@@ -113,6 +113,7 @@ export type Database = {
           created_at: string
           gender: string
           id: string
+          invite_code: string | null
           name: string
           owner_id: string
           photo_url: string | null
@@ -125,6 +126,7 @@ export type Database = {
           created_at?: string
           gender: string
           id?: string
+          invite_code?: string | null
           name: string
           owner_id: string
           photo_url?: string | null
@@ -137,6 +139,7 @@ export type Database = {
           created_at?: string
           gender?: string
           id?: string
+          invite_code?: string | null
           name?: string
           owner_id?: string
           photo_url?: string | null
@@ -307,6 +310,7 @@ export type Database = {
           id: string
           name: string | null
           phone: string | null
+          registration_status: string
           updated_at: string
         }
         Insert: {
@@ -316,6 +320,7 @@ export type Database = {
           id: string
           name?: string | null
           phone?: string | null
+          registration_status?: string
           updated_at?: string
         }
         Update: {
@@ -325,6 +330,7 @@ export type Database = {
           id?: string
           name?: string | null
           phone?: string | null
+          registration_status?: string
           updated_at?: string
         }
         Relationships: []
@@ -334,7 +340,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_invite_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

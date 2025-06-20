@@ -6,7 +6,7 @@ import activitiesRoutes from "./activities.routes";
 import growthRoutes from "./growth.routes";
 import diaryRoutes from "./diary.routes";
 
-const router = Router();
+const router: Router = Router();
 
 // API documentation endpoint
 router.get("/", (req, res) => {

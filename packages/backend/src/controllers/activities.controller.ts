@@ -1,181 +1,211 @@
-import { Response } from "express";
+import { RequestHandler } from "express";
 import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
-import { logger } from "../utils/logger";
-import type { AuthenticatedRequest } from "../middleware/auth";
 import {
+  ActivityFiltersSchema,
   CreateActivitySchema,
   UpdateActivitySchema,
-  ActivityFiltersSchema,
-  type CreateActivityInput,
-  type UpdateActivityInput,
-  type ActivityFilters,
 } from "../schemas/activity.schemas";
+import { isSleepData, type SleepData } from "../types/activity";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
+import { logger } from "../utils/logger";
 
 /**
  * Create a new activity record
  */
-export async function createActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const validatedData = CreateActivitySchema.parse(req.body);
+export const createActivity: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const validatedData = CreateActivitySchema.parse(req.body);
 
-    // Check if user has access to this child
-    const { data: access, error: accessError } = await supabaseAdmin
-      .from("child_guardians")
-      .select("role")
-      .eq("child_id", validatedData.child_id)
-      .eq("user_id", req.user.id)
-      .not("accepted_at", "is", null)
-      .single();
+      // Check if user has access to this child
+      const { data: access, error: accessError } = await supabaseAdmin
+        .from("child_guardians")
+        .select("role")
+        .eq("child_id", validatedData.child_id)
+        .eq("user_id", req.user.id)
+        .not("accepted_at", "is", null)
+        .single();
 
-    if (accessError || !access) {
-      res.status(404).json({ error: "Child not found or access denied" });
-      return;
-    }
+      if (accessError || !access) {
+        res.status(404).json({ error: "Child not found or access denied" });
+        return;
+      }
 
-    // Create activity record
-    const { data: activity, error } = await supabaseAdmin
-      .from("activities")
-      .insert({
-        child_id: validatedData.child_id,
-        user_id: req.user.id,
-        type: validatedData.type,
-        timestamp: validatedData.timestamp || new Date().toISOString(),
-        data: validatedData.data,
-        notes: validatedData.notes,
-      })
-      .select(`
+      // Create activity record
+      const { data: activity, error } = await supabaseAdmin
+        .from("activities")
+        .insert({
+          child_id: validatedData.child_id,
+          user_id: req.user.id,
+          type: validatedData.type,
+          timestamp: validatedData.timestamp || new Date().toISOString(),
+          data: validatedData.data,
+          notes: validatedData.notes,
+        })
+        .select(
+          `
         *,
         children(name),
         users(name, email)
-      `)
-      .single();
+      `
+        )
+        .single();
 
-    if (error) {
-      logger.error("Failed to create activity", { 
-        userId: req.user.id,
+      if (error) {
+        logger.error("Failed to create activity", {
+          userId: req.user.id,
+          childId: validatedData.child_id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to create activity record" });
+        return;
+      }
+
+      logger.info("Activity created successfully", {
+        activityId: activity.id,
         childId: validatedData.child_id,
-        error 
+        userId: req.user.id,
+        type: validatedData.type,
       });
-      res.status(500).json({ error: "Failed to create activity record" });
-      return;
-    }
 
-    logger.info("Activity created successfully", { 
-      activityId: activity.id,
-      childId: validatedData.child_id,
-      userId: req.user.id,
-      type: validatedData.type
-    });
-
-    res.status(201).json({
-      message: "Activity recorded successfully",
-      activity,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(201).json({
+        message: "Activity recorded successfully",
+        activity,
       });
-      return;
-    }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          error: "Validation failed",
+          details: error.errors,
+        });
+        return;
+      }
 
-    logger.error("Create activity error:", error);
-    res.status(500).json({ error: "Internal server error" });
+      logger.error("Create activity error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-}
+);
 
 /**
  * Get activities with filtering
  */
-export async function getActivities(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const filters = ActivityFiltersSchema.parse(req.query);
+export const getActivities: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const filters = ActivityFiltersSchema.parse(req.query);
 
-    // Build query
-    let query = supabaseAdmin
-      .from("activities")
-      .select(`
+      // Build query
+      let query = supabaseAdmin.from("activities").select(`
         *,
         children(id, name),
         users(name, email)
       `);
 
-    // Add child access filter through child_guardians
-    query = query.in("child_id", 
-      supabaseAdmin
+      // Get accessible child IDs first
+      const { data: guardianRelations } = await supabaseAdmin
         .from("child_guardians")
         .select("child_id")
         .eq("user_id", req.user.id)
-        .not("accepted_at", "is", null)
-    );
+        .not("accepted_at", "is", null);
 
-    // Apply filters
-    if (filters.child_id) {
-      query = query.eq("child_id", filters.child_id);
-    }
+      const accessibleChildIds =
+        guardianRelations?.map((r) => r.child_id) || [];
 
-    if (filters.type) {
-      query = query.eq("type", filters.type);
-    }
+      // Also include owned children
+      const { data: ownedChildren } = await supabaseAdmin
+        .from("children")
+        .select("id")
+        .eq("owner_id", req.user.id);
 
-    if (filters.date_from) {
-      query = query.gte("timestamp", filters.date_from);
-    }
+      const ownedChildIds = ownedChildren?.map((c) => c.id) || [];
 
-    if (filters.date_to) {
-      query = query.lte("timestamp", filters.date_to);
-    }
+      const allAccessibleChildIds = [...accessibleChildIds, ...ownedChildIds];
 
-    // Add pagination and ordering
-    const { data: activities, error, count } = await query
-      .order("timestamp", { ascending: false })
-      .range(filters.offset, filters.offset + filters.limit - 1)
-      .limit(filters.limit);
+      if (allAccessibleChildIds.length === 0) {
+        res.json({
+          activities: [],
+          pagination: { total: 0, page: 1, limit: 10 },
+        });
+        return;
+      }
 
-    if (error) {
-      logger.error("Failed to get activities", { 
-        userId: req.user.id,
-        filters,
-        error 
+      // Add child access filter
+      query = query.in("child_id", allAccessibleChildIds);
+
+      // Apply filters
+      if (filters.child_id) {
+        query = query.eq("child_id", filters.child_id);
+      }
+
+      if (filters.type) {
+        query = query.eq("type", filters.type);
+      }
+
+      if (filters.date_from) {
+        query = query.gte("timestamp", filters.date_from);
+      }
+
+      if (filters.date_to) {
+        query = query.lte("timestamp", filters.date_to);
+      }
+
+      // Add pagination and ordering
+      const {
+        data: activities,
+        error,
+        count,
+      } = await query
+        .order("timestamp", { ascending: false })
+        .range(filters.offset, filters.offset + filters.limit - 1)
+        .limit(filters.limit);
+
+      if (error) {
+        logger.error("Failed to get activities", {
+          userId: req.user.id,
+          filters,
+          error,
+        });
+        res.status(500).json({ error: "Failed to get activities" });
+        return;
+      }
+
+      res.json({
+        activities,
+        pagination: {
+          limit: filters.limit,
+          offset: filters.offset,
+          total: count || activities.length,
+        },
       });
-      res.status(500).json({ error: "Failed to get activities" });
-      return;
-    }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          error: "Invalid query parameters",
+          details: error.errors,
+        });
+        return;
+      }
 
-    res.json({
-      activities,
-      pagination: {
-        limit: filters.limit,
-        offset: filters.offset,
-        total: count || activities.length,
-      },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Invalid query parameters", 
-        details: error.errors 
-      });
-      return;
+      logger.error("Get activities error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    logger.error("Get activities error:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-}
+);
 
 /**
  * Get a specific activity by ID
  */
-export async function getActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
+export const getActivity: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const { id } = req.params;
 
-    const { data: activity, error } = await supabaseAdmin
-      .from("activities")
-      .select(`
+      const { data: activity, error } = await supabaseAdmin
+        .from("activities")
+        .select(
+          `
         *,
         children!inner(
           id, name,
@@ -185,236 +215,264 @@ export async function getActivity(req: AuthenticatedRequest, res: Response): Pro
           )
         ),
         users(name, email)
-      `)
-      .eq("id", id)
-      .eq("children.child_guardians.user_id", req.user.id)
-      .not("children.child_guardians.accepted_at", "is", null)
-      .single();
+      `
+        )
+        .eq("id", id)
+        .eq("children.child_guardians.user_id", req.user.id)
+        .not("children.child_guardians.accepted_at", "is", null)
+        .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        res.status(404).json({ error: "Activity not found or access denied" });
+      if (error) {
+        if (error.code === "PGRST116") {
+          res
+            .status(404)
+            .json({ error: "Activity not found or access denied" });
+          return;
+        }
+
+        logger.error("Failed to get activity", {
+          activityId: id,
+          userId: req.user.id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to get activity" });
         return;
       }
 
-      logger.error("Failed to get activity", { 
-        activityId: id,
-        userId: req.user.id,
-        error 
-      });
-      res.status(500).json({ error: "Failed to get activity" });
-      return;
+      res.json({ activity });
+    } catch (error) {
+      logger.error("Get activity error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.json({ activity });
-  } catch (error) {
-    logger.error("Get activity error:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-}
+);
 
 /**
  * Update an activity record
  */
-export async function updateActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
-    const validatedData = UpdateActivitySchema.parse(req.body);
+export const updateActivity: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = UpdateActivitySchema.parse(req.body);
 
-    // Check if user created this activity
-    const { data: existing, error: existingError } = await supabaseAdmin
-      .from("activities")
-      .select("user_id, child_id")
-      .eq("id", id)
-      .single();
+      // Check if user created this activity
+      const { data: existing, error: existingError } = await supabaseAdmin
+        .from("activities")
+        .select("user_id, child_id")
+        .eq("id", id)
+        .single();
 
-    if (existingError || !existing) {
-      res.status(404).json({ error: "Activity not found" });
-      return;
-    }
+      if (existingError || !existing) {
+        res.status(404).json({ error: "Activity not found" });
+        return;
+      }
 
-    if (existing.user_id !== req.user.id) {
-      res.status(403).json({ error: "Can only update your own activity records" });
-      return;
-    }
+      if (existing.user_id !== req.user.id) {
+        res
+          .status(403)
+          .json({ error: "Can only update your own activity records" });
+        return;
+      }
 
-    const { data: updatedActivity, error } = await supabaseAdmin
-      .from("activities")
-      .update(validatedData)
-      .eq("id", id)
-      .select(`
+      const { data: updatedActivity, error } = await supabaseAdmin
+        .from("activities")
+        .update(validatedData)
+        .eq("id", id)
+        .select(
+          `
         *,
         children(name),
         users(name, email)
-      `)
-      .single();
+      `
+        )
+        .single();
 
-    if (error) {
-      logger.error("Failed to update activity", { 
+      if (error) {
+        logger.error("Failed to update activity", {
+          activityId: id,
+          userId: req.user.id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to update activity record" });
+        return;
+      }
+
+      logger.info("Activity updated successfully", {
         activityId: id,
         userId: req.user.id,
-        error 
       });
-      res.status(500).json({ error: "Failed to update activity record" });
-      return;
-    }
 
-    logger.info("Activity updated successfully", { 
-      activityId: id,
-      userId: req.user.id 
-    });
-
-    res.json({
-      message: "Activity updated successfully",
-      activity: updatedActivity,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.json({
+        message: "Activity updated successfully",
+        activity: updatedActivity,
       });
-      return;
-    }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          error: "Validation failed",
+          details: error.errors,
+        });
+        return;
+      }
 
-    logger.error("Update activity error:", error);
-    res.status(500).json({ error: "Internal server error" });
+      logger.error("Update activity error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-}
+);
 
 /**
  * Delete an activity record
  */
-export async function deleteActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
+export const deleteActivity: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const { id } = req.params;
 
-    // Check if user created this activity
-    const { data: existing, error: existingError } = await supabaseAdmin
-      .from("activities")
-      .select("user_id, child_id")
-      .eq("id", id)
-      .single();
+      // Check if user created this activity
+      const { data: existing, error: existingError } = await supabaseAdmin
+        .from("activities")
+        .select("user_id, child_id")
+        .eq("id", id)
+        .single();
 
-    if (existingError || !existing) {
-      res.status(404).json({ error: "Activity not found" });
-      return;
-    }
+      if (existingError || !existing) {
+        res.status(404).json({ error: "Activity not found" });
+        return;
+      }
 
-    if (existing.user_id !== req.user.id) {
-      res.status(403).json({ error: "Can only delete your own activity records" });
-      return;
-    }
+      if (existing.user_id !== req.user.id) {
+        res
+          .status(403)
+          .json({ error: "Can only delete your own activity records" });
+        return;
+      }
 
-    const { error } = await supabaseAdmin
-      .from("activities")
-      .delete()
-      .eq("id", id);
+      const { error } = await supabaseAdmin
+        .from("activities")
+        .delete()
+        .eq("id", id);
 
-    if (error) {
-      logger.error("Failed to delete activity", { 
+      if (error) {
+        logger.error("Failed to delete activity", {
+          activityId: id,
+          userId: req.user.id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to delete activity record" });
+        return;
+      }
+
+      logger.info("Activity deleted successfully", {
         activityId: id,
         userId: req.user.id,
-        error 
       });
-      res.status(500).json({ error: "Failed to delete activity record" });
-      return;
+
+      res.json({ message: "Activity deleted successfully" });
+    } catch (error) {
+      logger.error("Delete activity error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    logger.info("Activity deleted successfully", { 
-      activityId: id,
-      userId: req.user.id 
-    });
-
-    res.json({ message: "Activity deleted successfully" });
-  } catch (error) {
-    logger.error("Delete activity error:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-}
+);
 
 /**
  * Get activity summary for a child
  */
-export async function getActivitySummary(req: AuthenticatedRequest, res: Response): Promise<void> {
-  try {
-    const { child_id } = req.params;
-    const { date } = req.query;
+export const getActivitySummary: RequestHandler = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const { child_id } = req.params;
+      const { date } = req.query;
 
-    // Check access to child
-    const { data: access, error: accessError } = await supabaseAdmin
-      .from("child_guardians")
-      .select("role")
-      .eq("child_id", child_id)
-      .eq("user_id", req.user.id)
-      .not("accepted_at", "is", null)
-      .single();
+      // Check access to child
+      const { data: access, error: accessError } = await supabaseAdmin
+        .from("child_guardians")
+        .select("role")
+        .eq("child_id", child_id)
+        .eq("user_id", req.user.id)
+        .not("accepted_at", "is", null)
+        .single();
 
-    if (accessError || !access) {
-      res.status(404).json({ error: "Child not found or access denied" });
-      return;
+      if (accessError || !access) {
+        res.status(404).json({ error: "Child not found or access denied" });
+        return;
+      }
+
+      // Default to today if no date provided
+      const targetDate = date ? new Date(date as string) : new Date();
+      const startOfDay = new Date(targetDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(targetDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const { data: activities, error } = await supabaseAdmin
+        .from("activities")
+        .select("type, data, timestamp")
+        .eq("child_id", child_id)
+        .gte("timestamp", startOfDay.toISOString())
+        .lte("timestamp", endOfDay.toISOString())
+        .order("timestamp", { ascending: false });
+
+      if (error) {
+        logger.error("Failed to get activity summary", {
+          childId: child_id,
+          userId: req.user.id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to get activity summary" });
+        return;
+      }
+
+      // Calculate summary statistics
+      const summary = {
+        date: targetDate.toISOString().split("T")[0],
+        feeding: {
+          count: activities.filter((a) => a.type === "feeding").length,
+          lastTime: activities.find((a) => a.type === "feeding")?.timestamp,
+        },
+        diaper: {
+          count: activities.filter((a) => a.type === "diaper").length,
+          lastTime: activities.find((a) => a.type === "diaper")?.timestamp,
+        },
+        sleep: {
+          count: activities.filter((a) => a.type === "sleep").length,
+          totalHours: activities
+            .filter(
+              (a) => a.type === "sleep" && isSleepData(a.data) && a.data.endTime
+            )
+            .reduce((total, activity) => {
+              if (!isSleepData(activity.data) || !activity.data.endTime)
+                return total;
+              const sleepData: SleepData = activity.data;
+              const start = new Date(sleepData.startTime);
+              const end = new Date(sleepData.endTime || "");
+              return (
+                total + (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+              );
+            }, 0),
+          lastTime: activities.find((a) => a.type === "sleep")?.timestamp,
+        },
+        tummyTime: {
+          count: activities.filter((a) => a.type === "tummy_time").length,
+          totalMinutes: activities
+            .filter((a) => a.type === "tummy_time")
+            .reduce((total, activity) => {
+              if (!activity.data || typeof activity.data !== "object")
+                return total;
+              const data = activity.data as { duration?: number };
+              return total + (data.duration || 0);
+            }, 0),
+          lastTime: activities.find((a) => a.type === "tummy_time")?.timestamp,
+        },
+        totalActivities: activities.length,
+      };
+
+      res.json({ summary });
+    } catch (error) {
+      logger.error("Get activity summary error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    // Default to today if no date provided
-    const targetDate = date ? new Date(date as string) : new Date();
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const { data: activities, error } = await supabaseAdmin
-      .from("activities")
-      .select("type, data, timestamp")
-      .eq("child_id", child_id)
-      .gte("timestamp", startOfDay.toISOString())
-      .lte("timestamp", endOfDay.toISOString())
-      .order("timestamp", { ascending: false });
-
-    if (error) {
-      logger.error("Failed to get activity summary", { 
-        childId: child_id,
-        userId: req.user.id,
-        error 
-      });
-      res.status(500).json({ error: "Failed to get activity summary" });
-      return;
-    }
-
-    // Calculate summary statistics
-    const summary = {
-      date: targetDate.toISOString().split("T")[0],
-      feeding: {
-        count: activities.filter(a => a.type === "feeding").length,
-        lastTime: activities.find(a => a.type === "feeding")?.timestamp,
-      },
-      diaper: {
-        count: activities.filter(a => a.type === "diaper").length,
-        lastTime: activities.find(a => a.type === "diaper")?.timestamp,
-      },
-      sleep: {
-        count: activities.filter(a => a.type === "sleep").length,
-        totalHours: activities
-          .filter(a => a.type === "sleep" && a.data.endTime)
-          .reduce((total, activity) => {
-            const start = new Date(activity.data.startTime);
-            const end = new Date(activity.data.endTime);
-            return total + (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          }, 0),
-        lastTime: activities.find(a => a.type === "sleep")?.timestamp,
-      },
-      tummyTime: {
-        count: activities.filter(a => a.type === "tummy_time").length,
-        totalMinutes: activities
-          .filter(a => a.type === "tummy_time")
-          .reduce((total, activity) => total + (activity.data.duration || 0), 0),
-        lastTime: activities.find(a => a.type === "tummy_time")?.timestamp,
-      },
-      totalActivities: activities.length,
-    };
-
-    res.json({ summary });
-  } catch (error) {
-    logger.error("Get activity summary error:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-}
+);

@@ -1,8 +1,7 @@
-import { Response } from "express";
 import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
-import type { AuthenticatedRequest } from "../middleware/auth";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
 
 // Zod schemas for validation
 const InviteGuardianSchema = z.object({
@@ -17,7 +16,7 @@ const AcceptInvitationSchema = z.object({
 /**
  * Invite a guardian for a child
  */
-export async function inviteGuardian(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
   try {
     const { child_id } = req.params;
     const validatedData = InviteGuardianSchema.parse(req.body);
@@ -125,12 +124,12 @@ export async function inviteGuardian(req: AuthenticatedRequest, res: Response): 
     logger.error("Invite guardian error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get all guardians for a child
  */
-export async function getGuardians(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getGuardians = createAuthenticatedHandler(async (req, res) => {
   try {
     const { child_id } = req.params;
 
@@ -172,12 +171,12 @@ export async function getGuardians(req: AuthenticatedRequest, res: Response): Pr
     logger.error("Get guardians error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Accept guardian invitation
  */
-export async function acceptInvitation(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
   try {
     const validatedData = AcceptInvitationSchema.parse(req.body);
 
@@ -242,12 +241,12 @@ export async function acceptInvitation(req: AuthenticatedRequest, res: Response)
     logger.error("Accept invitation error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Get pending invitations for the current user
  */
-export async function getPendingInvitations(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const getPendingInvitations = createAuthenticatedHandler(async (req, res) => {
   try {
     const { data: invitations, error } = await supabaseAdmin
       .from("child_guardians")
@@ -274,12 +273,12 @@ export async function getPendingInvitations(req: AuthenticatedRequest, res: Resp
     logger.error("Get pending invitations error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 /**
  * Remove a guardian from a child
  */
-export async function removeGuardian(req: AuthenticatedRequest, res: Response): Promise<void> {
+export const removeGuardian = createAuthenticatedHandler(async (req, res) => {
   try {
     const { child_id, guardian_id } = req.params;
 
@@ -345,4 +344,4 @@ export async function removeGuardian(req: AuthenticatedRequest, res: Response): 
     logger.error("Remove guardian error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});

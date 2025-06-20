@@ -44,15 +44,38 @@ type SignInErrorResponse = {
 };
 type SignInResponse = SignInSuccessResponse | SignInErrorResponse;
 
+type SignUpSuccessResponse = {
+  success: true;
+  data: AuthResponse;
+  error?: never;
+};
+
+type SignUpErrorResponse = {
+  success: false;
+  data?: never;
+  error: string;
+};
+type SignUpResponse = SignUpSuccessResponse | SignUpErrorResponse;
+
 // Auth API functions
 export const authApi = {
-  async signUp(data: SignUpRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>("/auth/signup", data);
+  async signUp(data: SignUpRequest): Promise<SignUpResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>("/auth/signup", data);
 
-    // Store tokens
-    await authUtils.saveTokens(response.access_token, response.refresh_token);
+      // Store tokens
+      await authUtils.saveTokens(response.access_token, response.refresh_token);
 
-    return response;
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: "회원가입 중 오류가 발생했습니다.",
+      };
+    }
   },
 
   async signIn(data: SignInRequest): Promise<SignInResponse> {

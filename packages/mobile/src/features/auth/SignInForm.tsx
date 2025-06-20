@@ -4,8 +4,7 @@ import { Alert, View } from "react-native";
 import z from "zod/v4";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
+import { Button, Input } from "../../shared/ui";
 
 const SignInFormSchema = z.object({
   email: z

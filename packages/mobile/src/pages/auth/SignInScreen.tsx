@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { SignInForm } from "../../features/sign-in/SignInForm";
+import { SignInForm } from "../../features/auth";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 

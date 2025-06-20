@@ -33,6 +33,11 @@ const AuthResponseSchema = z.object({
     token_type: z.string(),
   }),
   user: UserSchema,
+  children: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+  })).optional(),
+  needs_child_setup: z.boolean().optional(),
 });
 
 type AuthResponse = z.infer<typeof AuthResponseSchema>;
@@ -129,9 +134,25 @@ export const authApi = {
     }
   },
 
-  async signOut(): Promise<void> {
+  async signOut(): Promise<{ success: boolean; message?: string }> {
     try {
-      await apiClient.post("/auth/signout");
+      const response = await apiClient.post<{ 
+        message: string; 
+        success: boolean; 
+      }>("/auth/signout");
+      
+      console.log("[authApi] signOut response", response);
+      
+      return {
+        success: true,
+        message: response.message,
+      };
+    } catch (error) {
+      console.warn("[authApi] signOut failed, but clearing local tokens", error);
+      return {
+        success: false,
+        message: "로그아웃 처리 중 오류가 발생했습니다.",
+      };
     } finally {
       // Always clear local tokens even if API call fails
       await authUtils.clearTokens();
@@ -146,5 +167,18 @@ export const authApi = {
     data: Partial<Pick<User, "name">>
   ): Promise<{ user: User }> {
     return apiClient.put<{ user: User }>("/auth/profile", data);
+  },
+
+  async createChild(data: {
+    name: string;
+    birth_date: string;
+    gender?: "male" | "female" | "other";
+    photo_url?: string;
+  }): Promise<{ child: any }> {
+    return apiClient.post<{ child: any }>("/auth/create-child", data);
+  },
+
+  async joinChild(data: { invite_code: string }): Promise<{ child: any }> {
+    return apiClient.post<{ child: any }>("/auth/join-child", data);
   },
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,16 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { useAuth } from '../../app/navigation/AppNavigator';
+import { authApi } from '../../shared/api/auth';
 
 export default function SettingsScreen() {
+  const { signOut } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const settingsOptions = [
     { id: 'profile', title: '프로필 관리', subtitle: '아이 정보 및 부모 정보' },
     { id: 'guardians', title: '보호자 관리', subtitle: '다른 보호자 초대 및 권한 설정' },
@@ -17,6 +24,51 @@ export default function SettingsScreen() {
     { id: 'privacy', title: '개인정보 보호', subtitle: '개인정보 처리방침' },
     { id: 'support', title: '고객 지원', subtitle: '문의하기 및 FAQ' },
   ];
+
+  const handleLogout = () => {
+    Alert.alert(
+      '로그아웃',
+      '정말 로그아웃하시겠습니까?',
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '로그아웃',
+          style: 'destructive',
+          onPress: performLogout,
+        },
+      ]
+    );
+  };
+
+  const performLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      // API 호출하여 서버에서 세션 무효화
+      const result = await authApi.signOut();
+      
+      // 로컬 상태 업데이트 (AuthContext의 signOut 호출)
+      await signOut();
+      
+      if (result.success) {
+        console.log('로그아웃 성공:', result.message);
+      } else {
+        console.warn('로그아웃 API 실패했지만 로컬에서는 처리됨:', result.message);
+      }
+      
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
+      Alert.alert(
+        '오류',
+        '로그아웃 중 문제가 발생했습니다. 다시 시도해주세요.'
+      );
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,6 +86,27 @@ export default function SettingsScreen() {
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
         ))}
+        
+        {/* 로그아웃 버튼 */}
+        <TouchableOpacity 
+          style={[styles.optionItem, styles.logoutItem]} 
+          onPress={handleLogout}
+          disabled={isLoggingOut}
+        >
+          <View style={styles.optionContent}>
+            <Text style={[styles.optionTitle, styles.logoutText]}>
+              로그아웃
+            </Text>
+            <Text style={styles.optionSubtitle}>
+              계정에서 안전하게 로그아웃
+            </Text>
+          </View>
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color="#FF6B6B" />
+          ) : (
+            <Text style={[styles.chevron, styles.logoutChevron]}>⎋</Text>
+          )}
+        </TouchableOpacity>
         
         <View style={styles.footer}>
           <Text style={styles.version}>다온 v1.0.0</Text>
@@ -95,5 +168,17 @@ const styles = StyleSheet.create({
   version: {
     fontSize: 14,
     color: '#999',
+  },
+  logoutItem: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  logoutText: {
+    color: '#FF6B6B',
+  },
+  logoutChevron: {
+    color: '#FF6B6B',
+    fontSize: 18,
   },
 });

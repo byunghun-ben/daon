@@ -9,7 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "dev": "react-native start",
-    "build": "react-native build-android --release",
+    "build": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "clean": "react-native clean"
   },

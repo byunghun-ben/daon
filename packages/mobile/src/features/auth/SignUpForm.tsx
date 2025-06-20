@@ -5,6 +5,7 @@ import { Alert, View } from "react-native";
 import { Button, Input } from "../../shared/ui";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { useAuth } from "../../app/navigation/AppNavigator";
 
 const SignUpFormSchema = z
   .object({
@@ -33,6 +34,8 @@ interface SignUpFormProps {
 }
 
 export const SignUpForm = ({ navigation }: SignUpFormProps) => {
+  const { signIn } = useAuth();
+  
   const form = useForm<SignUpFormSchemaType>({
     resolver: zodResolver(SignUpFormSchema),
     defaultValues: {
@@ -48,20 +51,22 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
       const { success, data, error } = await authApi.signUp(form.getValues());
 
       if (success) {
+        // AuthContext 상태 업데이트
+        await signIn();
+        
         Alert.alert(
           "회원가입 성공",
           `환영합니다, ${data.user.name}님! 이제 아이의 첫 프로필을 만들어보세요.`,
-          [
-            {
-              text: "확인",
-              onPress: () => navigation.replace("MainTabs"),
-            },
-          ]
+          [{ 
+            text: "확인", 
+            onPress: () => navigation.navigate("ChildProfile", { isFirstChild: true })
+          }]
         );
       } else {
         Alert.alert("회원가입 실패", error);
       }
     } catch (error: unknown) {
+      console.error("회원가입 중 오류:", error);
       Alert.alert(
         "회원가입 실패",
         error instanceof Error

@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Alert,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SCREEN_PADDING } from "../../shared/config/theme";
@@ -13,6 +14,7 @@ import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
 import { childrenApi, type CreateChildRequest, type Child } from "../../shared/api/children";
+import { authApi } from "../../shared/api/auth";
 
 interface ChildProfileScreenProps {
   navigation: any;
@@ -20,12 +22,13 @@ interface ChildProfileScreenProps {
     params?: {
       childId?: string;
       isEditing?: boolean;
+      isFirstChild?: boolean; // For 2-step registration
     };
   };
 }
 
 export default function ChildProfileScreen({ navigation, route }: ChildProfileScreenProps) {
-  const { childId, isEditing = false } = route?.params || {};
+  const { childId, isEditing = false, isFirstChild = false } = route?.params || {};
   const [formData, setFormData] = useState<CreateChildRequest>({
     name: "",
     birth_date: "",
@@ -34,6 +37,8 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
   const [errors, setErrors] = useState<Partial<CreateChildRequest>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [child, setChild] = useState<Child | null>(null);
+  const [showInviteOption, setShowInviteOption] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
 
   const styles = useThemedStyles((theme) => ({
     container: {
@@ -80,6 +85,42 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
     },
     deleteButton: {
       marginTop: theme.spacing.md,
+    },
+    inviteSection: {
+      marginBottom: theme.spacing.xl,
+    },
+    inviteTitle: {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: "600" as const,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.sm,
+      textAlign: "center" as const,
+    },
+    inviteDescription: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.secondary,
+      textAlign: "center" as const,
+      marginBottom: theme.spacing.md,
+    },
+    optionButtons: {
+      flexDirection: "row" as const,
+      gap: theme.spacing.sm,
+    },
+    optionButton: {
+      flex: 1,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.colors.border,
+      marginVertical: theme.spacing.xl,
+    },
+    dividerText: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.muted,
+      textAlign: "center" as const,
+      backgroundColor: theme.colors.background,
+      paddingHorizontal: theme.spacing.md,
+      marginTop: -10,
     },
   }));
 
@@ -152,7 +193,11 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
           { text: "확인", onPress: () => navigation.goBack() },
         ]);
       } else {
-        await childrenApi.createChild(formData);
+        // Use auth API for 2-step registration to properly complete registration
+        const response = isFirstChild 
+          ? await authApi.createChild(formData)
+          : await childrenApi.createChild(formData);
+        
         Alert.alert("성공", "아이 프로필이 생성되었습니다!", [
           { text: "확인", onPress: () => navigation.navigate("MainTabs") },
         ]);
@@ -161,6 +206,28 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
       Alert.alert(
         "오류",
         error.message || "아이 프로필 저장 중 오류가 발생했습니다."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleJoinChild = async () => {
+    if (!inviteCode.trim()) {
+      Alert.alert("오류", "초대 코드를 입력해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await authApi.joinChild({ invite_code: inviteCode });
+      Alert.alert("성공", `${response.child.name}의 보호자로 등록되었습니다!`, [
+        { text: "확인", onPress: () => navigation.navigate("MainTabs") },
+      ]);
+    } catch (error: any) {
+      Alert.alert(
+        "오류",
+        error.message || "초대 코드가 올바르지 않습니다."
       );
     } finally {
       setIsLoading(false);
@@ -201,17 +268,68 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            {isEditing ? "아이 정보 수정" : "새 아이 프로필"}
+            {isEditing ? "아이 정보 수정" : isFirstChild ? "아이 프로필 만들기" : "새 아이 프로필"}
           </Text>
           <Text style={styles.subtitle}>
             {isEditing 
               ? "아이의 정보를 수정해주세요" 
+              : isFirstChild
+              ? "회원가입을 완료하려면 아이 프로필을 만들거나 기존 아이에 참여하세요"
               : "소중한 아이의 정보를 입력해주세요"
             }
           </Text>
         </View>
 
-        <Card>
+        {isFirstChild && !isEditing && (
+          <View style={styles.inviteSection}>
+            <Text style={styles.inviteTitle}>어떻게 시작하시겠어요?</Text>
+            <Text style={styles.inviteDescription}>
+              새로운 아이의 프로필을 만들거나, 파트너가 보낸 초대 코드로 기존 아이에 참여할 수 있습니다.
+            </Text>
+            <View style={styles.optionButtons}>
+              <Button
+                title="새 프로필 만들기"
+                variant={!showInviteOption ? "primary" : "outline"}
+                buttonStyle={styles.optionButton}
+                onPress={() => setShowInviteOption(false)}
+              />
+              <Button
+                title="초대 코드로 참여"
+                variant={showInviteOption ? "primary" : "outline"}
+                buttonStyle={styles.optionButton}
+                onPress={() => setShowInviteOption(true)}
+              />
+            </View>
+          </View>
+        )}
+
+        {showInviteOption && isFirstChild ? (
+          <Card>
+            <Input
+              label="초대 코드"
+              value={inviteCode}
+              onChangeText={setInviteCode}
+              placeholder="파트너가 보낸 초대 코드를 입력하세요"
+              autoCapitalize="characters"
+            />
+            <View style={styles.buttonContainer}>
+              <Button
+                title={isLoading ? "참여 중..." : "아이에게 참여하기"}
+                onPress={handleJoinChild}
+                disabled={isLoading}
+              />
+            </View>
+          </Card>
+        ) : (
+          <>
+            {isFirstChild && (
+              <>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>또는</Text>
+              </>
+            )}
+
+            <Card>
           <Input
             label="아이 이름"
             value={formData.name}
@@ -283,6 +401,8 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
             )}
           </View>
         </Card>
+        </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

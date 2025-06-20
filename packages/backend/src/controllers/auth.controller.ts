@@ -3,6 +3,7 @@ import z from "zod/v4";
 import { supabase, supabaseAdmin } from "../lib/supabase";
 import { isAuthenticatedRequest } from "../middleware/auth";
 import type { TablesUpdate } from "../types/supabase";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { logger } from "../utils/logger";
 
 // Zod schemas for request validation
@@ -206,39 +207,40 @@ export async function signIn(req: Request, res: Response): Promise<void> {
 /**
  * Sign out user
  */
-export const signOut: RequestHandler = async (req, res) => {
+export const signOut = createAuthenticatedHandler(async (req, res) => {
   try {
-    if (!isAuthenticatedRequest(req)) {
-      res.status(401).json({ error: "Authentication required" });
-      return;
-    }
+    // Get the current user's token from the request header for proper logout
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
-    const { error } = await supabase.auth.signOut();
+    if (token) {
+      // Create a Supabase client with the user's token for proper session invalidation
+      const { error } = await supabase.auth.admin.signOut(token);
 
-    if (error) {
-      logger.error("Sign out error:", error);
-      res.status(500).json({ error: "Failed to sign out" });
-      return;
+      if (error) {
+        logger.warn("Failed to invalidate session on server", {
+          userId: req.user.id,
+          error: error.message,
+        });
+      }
     }
 
     logger.info("User signed out", { userId: req.user.id });
-    res.json({ message: "Signed out successfully" });
+    res.json({
+      message: "Signed out successfully",
+      success: true,
+    });
   } catch (error) {
     logger.error("Sign out error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 /**
  * Get current user profile
  */
-export const getProfile: RequestHandler = async (req, res) => {
+export const getProfile = createAuthenticatedHandler(async (req, res) => {
   try {
-    if (!isAuthenticatedRequest(req)) {
-      res.status(401).json({ error: "Authentication required" });
-      return;
-    }
-
     const { data: profile, error } = await supabaseAdmin
       .from("users")
       .select("*")
@@ -259,18 +261,13 @@ export const getProfile: RequestHandler = async (req, res) => {
     logger.error("Get profile error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 /**
  * Update user profile
  */
-export const updateProfile: RequestHandler = async (req, res) => {
+export const updateProfile = createAuthenticatedHandler(async (req, res) => {
   try {
-    if (!isAuthenticatedRequest(req)) {
-      res.status(401).json({ error: "Authentication required" });
-      return;
-    }
-
     const validatedData = UpdateProfileSchema.parse(req.body);
 
     const { data: updatedProfile, error } = await supabaseAdmin
@@ -306,18 +303,13 @@ export const updateProfile: RequestHandler = async (req, res) => {
     logger.error("Update profile error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 /**
  * Create a new child (Step 2A of registration)
  */
-export const createChild: RequestHandler = async (req, res) => {
+export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
-    if (!isAuthenticatedRequest(req)) {
-      res.status(401).json({ error: "Authentication required" });
-      return;
-    }
-
     const validatedData = CreateChildSchema.parse(req.body);
 
     // Create the child
@@ -377,18 +369,13 @@ export const createChild: RequestHandler = async (req, res) => {
     logger.error("Create child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 /**
  * Join an existing child using invite code (Step 2B of registration)
  */
-export const joinChild: RequestHandler = async (req, res) => {
+export const joinChild = createAuthenticatedHandler(async (req, res) => {
   try {
-    if (!isAuthenticatedRequest(req)) {
-      res.status(401).json({ error: "Authentication required" });
-      return;
-    }
-
     const validatedData = JoinChildSchema.parse(req.body);
     const { invite_code } = validatedData;
 
@@ -485,4 +472,4 @@ export const joinChild: RequestHandler = async (req, res) => {
     logger.error("Join child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});

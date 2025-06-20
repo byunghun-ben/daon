@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING, COLORS } from "../../shared/config/theme";
+import { SCREEN_PADDING } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
@@ -23,26 +23,29 @@ interface RecordActivityScreenProps {
   navigation: any;
   route?: {
     params?: {
-      type?: "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
+      activityType?: "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
+      activityId?: string;
       childId?: string;
+      isEditing?: boolean;
     };
   };
 }
 
 const ACTIVITY_TYPES = [
-  { key: "feeding", label: "수유", color: COLORS.activity.feeding, icon: "🍼" },
-  { key: "diaper", label: "기저귀", color: COLORS.activity.diaper, icon: "👶" },
-  { key: "sleep", label: "수면", color: COLORS.activity.sleep, icon: "😴" },
-  { key: "tummy_time", label: "배 뒤집기", color: COLORS.activity.tummyTime, icon: "🤸" },
-  { key: "custom", label: "기타", color: COLORS.activity.custom, icon: "📝" },
+  { key: "feeding", label: "수유", icon: "🍼" },
+  { key: "diaper", label: "기저귀", icon: "👶" },
+  { key: "sleep", label: "수면", icon: "😴" },
+  { key: "tummy_time", label: "배 뒤집기", icon: "🤸" },
+  { key: "custom", label: "기타", icon: "📝" },
 ] as const;
 
 export default function RecordActivityScreen({ navigation, route }: RecordActivityScreenProps) {
-  const { type: initialType, childId: initialChildId } = route?.params || {};
+  const { activityType: initialType, childId: initialChildId, activityId, isEditing = false } = route?.params || {};
   
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
   const [activityType, setActivityType] = useState<string>(initialType || "");
+  const [activity, setActivity] = useState<Activity | null>(null);
   const [formData, setFormData] = useState({
     started_at: new Date().toISOString(),
     ended_at: "",
@@ -153,7 +156,34 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
 
   useEffect(() => {
     loadChildren();
+    if (isEditing && activityId) {
+      loadActivity();
+    }
   }, []);
+
+  const loadActivity = async () => {
+    if (!activityId) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await activitiesApi.getActivity(activityId);
+      const activityData = response.activity;
+      setActivity(activityData);
+      setSelectedChild(activityData.child_id);
+      setActivityType(activityData.type);
+      setFormData({
+        started_at: activityData.started_at,
+        ended_at: activityData.ended_at || "",
+        notes: activityData.notes || "",
+        metadata: activityData.metadata || {},
+      });
+    } catch (error) {
+      Alert.alert("오류", "활동 정보를 불러오는데 실패했습니다.");
+      navigation.goBack();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadChildren = async () => {
     try {
@@ -205,20 +235,37 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
 
     setIsLoading(true);
     try {
-      const activityData: CreateActivityRequest = {
-        child_id: selectedChild,
-        type: activityType as any,
-        started_at: formData.started_at,
-        ended_at: formData.ended_at || undefined,
-        notes: formData.notes || undefined,
-        metadata: formData.metadata,
-      };
+      if (isEditing && activityId) {
+        // Update existing activity
+        const updateData = {
+          started_at: formData.started_at,
+          ended_at: formData.ended_at || undefined,
+          notes: formData.notes || undefined,
+          metadata: formData.metadata,
+        };
 
-      await activitiesApi.createActivity(activityData);
-      
-      Alert.alert("성공", "활동이 기록되었습니다!", [
-        { text: "확인", onPress: () => navigation.goBack() },
-      ]);
+        await activitiesApi.updateActivity(activityId, updateData);
+        
+        Alert.alert("성공", "활동이 업데이트되었습니다!", [
+          { text: "확인", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        // Create new activity
+        const activityData: CreateActivityRequest = {
+          child_id: selectedChild,
+          type: activityType as any,
+          started_at: formData.started_at,
+          ended_at: formData.ended_at || undefined,
+          notes: formData.notes || undefined,
+          metadata: formData.metadata,
+        };
+
+        await activitiesApi.createActivity(activityData);
+        
+        Alert.alert("성공", "활동이 기록되었습니다!", [
+          { text: "확인", onPress: () => navigation.goBack() },
+        ]);
+      }
     } catch (error: any) {
       Alert.alert(
         "오류",
@@ -227,6 +274,35 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!isEditing || !activityId) return;
+
+    Alert.alert(
+      "활동 삭제",
+      "이 활동 기록을 삭제하시겠습니까?",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "삭제",
+          style: "destructive",
+          onPress: async () => {
+            setIsLoading(true);
+            try {
+              await activitiesApi.deleteActivity(activityId);
+              Alert.alert("삭제 완료", "활동이 삭제되었습니다.", [
+                { text: "확인", onPress: () => navigation.goBack() },
+              ]);
+            } catch (error) {
+              Alert.alert("오류", "삭제 중 오류가 발생했습니다.");
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderMetadataInputs = () => {
@@ -303,58 +379,87 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>활동 기록</Text>
+          <Text style={styles.title}>
+            {isEditing ? "활동 수정" : "활동 기록"}
+          </Text>
           <Text style={styles.subtitle}>
-            아이의 일상 활동을 기록해보세요
+            {isEditing 
+              ? "활동 정보를 수정하세요" 
+              : "아이의 일상 활동을 기록해보세요"
+            }
           </Text>
         </View>
 
         {/* Child Selection */}
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>아이 선택</Text>
-          <View style={styles.childSelector}>
-            {children.map((child) => (
-              <TouchableOpacity
-                key={child.id}
-                style={[
-                  styles.childButton,
-                  selectedChild === child.id && styles.childButtonSelected,
-                ]}
-                onPress={() => setSelectedChild(child.id)}
-              >
-                <Text
+        {!isEditing && (
+          <Card style={styles.section}>
+            <Text style={styles.sectionTitle}>아이 선택</Text>
+            <View style={styles.childSelector}>
+              {children.map((child) => (
+                <TouchableOpacity
+                  key={child.id}
                   style={[
-                    styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    styles.childButton,
+                    selectedChild === child.id && styles.childButtonSelected,
                   ]}
+                  onPress={() => setSelectedChild(child.id)}
                 >
-                  {child.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {errors.child && <Text style={{ color: "red" }}>{errors.child}</Text>}
-        </Card>
+                  <Text
+                    style={[
+                      styles.childButtonText,
+                      selectedChild === child.id && styles.childButtonTextSelected,
+                    ]}
+                  >
+                    {child.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {errors.child && <Text style={{ color: "red" }}>{errors.child}</Text>}
+          </Card>
+        )}
+
+        {isEditing && (
+          <Card style={styles.section}>
+            <Text style={styles.sectionTitle}>아이</Text>
+            <Text style={{ fontSize: 16, color: "#666" }}>
+              {children.find(c => c.id === selectedChild)?.name || "로딩 중..."}
+            </Text>
+          </Card>
+        )}
 
         {/* Activity Type Selection */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>활동 유형</Text>
-          <View style={styles.activityTypes}>
-            {ACTIVITY_TYPES.map((activity) => (
-              <TouchableOpacity
-                key={activity.key}
-                style={[
-                  styles.activityButton,
-                  activityType === activity.key && styles.activityButtonSelected,
-                ]}
-                onPress={() => setActivityType(activity.key)}
-              >
-                <Text style={styles.activityIcon}>{activity.icon}</Text>
-                <Text style={styles.activityLabel}>{activity.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {errors.activityType && <Text style={{ color: "red" }}>{errors.activityType}</Text>}
+          {isEditing ? (
+            <View style={{ alignItems: "center", padding: 16 }}>
+              <Text style={styles.activityIcon}>
+                {ACTIVITY_TYPES.find(a => a.key === activityType)?.icon || "📝"}
+              </Text>
+              <Text style={styles.activityLabel}>
+                {ACTIVITY_TYPES.find(a => a.key === activityType)?.label || activityType}
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.activityTypes}>
+                {ACTIVITY_TYPES.map((activity) => (
+                  <TouchableOpacity
+                    key={activity.key}
+                    style={[
+                      styles.activityButton,
+                      activityType === activity.key && styles.activityButtonSelected,
+                    ]}
+                    onPress={() => setActivityType(activity.key)}
+                  >
+                    <Text style={styles.activityIcon}>{activity.icon}</Text>
+                    <Text style={styles.activityLabel}>{activity.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {errors.activityType && <Text style={{ color: "red" }}>{errors.activityType}</Text>}
+            </>
+          )}
         </Card>
 
         {/* Time Input */}
@@ -407,12 +512,22 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           />
         </Card>
 
-        {/* Save Button */}
+        {/* Action Buttons */}
         <Button
-          title={isLoading ? "저장 중..." : "활동 기록 저장"}
+          title={isLoading ? "저장 중..." : isEditing ? "활동 업데이트" : "활동 기록 저장"}
           onPress={handleSave}
           disabled={isLoading}
         />
+
+        {isEditing && (
+          <Button
+            title="활동 삭제"
+            variant="outline"
+            onPress={handleDelete}
+            disabled={isLoading}
+            buttonStyle={{ marginTop: 12 }}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );

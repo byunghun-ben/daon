@@ -35,13 +35,32 @@ export const SignInForm = ({ navigation }: SignInFormProps) => {
   });
 
   const handleSignIn = async () => {
-    const { success, data, error } = await authApi.signIn(form.getValues());
+    try {
+      const { success, data, error } = await authApi.signIn(form.getValues());
 
-    if (success) {
-      Alert.alert("로그인 성공", `환영합니다, ${data.user.name}님!`);
-      navigation.replace("MainTabs");
-    } else {
-      Alert.alert("로그인 실패", error);
+      if (success) {
+        // AuthContext 상태 업데이트
+        await signIn();
+        
+        // 아이 설정이 필요한 경우 자동으로 아이 프로필 화면으로 이동
+        if (data.needs_child_setup) {
+          Alert.alert(
+            "환영합니다!",
+            `${data.user.name}님, 이제 아이의 첫 프로필을 만들어보세요.`,
+            [{ 
+              text: "확인", 
+              onPress: () => navigation.navigate("ChildProfile", { isFirstChild: true })
+            }]
+          );
+        } else {
+          console.log("로그인 성공:", data.user.name);
+        }
+      } else {
+        Alert.alert("로그인 실패", error);
+      }
+    } catch (error) {
+      console.error("로그인 중 오류:", error);
+      Alert.alert("오류", "로그인 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
   };
 

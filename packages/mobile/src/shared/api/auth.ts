@@ -25,9 +25,14 @@ type User = z.infer<typeof UserSchema>;
 
 const AuthResponseSchema = z.object({
   message: z.string(),
+  session: z.object({
+    access_token: z.string(),
+    refresh_token: z.string(),
+    expires_in: z.number(),
+    expires_at: z.number(),
+    token_type: z.string(),
+  }),
   user: UserSchema,
-  access_token: z.string(),
-  refresh_token: z.string().optional(),
 });
 
 type AuthResponse = z.infer<typeof AuthResponseSchema>;
@@ -63,8 +68,13 @@ export const authApi = {
     try {
       const response = await apiClient.post<AuthResponse>("/auth/signup", data);
 
+      console.log("[authApi] signUp response", response);
+
       // Store tokens
-      await authUtils.saveTokens(response.access_token, response.refresh_token);
+      await authUtils.saveTokens(
+        response.session.access_token,
+        response.session.refresh_token
+      );
 
       return {
         success: true,
@@ -82,8 +92,13 @@ export const authApi = {
     try {
       const response = await apiClient.post<AuthResponse>("/auth/signin", data);
 
+      console.log("[authApi] signIn response", response);
+
       // Store tokens
-      await authUtils.saveTokens(response.access_token, response.refresh_token);
+      await authUtils.saveTokens(
+        response.session.access_token,
+        response.session.refresh_token
+      );
 
       return {
         success: true,

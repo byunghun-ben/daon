@@ -5,6 +5,7 @@ import z from "zod/v4";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button, Input } from "../../shared/ui";
+import { useAuth } from "../../app/navigation/AppNavigator";
 
 const SignInFormSchema = z.object({
   email: z
@@ -23,6 +24,8 @@ interface SignInFormProps {
 }
 
 export const SignInForm = ({ navigation }: SignInFormProps) => {
+  const { signIn } = useAuth();
+
   const form = useForm<SignInFormSchemaType>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {

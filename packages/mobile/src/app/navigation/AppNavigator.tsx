@@ -1,26 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text } from "react-native";
 import { authUtils } from "../../shared/api/client";
 import { SyncManager } from "../../shared/lib/sync/syncManager";
+import type {
+  AuthStackParamList,
+  AppStackParamList,
+  MainTabParamList,
+} from "../../shared/types/navigation";
 
 // Auth Screens
 import { SignInScreen, SignUpScreen } from "../../pages/auth";
 
 // Main Screens
 import { HomeScreen } from "../../pages/home";
-import { RecordScreen, RecordActivityScreen, ActivityListScreen } from "../../pages/record";
-import { DiaryScreen, WriteDiaryScreen, DiaryListScreen } from "../../pages/diary";
-import { GrowthScreen, GrowthChartScreen, AddGrowthRecordScreen } from "../../pages/growth";
+import {
+  RecordScreen,
+  RecordActivityScreen,
+  ActivityListScreen,
+} from "../../pages/record";
+import {
+  DiaryScreen,
+  WriteDiaryScreen,
+  DiaryListScreen,
+} from "../../pages/diary";
+import {
+  GrowthScreen,
+  GrowthChartScreen,
+  AddGrowthRecordScreen,
+} from "../../pages/growth";
 import { SettingsScreen } from "../../pages/settings";
 
 // Children Screens
 import { ChildProfileScreen, ChildrenListScreen } from "../../pages/children";
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const AuthStack = createStackNavigator<AuthStackParamList>();
+const AppStack = createStackNavigator<AppStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+// 인증 컨텍스트 생성
+interface AuthContextType {
+  isAuthenticated: boolean | null;
+  isLoading: boolean;
+  signIn: () => void;
+  signOut: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 // Main tabs navigation
 function MainTabNavigator() {
@@ -86,76 +122,76 @@ function MainTabNavigator() {
 // Auth stack navigation
 function AuthNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="SignIn" component={SignInScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
-    </Stack.Navigator>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="SignIn" component={SignInScreen} />
+      <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+    </AuthStack.Navigator>
   );
 }
 
 // Main app stack navigation
 function AppNavigator() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
+    <AppStack.Navigator>
+      <AppStack.Screen
         name="MainTabs"
         component={MainTabNavigator}
         options={{ headerShown: false }}
       />
-      
+
       {/* Child Management Screens */}
-      <Stack.Screen
+      <AppStack.Screen
         name="ChildrenList"
         component={ChildrenListScreen}
         options={{ title: "아이 관리" }}
       />
-      <Stack.Screen
+      <AppStack.Screen
         name="ChildProfile"
         component={ChildProfileScreen}
         options={{ title: "아이 프로필" }}
       />
-      
+
       {/* Activity Screens */}
-      <Stack.Screen
+      <AppStack.Screen
         name="RecordActivity"
         component={RecordActivityScreen}
         options={{ title: "활동 기록" }}
       />
-      <Stack.Screen
+      <AppStack.Screen
         name="ActivityList"
         component={ActivityListScreen}
         options={{ title: "활동 내역" }}
       />
-      
+
       {/* Diary Screens */}
-      <Stack.Screen
+      <AppStack.Screen
         name="WriteDiary"
         component={WriteDiaryScreen}
         options={{ title: "일기 쓰기" }}
       />
-      <Stack.Screen
+      <AppStack.Screen
         name="DiaryList"
         component={DiaryListScreen}
         options={{ title: "일기 목록" }}
       />
-      
+
       {/* Growth Screens */}
-      <Stack.Screen
+      <AppStack.Screen
         name="GrowthChart"
         component={GrowthChartScreen}
         options={{ title: "성장 차트" }}
       />
-      <Stack.Screen
+      <AppStack.Screen
         name="AddGrowthRecord"
         component={AddGrowthRecordScreen}
         options={{ title: "성장 기록" }}
       />
-    </Stack.Navigator>
+    </AppStack.Navigator>
   );
 }
 
-// Root navigation component
-export default function RootNavigator() {
+// Auth Provider Component
+function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -176,14 +212,43 @@ export default function RootNavigator() {
     }
   };
 
+  const signIn = async () => {
+    // 토큰 재확인 후 상태 업데이트
+    const token = await authUtils.getStoredToken();
+    setIsAuthenticated(!!token);
+  };
+
+  const signOut = async () => {
+    try {
+      await authUtils.clearTokens();
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  };
+
   const initializeSync = () => {
     const syncManager = SyncManager.getInstance();
-    
+
     // Add network status listener
     syncManager.addSyncListener((isOnline) => {
       console.log("Network status changed:", isOnline ? "Online" : "Offline");
     });
   };
+
+  const value: AuthContextType = {
+    isAuthenticated,
+    isLoading,
+    signIn,
+    signOut,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// Root navigation component
+function RootNavigator() {
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     // You can replace this with a proper loading screen component
@@ -194,5 +259,14 @@ export default function RootNavigator() {
     <NavigationContainer>
       {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
+  );
+}
+
+// Main export with AuthProvider
+export default function AppWithAuth() {
+  return (
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
   );
 }

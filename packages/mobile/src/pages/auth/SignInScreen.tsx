@@ -9,10 +9,9 @@ import {
 import { SignInForm } from "../../features/auth";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import type { AuthScreenProps } from "../../shared/types/navigation";
 
-interface SignInScreenProps {
-  navigation: any; // Replace with proper navigation type
-}
+type SignInScreenProps = AuthScreenProps<"SignIn">;
 
 export default function SignInScreen({ navigation }: SignInScreenProps) {
   const styles = useThemedStyles((theme) => ({

@@ -1,11 +1,12 @@
+// Load environment variables first
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
 import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import dotenv from "dotenv";
 import { logger } from "./utils/logger";
-
-// Load environment variables
-dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
@@ -81,7 +82,7 @@ app.use(
 );
 
 // 404 handler
-app.use("*", (req, res) => {
+app.use("/*splat", (req, res) => {
   res.status(404).json({ error: "Endpoint not found" });
 });
 

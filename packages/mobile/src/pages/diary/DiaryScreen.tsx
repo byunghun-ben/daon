@@ -18,7 +18,10 @@ export default function DiaryScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+      >
         <Text style={styles.emptyText}>
           아직 작성된 일기가 없습니다.{"\n"}첫 번째 일기를 작성해보세요!
         </Text>
@@ -59,9 +62,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    padding: 20,
+  },
+  contentContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
   emptyText: {
     fontSize: 16,

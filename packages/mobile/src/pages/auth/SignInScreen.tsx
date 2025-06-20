@@ -93,30 +93,16 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
 
     setIsLoading(true);
 
-    try {
-      const response = await authApi.signIn(formData);
-      Alert.alert("로그인 성공", `환영합니다, ${response.user.name}님!`);
+    const { success, data, error } = await authApi.signIn(formData);
 
-      // 메인 앱으로 이동
+    if (success) {
+      Alert.alert("로그인 성공", `환영합니다, ${data.user.name}님!`);
       navigation.replace("MainTabs");
-    } catch (error: any) {
-      console.error("Sign in error:", error);
-
-      // 더 구체적인 에러 메시지 제공
-      let errorMessage = "로그인 중 오류가 발생했습니다.";
-      if (error.response?.status === 401) {
-        errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
-      } else if (error.response?.status === 429) {
-        errorMessage =
-          "너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      Alert.alert("로그인 실패", errorMessage);
-    } finally {
-      setIsLoading(false);
+    } else {
+      Alert.alert("로그인 실패", error);
     }
+
+    setIsLoading(false);
   };
 
   return (

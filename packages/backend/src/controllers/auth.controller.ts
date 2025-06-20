@@ -48,18 +48,16 @@ export async function signUp(req: Request, res: Response): Promise<void> {
     }
 
     // Create user profile in our database
-    const { error: profileError } = await supabaseAdmin
-      .from("users")
-      .insert({
-        id: data.user.id,
-        email: data.user.email!,
-        name,
-      });
+    const { error: profileError } = await supabaseAdmin.from("users").insert({
+      id: data.user.id,
+      email: data.user.email!,
+      name,
+    });
 
     if (profileError) {
-      logger.error("Failed to create user profile", { 
-        userId: data.user.id, 
-        error: profileError 
+      logger.error("Failed to create user profile", {
+        userId: data.user.id,
+        error: profileError,
       });
       res.status(500).json({ error: "Failed to create user profile" });
       return;
@@ -78,9 +76,9 @@ export async function signUp(req: Request, res: Response): Promise<void> {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -95,6 +93,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
  */
 export async function signIn(req: Request, res: Response): Promise<void> {
   try {
+    logger.debug("[signIn] data", req.body);
     const validatedData = SignInSchema.parse(req.body);
     const { email, password } = validatedData;
 
@@ -104,13 +103,15 @@ export async function signIn(req: Request, res: Response): Promise<void> {
     });
 
     if (error) {
-      logger.warn("Sign in failed", { email, error: error.message });
+      logger.warn("[signIn] Sign in failed", { email, error: error.message });
       res.status(401).json({ error: error.message });
       return;
     }
 
     if (!data.session || !data.user) {
-      res.status(401).json({ error: "Invalid credentials" });
+      res
+        .status(401)
+        .json({ error: "아이디 또는 비밀번호가 일치하지 않습니다." });
       return;
     }
 
@@ -122,9 +123,9 @@ export async function signIn(req: Request, res: Response): Promise<void> {
       .single();
 
     if (profileError) {
-      logger.error("Failed to get user profile", { 
-        userId: data.user.id, 
-        error: profileError 
+      logger.error("[signIn] Failed to get user profile", {
+        userId: data.user.id,
+        error: profileError,
       });
     }
 
@@ -140,9 +141,9 @@ export async function signIn(req: Request, res: Response): Promise<void> {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -155,7 +156,10 @@ export async function signIn(req: Request, res: Response): Promise<void> {
 /**
  * Sign out user
  */
-export async function signOut(req: AuthenticatedRequest, res: Response): Promise<void> {
+export async function signOut(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
   try {
     const { error } = await supabase.auth.signOut();
 
@@ -176,7 +180,10 @@ export async function signOut(req: AuthenticatedRequest, res: Response): Promise
 /**
  * Get current user profile
  */
-export async function getProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+export async function getProfile(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
   try {
     const { data: profile, error } = await supabaseAdmin
       .from("users")
@@ -185,9 +192,9 @@ export async function getProfile(req: AuthenticatedRequest, res: Response): Prom
       .single();
 
     if (error) {
-      logger.error("Failed to get user profile", { 
-        userId: req.user.id, 
-        error 
+      logger.error("Failed to get user profile", {
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to get profile" });
       return;
@@ -203,7 +210,10 @@ export async function getProfile(req: AuthenticatedRequest, res: Response): Prom
 /**
  * Update user profile
  */
-export async function updateProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+export async function updateProfile(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
   try {
     const validatedData = UpdateProfileSchema.parse(req.body);
 
@@ -215,24 +225,24 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response): P
       .single();
 
     if (error) {
-      logger.error("Failed to update user profile", { 
-        userId: req.user.id, 
-        error 
+      logger.error("Failed to update user profile", {
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to update profile" });
       return;
     }
 
     logger.info("User profile updated", { userId: req.user.id });
-    res.json({ 
+    res.json({
       message: "Profile updated successfully",
-      user: updatedProfile 
+      user: updatedProfile,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }

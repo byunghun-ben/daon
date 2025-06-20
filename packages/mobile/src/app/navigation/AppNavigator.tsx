@@ -1,14 +1,17 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
-// Screens
-import HomeScreen from '../screens/HomeScreen';
-import RecordScreen from '../screens/RecordScreen';
-import DiaryScreen from '../screens/DiaryScreen';
-import GrowthScreen from '../screens/GrowthScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+// Pages
+import {
+  HomeScreen,
+  RecordScreen,
+  DiaryScreen,
+  GrowthScreen,
+  SettingsScreen,
+} from "../../pages";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -30,8 +33,7 @@ function MainTabNavigator() {
         options={{
           title: '홈',
           tabBarIcon: ({ color, size }) => (
-            // TODO: Add icon component
-            <></>
+            <Text style={{ fontSize: size, color }}>🏠</Text>
           ),
         }}
       />
@@ -41,8 +43,7 @@ function MainTabNavigator() {
         options={{
           title: '기록',
           tabBarIcon: ({ color, size }) => (
-            // TODO: Add icon component
-            <></>
+            <Text style={{ fontSize: size, color }}>📝</Text>
           ),
         }}
       />
@@ -52,8 +53,7 @@ function MainTabNavigator() {
         options={{
           title: '일기',
           tabBarIcon: ({ color, size }) => (
-            // TODO: Add icon component
-            <></>
+            <Text style={{ fontSize: size, color }}>📖</Text>
           ),
         }}
       />
@@ -63,8 +63,7 @@ function MainTabNavigator() {
         options={{
           title: '성장',
           tabBarIcon: ({ color, size }) => (
-            // TODO: Add icon component
-            <></>
+            <Text style={{ fontSize: size, color }}>📊</Text>
           ),
         }}
       />
@@ -74,8 +73,7 @@ function MainTabNavigator() {
         options={{
           title: '설정',
           tabBarIcon: ({ color, size }) => (
-            // TODO: Add icon component
-            <></>
+            <Text style={{ fontSize: size, color }}>⚙️</Text>
           ),
         }}
       />

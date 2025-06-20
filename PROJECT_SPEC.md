@@ -17,9 +17,9 @@
 
 ### 아키텍처
 - **모노레포**: pnpm + Turborepo
-- **프론트엔드**: React Native
+- **프론트엔드**: React Native (FSD 아키텍처)
 - **백엔드**: Node.js (Express/Fastify)
-- **데이터베이스**: PostgreSQL + Prisma ORM
+- **데이터베이스**: Supabase (PostgreSQL + 실시간 기능)
 
 ### 프로젝트 구조
 ```
@@ -186,12 +186,13 @@ interface GrowthRecord {
 
 ## 🔄 개발 단계
 
-### Phase 1: 기본 인프라 (2주)
-- [x] 모노레포 설정
+### Phase 1: 기본 인프라 (2주) - ✅ 완료
+- [x] 모노레포 설정 (pnpm + Turborepo)
+- [x] React Native FSD 아키텍처 적용
+- [x] 공유 타입 정의 (Zod 스키마 기반)
+- [x] 기본 UI 컴포넌트 시스템 구축
 - [ ] 백엔드 기본 구조
-- [ ] 데이터베이스 스키마 설계
-- [ ] React Native 기본 설정
-- [ ] 공유 타입 정의
+- [ ] Supabase 데이터베이스 스키마 설계
 
 ### Phase 2: 사용자 관리 (3주)
 - [ ] 회원가입/로그인 API
@@ -235,9 +236,9 @@ interface GrowthRecord {
 ## 🚀 배포 전략
 
 ### 개발 환경
-- **백엔드**: Docker + Heroku/Railway
-- **데이터베이스**: PostgreSQL (Supabase/Neon)
-- **파일 저장**: Cloudflare R2/AWS S3
+- **백엔드**: Supabase + Vercel/Railway
+- **데이터베이스**: Supabase (PostgreSQL + 실시간)
+- **파일 저장**: Supabase Storage
 
 ### 프로덕션 배포
 - **백엔드**: AWS/GCP

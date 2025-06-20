@@ -29,32 +29,70 @@
 ```
 daon/
 ├── packages/
-│   ├── mobile/          # React Native 모바일 앱
+│   ├── mobile/          # React Native 모바일 앱 (FSD 아키텍처)
 │   ├── backend/         # Node.js API 서버
-│   ├── shared/          # 공유 타입 및 유틸리티
+│   ├── shared/          # 공유 타입 및 유틸리티 (Zod 스키마)
 │   └── web/             # 향후 웹 대시보드 (선택사항)
 ├── docs/                # 문서
 └── tools/               # 빌드 도구 및 스크립트
+```
+
+### 모바일 앱 아키텍처 (FSD - Feature-Sliced Design)
+
+```
+packages/mobile/src/
+├── app/                 # 앱 설정 및 전역 구성
+│   └── navigation/      # 네비게이션 설정
+├── pages/               # 페이지 컴포넌트
+│   ├── home/           # 홈 화면
+│   ├── record/         # 활동 기록 화면
+│   ├── diary/          # 일기 화면
+│   ├── growth/         # 성장 차트 화면
+│   └── settings/       # 설정 화면
+├── widgets/            # 복합 UI 블록
+├── features/           # 기능별 비즈니스 로직
+│   ├── record-activity/
+│   ├── write-diary/
+│   └── track-growth/
+├── entities/           # 도메인 엔티티
+│   ├── child/
+│   ├── activity/
+│   ├── diary-entry/
+│   └── growth-record/
+└── shared/             # 공유 리소스
+    ├── ui/             # 공유 UI 컴포넌트
+    ├── types/          # Zod 스키마 및 타입
+    ├── config/         # 설정 및 테마
+    ├── lib/            # 유틸리티 함수
+    └── api/            # API 클라이언트
 ```
 
 ### 기술 스택
 
 #### 프론트엔드 (모바일)
 
-- **프레임워크**: React Native
+- **프레임워크**: React Native 0.80
+- **아키텍처**: Feature-Sliced Design (FSD)
 - **상태 관리**: Zustand / Tanstack Query
-- **내비게이션**: React Navigation
-- **UI 컴포넌트**: NativeBase / React Native Elements
+- **내비게이션**: React Navigation v7
+- **타입 검증**: Zod 스키마 + TypeScript
+- **UI 컴포넌트**: 자체 구현된 Design System
 - **오프라인 저장소**: AsyncStorage / SQLite
 
 #### 백엔드
 
 - **런타임**: Node.js
 - **프레임워크**: Express.js / Fastify
-- **데이터베이스**: PostgreSQL with Prisma ORM / Supabase
-- **인증**: JWT with refresh tokens
-- **파일 저장소**: AWS S3 / CloudFlare R2
+- **데이터베이스**: Supabase (PostgreSQL + 실시간 기능)
+- **인증**: Supabase Auth (JWT 기반)
+- **파일 저장소**: Supabase Storage
 - **푸시 알림**: Firebase Cloud Messaging
+
+#### 공유 라이브러리
+
+- **타입 시스템**: Zod 스키마 우선 접근법
+- **코드 공유**: TypeScript 타입 정의
+- **유효성 검증**: Zod 런타임 검증
 
 #### 개발 도구
 
@@ -62,7 +100,7 @@ daon/
 - **빌드 도구**: Turborepo
 - **테스트**: Jest + React Native Testing Library
 - **CI/CD**: GitHub Actions
-- **코드 품질**: ESLint + Prettier + Husky
+- **코드 품질**: ESLint + Prettier + TypeScript
 
 ## 👶 핵심 기능
 
@@ -133,13 +171,22 @@ daon/
 
 ## 🚀 개발 로드맵
 
-### 1단계 (MVP - 3개월)
+### Phase 1: 기본 인프라 (2주) - ✅ 완료
 
-- [ ] 사용자 인증 및 회원가입
-- [ ] 기본 활동 추적 (수유, 기저귀, 수면)
-- [ ] 사진이 포함된 간단한 일기 작성
-- [ ] 2명 보호자 지원
-- [ ] 기본 데이터 동기화
+- [x] 모노레포 설정 (pnpm + Turborepo)
+- [x] React Native 기본 설정 및 FSD 아키텍처 적용
+- [x] 공유 타입 정의 (Zod 스키마 기반)
+- [x] 기본 UI 컴포넌트 시스템 구축
+- [ ] 백엔드 기본 구조
+- [ ] 데이터베이스 스키마 설계
+
+### Phase 2: 사용자 관리 (3주)
+
+- [ ] 회원가입/로그인 API
+- [ ] JWT 인증 시스템
+- [ ] 사용자 프로필 관리
+- [ ] 아이 프로필 CRUD
+- [ ] 보호자 초대 시스템
 
 ### 2단계 (향상된 기능 - 2개월)
 

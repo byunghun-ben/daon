@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { logger } from './utils/logger';
+import { connectDatabase } from './utils/database';
 
 dotenv.config();
 
@@ -22,8 +23,9 @@ app.get('/', (req, res) => {
   res.json({ message: 'Daon API Server', version: '1.0.0' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
+  await connectDatabase();
 });
 
 export default app;

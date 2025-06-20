@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 사용자 (부모/보호자)
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  name      String
+  role      UserRole @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 관계
+  children     Child[]
+  activities   Activity[]
+  diaryEntries DiaryEntry[]
+  growthRecords GrowthRecord[]
+  guardianships Guardianship[]
+
+  @@map("users")
+}
+
+// 아이 프로필
+model Child {
+  id          String    @id @default(cuid())
+  name        String
+  birthDate   DateTime
+  gender      Gender
+  birthWeight Float?
+  birthHeight Float?
+  profileImage String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 부모 관계 (생성자)
+  parentId String
+  parent   User   @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  // 관계
+  activities    Activity[]
+  diaryEntries  DiaryEntry[]
+  growthRecords GrowthRecord[]
+  milestones    Milestone[]
+  guardianships Guardianship[]
+
+  @@map("children")
+}
+
+// 보호자 권한 관리
+model Guardianship {
+  id          String           @id @default(cuid())
+  userId      String
+  childId     String
+  permission  GuardianPermission @default(VIEW_ONLY)
+  invitedAt   DateTime         @default(now())
+  acceptedAt  DateTime?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, childId])
+  @@map("guardianships")
+}
+
+// 활동 기록
+model Activity {
+  id        String       @id @default(cuid())
+  childId   String
+  userId    String
+  type      ActivityType
+  timestamp DateTime
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 활동별 세부 데이터
+  feedingData  FeedingData?
+  diaperData   DiaperData?
+  sleepData    SleepData?
+  tummyTimeData TummyTimeData?
+
+  @@map("activities")
+}
+
+// 수유 데이터
+model FeedingData {
+  id         String      @id @default(cuid())
+  activityId String      @unique
+  type       FeedingType
+  amount     Float?      // ml
+  duration   Int?        // minutes
+  side       BreastSide? // for breastfeeding
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("feeding_data")
+}
+
+// 기저귀 데이터
+model DiaperData {
+  id         String     @id @default(cuid())
+  activityId String     @unique
+  type       DiaperType
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("diaper_data")
+}
+
+// 수면 데이터
+model SleepData {
+  id         String       @id @default(cuid())
+  activityId String       @unique
+  startTime  DateTime
+  endTime    DateTime?
+  quality    SleepQuality?
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("sleep_data")
+}
+
+// 배밀이 데이터
+model TummyTimeData {
+  id         String @id @default(cuid())
+  activityId String @unique
+  duration   Int    // minutes
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("tummy_time_data")
+}
+
+// 일기 항목
+model DiaryEntry {
+  id        String   @id @default(cuid())
+  childId   String
+  userId    String
+  date      DateTime
+  content   String
+  photos    String[] // 사진 URL 배열
+  videos    String[] // 동영상 URL 배열
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  child      Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones Milestone[]
+
+  @@unique([childId, date])
+  @@map("diary_entries")
+}
+
+// 마일스톤
+model Milestone {
+  id          String        @id @default(cuid())
+  childId     String
+  type        MilestoneType
+  description String
+  achievedAt  DateTime
+  createdAt   DateTime      @default(now())
+
+  child       Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
+  diaryEntry  DiaryEntry? @relation(fields: [diaryEntryId], references: [id])
+  diaryEntryId String?
+
+  @@map("milestones")
+}
+
+// 성장 기록
+model GrowthRecord {
+  id                 String   @id @default(cuid())
+  childId            String
+  userId             String
+  recordedAt         DateTime
+  weight             Float?   // kg
+  height             Float?   // cm
+  headCircumference  Float?   // cm
+  createdAt          DateTime @default(now())
+
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("growth_records")
+}
+
+// Enums
+enum UserRole {
+  PARENT
+  CAREGIVER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum GuardianPermission {
+  ADMIN
+  VIEW_ONLY
+}
+
+enum ActivityType {
+  FEEDING
+  DIAPER
+  SLEEP
+  TUMMY_TIME
+  CUSTOM
+}
+
+enum FeedingType {
+  BREAST
+  BOTTLE
+  SOLID
+}
+
+enum BreastSide {
+  LEFT
+  RIGHT
+  BOTH
+}
+
+enum DiaperType {
+  WET
+  DIRTY
+  BOTH
+}
+
+enum SleepQuality {
+  GOOD
+  FAIR
+  POOR
+}
+
+enum MilestoneType {
+  FIRST_SMILE
+  FIRST_STEP
+  FIRST_WORD
+  SITTING_UP
+  CRAWLING
+  WALKING
+  TALKING
+  CUSTOM
+}

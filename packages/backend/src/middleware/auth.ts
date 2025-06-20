@@ -1,0 +1,114 @@
+import { Request, Response, NextFunction } from "express";
+import { supabase } from "../lib/supabase";
+import { logger } from "../utils/logger";
+
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        role?: string;
+      };
+    }
+  }
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+    email: string;
+    role?: string;
+  };
+}
+
+/**
+ * Middleware to verify JWT token from Supabase Auth
+ */
+export async function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+
+    if (!token) {
+      res.status(401).json({ error: "Access token required" });
+      return;
+    }
+
+    // Verify token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      logger.warn("Invalid token provided", { error: error?.message });
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+
+    // Add user info to request
+    req.user = {
+      id: user.id,
+      email: user.email || "",
+      role: user.role,
+    };
+
+    next();
+  } catch (error) {
+    logger.error("Auth middleware error:", error);
+    res.status(500).json({ error: "Authentication failed" });
+  }
+}
+
+/**
+ * Optional authentication middleware - doesn't fail if no token
+ */
+export async function optionalAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (token) {
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+
+      if (!error && user) {
+        req.user = {
+          id: user.id,
+          email: user.email || "",
+          role: user.role,
+        };
+      }
+    }
+
+    next();
+  } catch (error) {
+    logger.error("Optional auth middleware error:", error);
+    next(); // Continue without auth
+  }
+}
+
+/**
+ * Middleware to check if user has required role
+ */
+export function requireRole(role: string) {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: "Authentication required" });
+      return;
+    }
+
+    if (req.user.role !== role) {
+      res.status(403).json({ error: "Insufficient permissions" });
+      return;
+    }
+
+    next();
+  };
+}

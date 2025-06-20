@@ -1,5 +1,6 @@
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { View, ViewStyle } from "react-native";
+import { useThemedStyles } from "../../lib/hooks/useTheme";
 
 interface CardProps {
   children: React.ReactNode;
@@ -7,18 +8,15 @@ interface CardProps {
 }
 
 export default function Card({ children, style }: CardProps) {
+  const styles = useThemedStyles((theme) => ({
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.lg,
+      padding: theme.spacing.xl,
+      ...theme.shadows.md,
+    },
+  }));
+
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-});

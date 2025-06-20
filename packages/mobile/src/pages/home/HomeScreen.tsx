@@ -1,13 +1,78 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   SafeAreaView,
-} from 'react-native';
+} from "react-native";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import Card from "../../shared/ui/Card";
+import Button from "../../shared/ui/Button";
 
-export default function HomeScreen() {
+interface HomeScreenProps {
+  navigation: any; // Replace with proper navigation type
+}
+
+export default function HomeScreen({ navigation }: HomeScreenProps) {
+  const styles = useThemedStyles((theme) => ({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      padding: SCREEN_PADDING,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    title: {
+      fontSize: theme.typography.title.fontSize,
+      fontWeight: theme.typography.title.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.xs,
+    },
+    subtitle: {
+      fontSize: theme.typography.subtitle.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    content: {
+      padding: SCREEN_PADDING,
+    },
+    cardTitle: {
+      fontSize: 18,
+      fontWeight: "600" as const,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    cardContent: {
+      fontSize: theme.typography.body1.fontSize,
+      lineHeight: 24,
+      color: theme.colors.text.secondary,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600" as const,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    emptyText: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.muted,
+      textAlign: "center" as const,
+      paddingVertical: SCREEN_PADDING,
+    },
+    quickActions: {
+      flexDirection: "row" as const,
+      justifyContent: "space-between" as const,
+      marginBottom: theme.spacing.xl,
+    },
+    actionButton: {
+      flex: 1,
+      marginHorizontal: theme.spacing.xs,
+    },
+  }));
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
@@ -17,91 +82,53 @@ export default function HomeScreen() {
         </View>
         
         <View style={styles.content}>
-          <View style={styles.summaryCard}>
+          {/* Quick Actions */}
+          <View style={styles.quickActions}>
+            <Button
+              title="수유 기록"
+              size="small"
+              buttonStyle={styles.actionButton}
+              onPress={() => navigation.navigate("Record", { type: "feeding" })}
+            />
+            <Button
+              title="기저귀 교체"
+              size="small"
+              variant="secondary"
+              buttonStyle={styles.actionButton}
+              onPress={() => navigation.navigate("Record", { type: "diaper" })}
+            />
+            <Button
+              title="수면 기록"
+              size="small"
+              variant="outline"
+              buttonStyle={styles.actionButton}
+              onPress={() => navigation.navigate("Record", { type: "sleep" })}
+            />
+          </View>
+
+          {/* Today Summary */}
+          <Card style={{ marginBottom: styles.content.padding }}>
             <Text style={styles.cardTitle}>오늘 요약</Text>
             <Text style={styles.cardContent}>
-              수유: 0회{'\n'}
-              수면: 0시간{'\n'}
+              수유: 0회{"\n"}
+              수면: 0시간{"\n"}
               기저귀: 0회
             </Text>
-          </View>
+          </Card>
           
-          <View style={styles.recentActivities}>
+          {/* Recent Activities */}
+          <Card>
             <Text style={styles.sectionTitle}>최근 활동</Text>
             <Text style={styles.emptyText}>아직 기록된 활동이 없습니다.</Text>
-          </View>
+            <Button
+              title="첫 활동 기록하기"
+              variant="outline"
+              onPress={() => navigation.navigate("Record")}
+            />
+          </Card>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  content: {
-    padding: 20,
-  },
-  summaryCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  cardContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666',
-  },
-  recentActivities: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-    paddingVertical: 20,
-  },
-});

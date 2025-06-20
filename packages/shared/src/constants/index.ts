@@ -5,6 +5,57 @@ export const APP_CONFIG = {
   API_VERSION: "v1",
 } as const;
 
+// 활동 타입 상수 (데이터베이스 저장용)
+export const ACTIVITY_TYPES = {
+  FEEDING: "feeding",
+  DIAPER: "diaper",
+  SLEEP: "sleep",
+  TUMMY_TIME: "tummy_time",
+  CUSTOM: "custom",
+} as const;
+
+// 수유 타입 상수
+export const FEEDING_TYPES = {
+  BREAST: "breast",
+  BOTTLE: "bottle",
+  SOLID: "solid",
+} as const;
+
+// 기저귀 타입 상수
+export const DIAPER_TYPES = {
+  WET: "wet",
+  DIRTY: "dirty",
+  BOTH: "both",
+} as const;
+
+// 수면 품질 상수
+export const SLEEP_QUALITIES = {
+  GOOD: "good",
+  FAIR: "fair",
+  POOR: "poor",
+} as const;
+
+// 성별 상수
+export const GENDERS = {
+  MALE: "male",
+  FEMALE: "female",
+} as const;
+
+// 보호자 역할 상수
+export const GUARDIAN_ROLES = {
+  OWNER: "owner",
+  GUARDIAN: "guardian",
+  VIEWER: "viewer",
+} as const;
+
+// 마일스톤 타입 상수
+export const MILESTONE_TYPES = {
+  FIRST_SMILE: "first_smile",
+  FIRST_STEP: "first_step",
+  FIRST_WORD: "first_word",
+  CUSTOM: "custom",
+} as const;
+
 // 활동 타입별 색상
 export const ACTIVITY_COLORS = {
   FEEDING: "#4CAF50",

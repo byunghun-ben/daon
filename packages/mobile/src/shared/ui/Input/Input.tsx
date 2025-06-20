@@ -47,6 +47,7 @@ export default function Input({
       fontSize: theme.typography.body1.fontSize,
       color: theme.colors.text.primary,
       backgroundColor: theme.colors.surface,
+      placeholderTextColor: theme.colors.text.muted,
     },
     inputError: {
       borderColor: theme.colors.error,
@@ -60,21 +61,13 @@ export default function Input({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text style={[styles.label, labelStyle]}>{label}</Text>
-      )}
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TextInput
-        style={[
-          styles.input,
-          error && styles.inputError,
-          inputStyle,
-        ]}
-        placeholderTextColor={styles.input.color}
+        style={[styles.input, error && styles.inputError, inputStyle]}
+        placeholderTextColor={styles.input.placeholderTextColor}
         {...props}
       />
-      {error && (
-        <Text style={[styles.error, errorStyle]}>{error}</Text>
-      )}
+      {error && <Text style={[styles.error, errorStyle]}>{error}</Text>}
     </View>
   );
 }

@@ -1,30 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  View,
-  Text,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
+  Text,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SignInForm } from "../../features/sign-in/SignInForm";
 import { SCREEN_PADDING } from "../../shared/config/theme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
-import { authApi, type SignInRequest } from "../../shared/api/auth";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 interface SignInScreenProps {
   navigation: any; // Replace with proper navigation type
 }
 
 export default function SignInScreen({ navigation }: SignInScreenProps) {
-  const [formData, setFormData] = useState<SignInRequest>({
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<Partial<SignInRequest>>({});
-  const [isLoading, setIsLoading] = useState(false);
-
   const styles = useThemedStyles((theme) => ({
     container: {
       flex: 1,
@@ -50,9 +40,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       color: theme.colors.text.secondary,
       textAlign: "center" as const,
     },
-    form: {
-      marginBottom: theme.spacing.xl,
-    },
     footer: {
       alignItems: "center" as const,
       marginTop: theme.spacing.xl,
@@ -67,43 +54,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       fontWeight: "600" as const,
     },
   }));
-  const validateForm = (): boolean => {
-    const newErrors: Partial<SignInRequest> = {};
-
-    // 이메일 유효성 검사
-    if (!formData.email.trim()) {
-      newErrors.email = "이메일을 입력해주세요";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "올바른 이메일 형식을 입력해주세요";
-    }
-
-    // 비밀번호 유효성 검사
-    if (!formData.password.trim()) {
-      newErrors.password = "비밀번호를 입력해주세요";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "비밀번호는 6자 이상이어야 합니다";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSignIn = async () => {
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
-    const { success, data, error } = await authApi.signIn(formData);
-
-    if (success) {
-      Alert.alert("로그인 성공", `환영합니다, ${data.user.name}님!`);
-      navigation.replace("MainTabs");
-    } else {
-      Alert.alert("로그인 실패", error);
-    }
-
-    setIsLoading(false);
-  };
 
   return (
     <KeyboardAvoidingView
@@ -122,40 +72,7 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <Input
-            label="이메일"
-            value={formData.email}
-            onChangeText={(email) => setFormData({ ...formData, email })}
-            error={errors.email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            placeholder="이메일을 입력해주세요"
-            accessibilityLabel="이메일 입력 필드"
-            accessibilityHint="로그인을 위한 이메일 주소를 입력하세요"
-          />
-
-          <Input
-            label="비밀번호"
-            value={formData.password}
-            onChangeText={(password) => setFormData({ ...formData, password })}
-            error={errors.password}
-            secureTextEntry
-            autoComplete="password"
-            placeholder="비밀번호를 입력해주세요"
-            accessibilityLabel="비밀번호 입력 필드"
-            accessibilityHint="로그인을 위한 비밀번호를 입력하세요"
-          />
-
-          <Button
-            title={isLoading ? "로그인 중..." : "로그인"}
-            onPress={handleSignIn}
-            disabled={isLoading}
-            accessibilityLabel="로그인 버튼"
-            accessibilityHint="입력한 정보로 로그인합니다"
-          />
-        </View>
+        <SignInForm navigation={navigation} />
 
         <View style={styles.footer}>
           <Text style={styles.linkText}>

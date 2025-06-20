@@ -32,7 +32,7 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
     },
     scrollContainer: {
       flexGrow: 1,
-      justifyContent: "center",
+      justifyContent: "center" as const,
       padding: SCREEN_PADDING,
     },
     header: {
@@ -66,4 +66,126 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       color: theme.colors.primary,
       fontWeight: "600" as const,
     },
-  }));\n\n  const validateForm = (): boolean => {\n    const newErrors: Partial<SignInRequest> = {};\n\n    if (!formData.email.trim()) {\n      newErrors.email = \"이메일을 입력해주세요\";\n    } else if (!/\\S+@\\S+\\.\\S+/.test(formData.email)) {\n      newErrors.email = \"올바른 이메일 형식을 입력해주세요\";\n    }\n\n    if (!formData.password.trim()) {\n      newErrors.password = \"비밀번호를 입력해주세요\";\n    } else if (formData.password.length < 6) {\n      newErrors.password = \"비밀번호는 6자 이상이어야 합니다\";\n    }\n\n    setErrors(newErrors);\n    return Object.keys(newErrors).length === 0;\n  };\n\n  const handleSignIn = async () => {\n    if (!validateForm()) return;\n\n    setIsLoading(true);\n    try {\n      const response = await authApi.signIn(formData);\n      Alert.alert(\"로그인 성공\", `환영합니다, ${response.user.name}님!`);\n      // Navigate to main app\n      navigation.replace(\"MainTabs\");\n    } catch (error: any) {\n      Alert.alert(\n        \"로그인 실패\",\n        error.message || \"로그인 중 오류가 발생했습니다.\"\n      );\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  return (\n    <KeyboardAvoidingView\n      style={styles.container}\n      behavior={Platform.OS === \"ios\" ? \"padding\" : \"height\"}\n    >\n      <ScrollView\n        contentContainerStyle={styles.scrollContainer}\n        keyboardShouldPersistTaps=\"handled\"\n      >\n        <View style={styles.header}>\n          <Text style={styles.title}>다온에 오신 것을 환영합니다</Text>\n          <Text style={styles.subtitle}>\n            아이의 소중한 순간들을 기록해보세요\n          </Text>\n        </View>\n\n        <View style={styles.form}>\n          <Input\n            label=\"이메일\"\n            value={formData.email}\n            onChangeText={(email) => setFormData({ ...formData, email })}\n            error={errors.email}\n            keyboardType=\"email-address\"\n            autoCapitalize=\"none\"\n            autoComplete=\"email\"\n          />\n\n          <Input\n            label=\"비밀번호\"\n            value={formData.password}\n            onChangeText={(password) => setFormData({ ...formData, password })}\n            error={errors.password}\n            secureTextEntry\n            autoComplete=\"password\"\n          />\n\n          <Button\n            title={isLoading ? \"로그인 중...\" : \"로그인\"}\n            onPress={handleSignIn}\n            disabled={isLoading}\n          />\n        </View>\n\n        <View style={styles.footer}>\n          <Text style={styles.linkText}>\n            아직 계정이 없으신가요?{\" \"}\n            <Text\n              style={styles.linkButton}\n              onPress={() => navigation.navigate(\"SignUp\")}\n            >\n              회원가입\n            </Text>\n          </Text>\n        </View>\n      </ScrollView>\n    </KeyboardAvoidingView>\n  );\n}"
+  }));
+  const validateForm = (): boolean => {
+    const newErrors: Partial<SignInRequest> = {};
+
+    // 이메일 유효성 검사
+    if (!formData.email.trim()) {
+      newErrors.email = "이메일을 입력해주세요";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "올바른 이메일 형식을 입력해주세요";
+    }
+
+    // 비밀번호 유효성 검사
+    if (!formData.password.trim()) {
+      newErrors.password = "비밀번호를 입력해주세요";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "비밀번호는 6자 이상이어야 합니다";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSignIn = async () => {
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await authApi.signIn(formData);
+      Alert.alert("로그인 성공", `환영합니다, ${response.user.name}님!`);
+
+      // 메인 앱으로 이동
+      navigation.replace("MainTabs");
+    } catch (error: any) {
+      console.error("Sign in error:", error);
+
+      // 더 구체적인 에러 메시지 제공
+      let errorMessage = "로그인 중 오류가 발생했습니다.";
+      if (error.response?.status === 401) {
+        errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+      } else if (error.response?.status === 429) {
+        errorMessage =
+          "너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      Alert.alert("로그인 실패", errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>다온에 오신 것을 환영합니다</Text>
+          <Text style={styles.subtitle}>
+            아이의 소중한 순간들을 기록해보세요
+          </Text>
+        </View>
+
+        <View style={styles.form}>
+          <Input
+            label="이메일"
+            value={formData.email}
+            onChangeText={(email) => setFormData({ ...formData, email })}
+            error={errors.email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            placeholder="이메일을 입력해주세요"
+            accessibilityLabel="이메일 입력 필드"
+            accessibilityHint="로그인을 위한 이메일 주소를 입력하세요"
+          />
+
+          <Input
+            label="비밀번호"
+            value={formData.password}
+            onChangeText={(password) => setFormData({ ...formData, password })}
+            error={errors.password}
+            secureTextEntry
+            autoComplete="password"
+            placeholder="비밀번호를 입력해주세요"
+            accessibilityLabel="비밀번호 입력 필드"
+            accessibilityHint="로그인을 위한 비밀번호를 입력하세요"
+          />
+
+          <Button
+            title={isLoading ? "로그인 중..." : "로그인"}
+            onPress={handleSignIn}
+            disabled={isLoading}
+            accessibilityLabel="로그인 버튼"
+            accessibilityHint="입력한 정보로 로그인합니다"
+          />
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.linkText}>
+            아직 계정이 없으신가요?{" "}
+            <Text
+              style={styles.linkButton}
+              onPress={() => navigation.navigate("SignUp")}
+              accessibilityRole="button"
+              accessibilityLabel="회원가입 링크"
+              accessibilityHint="회원가입 화면으로 이동합니다"
+            >
+              회원가입
+            </Text>
+          </Text>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@daon/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for Daon",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "zod": "^3.23.6"
+  }
+}

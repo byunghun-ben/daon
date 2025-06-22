@@ -1,74 +1,26 @@
 import { apiClient } from "./client";
+import {
+  DiaryEntryApi,
+  MilestoneApi,
+  CreateDiaryEntryRequest,
+  UpdateDiaryEntryRequest,
+  CreateMilestoneRequest,
+  DiaryFilters,
+  DiaryEntriesResponse,
+  DiaryEntryResponse,
+} from "@daon/shared";
 
-// Diary API types
-export interface DiaryEntry {
-  id: string;
-  child_id: string;
-  user_id: string;
-  date: string;
-  content: string;
-  photos: string[];
-  videos: string[];
-  created_at: string;
-  updated_at: string;
-  milestones?: Milestone[];
-}
-
-export interface Milestone {
-  id: string;
-  type: "first_smile" | "first_step" | "first_word" | "custom";
-  description: string;
-  achieved_at: string;
-  diary_entry_id?: string;
-  child_id: string;
-}
-
-export interface CreateDiaryEntryRequest {
-  child_id: string;
-  date: string;
-  content: string;
-  photos?: string[];
-  videos?: string[];
-}
-
-export interface UpdateDiaryEntryRequest {
-  date?: string;
-  content?: string;
-  photos?: string[];
-  videos?: string[];
-}
-
-export interface CreateMilestoneRequest {
-  type: "first_smile" | "first_step" | "first_word" | "custom";
-  description: string;
-  achieved_at: string;
-  diary_entry_id?: string;
-  child_id: string;
-}
-
-export interface DiaryFilters {
-  child_id?: string;
-  date_from?: string;
-  date_to?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface DiaryEntriesResponse {
-  diaryEntries: DiaryEntry[];
-  pagination: {
-    limit: number;
-    offset: number;
-    total: number;
-  };
-}
-
-export interface DiaryEntryResponse {
-  diaryEntry: DiaryEntry;
-}
+// Re-export types for easy access
+export type { 
+  DiaryEntryApi, 
+  CreateDiaryEntryRequest, 
+  UpdateDiaryEntryRequest, 
+  DiaryFilters 
+};
+export type DiaryEntry = DiaryEntryApi;
 
 export interface MilestoneResponse {
-  milestone: Milestone;
+  milestone: MilestoneApi;
 }
 
 // Diary API functions

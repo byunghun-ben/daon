@@ -1,56 +1,23 @@
 import { apiClient } from "./client";
+import {
+  ActivityApi,
+  CreateActivityRequest,
+  UpdateActivityRequest,
+  ActivityFilters,
+  ActivitiesResponse,
+  ActivityResponse,
+  ActivitySummaryResponse,
+} from "@daon/shared";
 
-// Activity API types
-export interface Activity {
-  id: string;
-  child_id: string;
-  user_id: string;
-  type: "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
-  started_at: string;
-  ended_at?: string;
-  notes?: string;
-  metadata: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateActivityRequest {
-  child_id: string;
-  type: "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
-  started_at: string;
-  ended_at?: string;
-  notes?: string;
-  metadata?: Record<string, any>;
-}
-
-export interface UpdateActivityRequest {
-  started_at?: string;
-  ended_at?: string;
-  notes?: string;
-  metadata?: Record<string, any>;
-}
-
-export interface ActivityFilters {
-  child_id?: string;
-  type?: string;
-  date_from?: string;
-  date_to?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface ActivitiesResponse {
-  activities: Activity[];
-  pagination: {
-    limit: number;
-    offset: number;
-    total: number;
-  };
-}
-
-export interface ActivityResponse {
-  activity: Activity;
-}
+// Re-export types for easy access
+export type { 
+  ActivityApi, 
+  CreateActivityRequest, 
+  UpdateActivityRequest, 
+  ActivityFilters 
+};
+export type Activity = ActivityApi;
+export type GetActivitiesRequest = ActivityFilters;
 
 // Activities API functions
 export const activitiesApi = {
@@ -87,7 +54,7 @@ export const activitiesApi = {
     return apiClient.delete(`/activities/${id}`);
   },
 
-  async getActivitySummary(childId: string): Promise<any> {
+  async getActivitySummary(childId: string): Promise<ActivitySummaryResponse> {
     return apiClient.get(`/activities/summary/${childId}`);
   },
 };

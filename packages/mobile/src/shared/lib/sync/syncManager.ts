@@ -252,8 +252,9 @@ export class SyncManager {
       // Cache recent activities for each child
       for (const child of childrenResponse.children) {
         const activitiesResponse = await activitiesApi.getActivities({
-          child_id: child.id,
+          childId: child.id,
           limit: 50,
+          offset: 0,
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_ACTIVITIES}_${child.id}`,
@@ -262,8 +263,9 @@ export class SyncManager {
 
         // Cache recent diary entries
         const diaryResponse = await diaryApi.getDiaryEntries({
-          child_id: child.id,
+          childId: child.id,
           limit: 20,
+          offset: 0,
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_DIARY_ENTRIES}_${child.id}`,
@@ -272,8 +274,9 @@ export class SyncManager {
 
         // Cache growth records
         const growthResponse = await growthApi.getGrowthRecords({
-          child_id: child.id,
+          childId: child.id,
           limit: 50,
+          offset: 0,
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_GROWTH_RECORDS}_${child.id}`,

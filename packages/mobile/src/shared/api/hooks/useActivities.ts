@@ -1,21 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { activitiesApi, type Activity, type CreateActivityRequest, type UpdateActivityRequest, type GetActivitiesRequest } from "../activities";
+import { activitiesApi } from "../activities";
+import { ActivityApi, CreateActivityRequest, UpdateActivityRequest, ActivityFilters } from "@daon/shared";
 
 // Query Keys
 export const ACTIVITIES_KEYS = {
   all: ["activities"] as const,
   lists: () => [...ACTIVITIES_KEYS.all, "list"] as const,
-  list: (filters: GetActivitiesRequest) => [...ACTIVITIES_KEYS.lists(), filters] as const,
+  list: (filters: ActivityFilters) => [...ACTIVITIES_KEYS.lists(), filters] as const,
   details: () => [...ACTIVITIES_KEYS.all, "detail"] as const,
   detail: (id: string) => [...ACTIVITIES_KEYS.details(), id] as const,
 };
 
 // Hooks
-export function useActivities(params: GetActivitiesRequest) {
+export function useActivities(params: ActivityFilters) {
   return useQuery({
     queryKey: ACTIVITIES_KEYS.list(params),
     queryFn: () => activitiesApi.getActivities(params),
-    enabled: !!params.child_id,
+    enabled: !!params.childId,
   });
 }
 
@@ -86,12 +87,14 @@ export function useTodayActivities(childId: string) {
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
 
   return useQuery({
-    queryKey: [...ACTIVITIES_KEYS.list({ child_id: childId }), "today"],
+    queryKey: [...ACTIVITIES_KEYS.list({ childId, limit: 20, offset: 0 }), "today"],
     queryFn: async () => {
       const response = await activitiesApi.getActivities({
-        child_id: childId,
-        start_date: startOfDay.toISOString(),
-        end_date: endOfDay.toISOString(),
+        childId,
+        dateFrom: startOfDay.toISOString(),
+        dateTo: endOfDay.toISOString(),
+        limit: 20,
+        offset: 0,
       });
       return response;
     },
@@ -102,10 +105,11 @@ export function useTodayActivities(childId: string) {
 // Recent activities helper
 export function useRecentActivities(childId: string, limit = 10) {
   return useQuery({
-    queryKey: [...ACTIVITIES_KEYS.list({ child_id: childId, limit }), "recent"],
+    queryKey: [...ACTIVITIES_KEYS.list({ childId, limit, offset: 0 }), "recent"],
     queryFn: () => activitiesApi.getActivities({
-      child_id: childId,
+      childId,
       limit,
+      offset: 0,
     }),
     enabled: !!childId,
   });

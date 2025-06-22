@@ -34,7 +34,9 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
     }
 
     if (child.owner_id !== req.user.id) {
-      res.status(403).json({ error: "Only the child owner can invite guardians" });
+      res
+        .status(403)
+        .json({ error: "Only the child owner can invite guardians" });
       return;
     }
 
@@ -64,8 +66,21 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
       .eq("user_id", invitedUser.id)
       .single();
 
+    if (existingError) {
+      logger.error("Failed to check existing guardian", {
+        childId: child_id,
+        invitedUserId: invitedUser.id,
+        userId: req.user.id,
+        error: existingError,
+      });
+      res.status(500).json({ error: "Failed to check existing guardian" });
+      return;
+    }
+
     if (existingGuardian && existingGuardian.accepted_at) {
-      res.status(400).json({ error: "User is already a guardian for this child" });
+      res
+        .status(400)
+        .json({ error: "User is already a guardian for this child" });
       return;
     }
 
@@ -82,28 +97,30 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
         user_id: invitedUser.id,
         role: validatedData.role,
       })
-      .select(`
+      .select(
+        `
         *,
         users(name, email),
         children(name)
-      `)
+      `
+      )
       .single();
 
     if (invitationError) {
-      logger.error("Failed to create guardian invitation", { 
+      logger.error("Failed to create guardian invitation", {
         childId: child_id,
         invitedUserId: invitedUser.id,
-        userId: req.user.id, 
-        error: invitationError 
+        userId: req.user.id,
+        error: invitationError,
       });
       res.status(500).json({ error: "Failed to send invitation" });
       return;
     }
 
-    logger.info("Guardian invitation sent", { 
+    logger.info("Guardian invitation sent", {
       childId: child_id,
       invitedUserId: invitedUser.id,
-      userId: req.user.id 
+      userId: req.user.id,
     });
 
     // TODO: Send email notification to invited user
@@ -114,9 +131,9 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -149,18 +166,20 @@ export const getGuardians = createAuthenticatedHandler(async (req, res) => {
 
     const { data: guardians, error } = await supabaseAdmin
       .from("child_guardians")
-      .select(`
+      .select(
+        `
         *,
         users(id, name, email, avatar_url)
-      `)
+      `
+      )
       .eq("child_id", child_id)
       .order("created_at", { ascending: true });
 
     if (error) {
-      logger.error("Failed to get guardians", { 
+      logger.error("Failed to get guardians", {
         childId: child_id,
-        userId: req.user.id, 
-        error 
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to get guardians" });
       return;
@@ -183,18 +202,22 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
     // Find the invitation
     const { data: invitation, error: invitationError } = await supabaseAdmin
       .from("child_guardians")
-      .select(`
+      .select(
+        `
         *,
         children(name, owner_id),
         users(name, email)
-      `)
+      `
+      )
       .eq("id", validatedData.invitation_id)
       .eq("user_id", req.user.id)
       .is("accepted_at", null)
       .single();
 
     if (invitationError || !invitation) {
-      res.status(404).json({ error: "Invitation not found or already accepted" });
+      res
+        .status(404)
+        .json({ error: "Invitation not found or already accepted" });
       return;
     }
 
@@ -203,26 +226,28 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
       .from("child_guardians")
       .update({ accepted_at: new Date().toISOString() })
       .eq("id", validatedData.invitation_id)
-      .select(`
+      .select(
+        `
         *,
         children(name),
         users(name, email)
-      `)
+      `
+      )
       .single();
 
     if (acceptError) {
-      logger.error("Failed to accept invitation", { 
+      logger.error("Failed to accept invitation", {
         invitationId: validatedData.invitation_id,
-        userId: req.user.id, 
-        error: acceptError 
+        userId: req.user.id,
+        error: acceptError,
       });
       res.status(500).json({ error: "Failed to accept invitation" });
       return;
     }
 
-    logger.info("Guardian invitation accepted", { 
+    logger.info("Guardian invitation accepted", {
       invitationId: validatedData.invitation_id,
-      userId: req.user.id 
+      userId: req.user.id,
     });
 
     res.json({
@@ -231,9 +256,9 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.errors,
       });
       return;
     }
@@ -246,34 +271,38 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
 /**
  * Get pending invitations for the current user
  */
-export const getPendingInvitations = createAuthenticatedHandler(async (req, res) => {
-  try {
-    const { data: invitations, error } = await supabaseAdmin
-      .from("child_guardians")
-      .select(`
+export const getPendingInvitations = createAuthenticatedHandler(
+  async (req, res) => {
+    try {
+      const { data: invitations, error } = await supabaseAdmin
+        .from("child_guardians")
+        .select(
+          `
         *,
         children(name, birth_date, gender),
         users!child_guardians_child_id_fkey(name, email)
-      `)
-      .eq("user_id", req.user.id)
-      .is("accepted_at", null)
-      .order("invited_at", { ascending: false });
+      `
+        )
+        .eq("user_id", req.user.id)
+        .is("accepted_at", null)
+        .order("invited_at", { ascending: false });
 
-    if (error) {
-      logger.error("Failed to get pending invitations", { 
-        userId: req.user.id, 
-        error 
-      });
-      res.status(500).json({ error: "Failed to get pending invitations" });
-      return;
+      if (error) {
+        logger.error("Failed to get pending invitations", {
+          userId: req.user.id,
+          error,
+        });
+        res.status(500).json({ error: "Failed to get pending invitations" });
+        return;
+      }
+
+      res.json({ invitations });
+    } catch (error) {
+      logger.error("Get pending invitations error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.json({ invitations });
-  } catch (error) {
-    logger.error("Get pending invitations error:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
+);
 
 /**
  * Remove a guardian from a child
@@ -295,7 +324,9 @@ export const removeGuardian = createAuthenticatedHandler(async (req, res) => {
     }
 
     if (child.owner_id !== req.user.id) {
-      res.status(403).json({ error: "Only the child owner can remove guardians" });
+      res
+        .status(403)
+        .json({ error: "Only the child owner can remove guardians" });
       return;
     }
 
@@ -323,20 +354,20 @@ export const removeGuardian = createAuthenticatedHandler(async (req, res) => {
       .eq("id", guardian_id);
 
     if (error) {
-      logger.error("Failed to remove guardian", { 
+      logger.error("Failed to remove guardian", {
         childId: child_id,
         guardianId: guardian_id,
-        userId: req.user.id, 
-        error 
+        userId: req.user.id,
+        error,
       });
       res.status(500).json({ error: "Failed to remove guardian" });
       return;
     }
 
-    logger.info("Guardian removed successfully", { 
+    logger.info("Guardian removed successfully", {
       childId: child_id,
       guardianId: guardian_id,
-      userId: req.user.id 
+      userId: req.user.id,
     });
 
     res.json({ message: "Guardian removed successfully" });

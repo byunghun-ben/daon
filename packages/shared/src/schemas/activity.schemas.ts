@@ -178,6 +178,14 @@ export const ActivitiesResponseSchema = z.object({
   total: z.number().nonnegative(),
 });
 
+export const ActivitySummaryResponseSchema = z.object({
+  summary: z.object({
+    todayCount: z.number().nonnegative(),
+    recentActivities: z.array(ActivityApiSchema),
+    totalCount: z.number().nonnegative(),
+  }),
+});
+
 // Inferred types
 export type ActivityType = z.infer<typeof ActivityTypeSchema>;
 
@@ -212,3 +220,4 @@ export type UpdateActivityRequest = z.infer<typeof UpdateActivityRequestSchema>;
 export type ActivityFilters = z.infer<typeof ActivityFiltersSchema>;
 export type ActivityResponse = z.infer<typeof ActivityResponseSchema>;
 export type ActivitiesResponse = z.infer<typeof ActivitiesResponseSchema>;
+export type ActivitySummaryResponse = z.infer<typeof ActivitySummaryResponseSchema>;

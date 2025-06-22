@@ -55,6 +55,7 @@ export const AuthResponseSchema = z.object({
     token_type: z.string(),
   }),
   user: UserApiSchema,
+  needs_child_setup: z.boolean().optional(),
 });
 
 export const UserResponseSchema = z.object({

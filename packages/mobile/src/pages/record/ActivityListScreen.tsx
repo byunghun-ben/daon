@@ -56,8 +56,9 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
   const currentChildId = selectedChild || children[0]?.id;
   
   const [filters, setFilters] = useState<GetActivitiesRequest>({
-    child_id: currentChildId || "",
+    childId: currentChildId || "",
     limit: 50,
+    offset: 0,
   });
   
   const { 
@@ -203,7 +204,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
     if (currentChildId) {
       setFilters(prev => ({
         ...prev,
-        child_id: currentChildId,
+        childId: currentChildId,
       }));
     }
   }, [currentChildId]);
@@ -248,33 +249,34 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
   const renderActivityDetails = (activity: Activity) => {
     const details = [];
     
-    if (activity.ended_at) {
+    // 수면 활동에서 종료시간이 있을 경우 소요시간 표시
+    if (activity.type === 'sleep' && typeof activity.data === 'object' && activity.data && 'endedAt' in activity.data) {
       details.push({
         label: "소요시간",
-        value: formatDuration(activity.started_at, activity.ended_at),
+        value: formatDuration(activity.timestamp, activity.data.endedAt as string),
       });
     }
 
     // Activity-specific metadata
     switch (activity.type) {
       case "feeding":
-        if (activity.metadata.amount) {
-          details.push({ label: "수유량", value: `${activity.metadata.amount}ml` });
+        if (typeof activity.data === 'object' && activity.data && 'amount' in activity.data && activity.data.amount) {
+          details.push({ label: "수유량", value: `${activity.data.amount}ml` });
         }
-        if (activity.metadata.type) {
-          details.push({ label: "종류", value: activity.metadata.type });
+        if (typeof activity.data === 'object' && activity.data && 'type' in activity.data && activity.data.type) {
+          details.push({ label: "종류", value: activity.data.type as string });
         }
         break;
       
       case "diaper":
-        if (activity.metadata.type) {
-          details.push({ label: "상태", value: activity.metadata.type });
+        if (typeof activity.data === 'object' && activity.data && 'type' in activity.data && activity.data.type) {
+          details.push({ label: "상태", value: activity.data.type as string });
         }
         break;
       
       case "sleep":
-        if (activity.metadata.quality) {
-          details.push({ label: "수면 품질", value: activity.metadata.quality });
+        if (typeof activity.data === 'object' && activity.data && 'quality' in activity.data) {
+          details.push({ label: "수면 품질", value: activity.data.quality as string });
         }
         break;
     }
@@ -298,7 +300,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
               {ACTIVITY_LABELS[activity.type as keyof typeof ACTIVITY_LABELS]}
             </Text>
             <Text style={styles.activityTime}>
-              {formatDateTime(activity.started_at)}
+              {formatDateTime(activity.timestamp)}
             </Text>
           </View>
           

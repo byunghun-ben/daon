@@ -1,4 +1,5 @@
-export * from "./activity";
-export * from "./child";
-export * from "./diary";
-export * from "./growth";
+// Re-export shared types from @daon/shared
+export * from "@daon/shared";
+
+// Export mobile-specific types
+export * from "./navigation";

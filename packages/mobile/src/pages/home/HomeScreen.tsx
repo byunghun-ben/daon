@@ -390,7 +390,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                             {formatActivityType(activity.type)}
                           </Text>
                           <Text style={styles.activityTime}>
-                            {formatTime(activity.started_at)}
+                            {formatTime(activity.timestamp)}
                           </Text>
                         </View>
                         {activity.notes && (

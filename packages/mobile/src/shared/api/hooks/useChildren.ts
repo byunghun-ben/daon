@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { childrenApi, type Child, type CreateChildRequest, type UpdateChildRequest } from "../children";
+import { childrenApi } from "../children";
+import { ChildApi, CreateChildRequest, UpdateChildRequest, AcceptInviteRequest } from "@daon/shared";
 
 // Query Keys
 export const CHILDREN_KEYS = {
@@ -82,7 +83,7 @@ export function useJoinChild() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (inviteCode: string) => childrenApi.joinChild(inviteCode),
+    mutationFn: (data: AcceptInviteRequest) => childrenApi.joinChild(data),
     onSuccess: () => {
       // 아이 목록 쿼리를 무효화하여 새로 참여한 아이가 표시되도록 함
       queryClient.invalidateQueries({ queryKey: CHILDREN_KEYS.lists() });

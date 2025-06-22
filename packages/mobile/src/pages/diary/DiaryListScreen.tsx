@@ -200,7 +200,7 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
     
     try {
       const filters: DiaryFilters = {
-        child_id: selectedChild,
+        childId: selectedChild,
         limit: 50,
         offset: 0,
       };
@@ -237,7 +237,7 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
   const handleEditDiary = (diary: DiaryEntry) => {
     navigation.navigate("WriteDiary", {
       diaryId: diary.id,
-      childId: diary.child_id,
+      childId: diary.childId,
       isEditing: true,
     });
   };
@@ -311,7 +311,7 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
           
           <View style={styles.metaItem}>
             <Text style={styles.metaText}>
-              {new Date(diary.created_at).toLocaleDateString("ko-KR")} 작성
+              {new Date(diary.createdAt).toLocaleDateString("ko-KR")} 작성
             </Text>
           </View>
         </View>

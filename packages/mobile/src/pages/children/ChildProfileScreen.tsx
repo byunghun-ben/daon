@@ -31,7 +31,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
   const { childId, isEditing = false, isFirstChild = false } = route?.params || {};
   const [formData, setFormData] = useState<CreateChildRequest>({
     name: "",
-    birth_date: "",
+    birthDate: "",
     gender: undefined,
   });
   const [errors, setErrors] = useState<Partial<CreateChildRequest>>({});
@@ -139,7 +139,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
       setChild(response.child);
       setFormData({
         name: response.child.name,
-        birth_date: response.child.birth_date,
+        birthDate: response.child.birthDate,
         gender: response.child.gender,
       });
     } catch (error: any) {
@@ -158,22 +158,22 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
       newErrors.name = "이름을 입력해주세요";
     }
 
-    if (!formData.birth_date.trim()) {
-      newErrors.birth_date = "생년월일을 입력해주세요";
+    if (!formData.birthDate.trim()) {
+      newErrors.birthDate = "생년월일을 입력해주세요";
     } else {
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(formData.birth_date)) {
-        newErrors.birth_date = "YYYY-MM-DD 형식으로 입력해주세요";
+      if (!dateRegex.test(formData.birthDate)) {
+        newErrors.birthDate = "YYYY-MM-DD 형식으로 입력해주세요";
       } else {
-        const birthDate = new Date(formData.birth_date);
+        const birthDate = new Date(formData.birthDate);
         const now = new Date();
         const maxFutureDate = new Date();
         maxFutureDate.setMonth(now.getMonth() + 10); // Allow up to 10 months in the future for pregnancy
 
         if (isNaN(birthDate.getTime())) {
-          newErrors.birth_date = "올바른 날짜를 입력해주세요";
+          newErrors.birthDate = "올바른 날짜를 입력해주세요";
         } else if (birthDate > maxFutureDate) {
-          newErrors.birth_date = "출산예정일이 너무 멀리 설정되었습니다";
+          newErrors.birthDate = "출산예정일이 너무 멀리 설정되었습니다";
         }
       }
     }
@@ -220,7 +220,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
 
     setIsLoading(true);
     try {
-      const response = await authApi.joinChild({ invite_code: inviteCode });
+      const response = await authApi.joinChild({ inviteCode });
       Alert.alert("성공", `${response.child.name}의 보호자로 등록되었습니다!`, [
         { text: "확인", onPress: () => navigation.navigate("MainTabs") },
       ]);
@@ -340,9 +340,9 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
 
           <Input
             label="생년월일 (또는 출산예정일)"
-            value={formData.birth_date}
-            onChangeText={(birth_date) => setFormData({ ...formData, birth_date })}
-            error={errors.birth_date}
+            value={formData.birthDate}
+            onChangeText={(birthDate) => setFormData({ ...formData, birthDate })}
+            error={errors.birthDate}
             placeholder="YYYY-MM-DD"
             keyboardType={Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"}
           />
@@ -357,7 +357,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
                 buttonStyle={styles.genderButton}
                 onPress={() => setFormData({ 
                   ...formData, 
-                  gender: formData.gender === "male" ? undefined : "male" 
+                  gender: formData.gender === "male" ? undefined : "male" as const
                 })}
               />
               <Button
@@ -367,17 +367,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
                 buttonStyle={styles.genderButton}
                 onPress={() => setFormData({ 
                   ...formData, 
-                  gender: formData.gender === "female" ? undefined : "female" 
-                })}
-              />
-              <Button
-                title="기타"
-                variant={formData.gender === "other" ? "primary" : "outline"}
-                size="small"
-                buttonStyle={styles.genderButton}
-                onPress={() => setFormData({ 
-                  ...formData, 
-                  gender: formData.gender === "other" ? undefined : "other" 
+                  gender: formData.gender === "female" ? undefined : "female" as const
                 })}
               />
             </View>

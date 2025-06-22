@@ -1,38 +1,16 @@
 import { apiClient } from "./client";
+import {
+  ChildApi,
+  CreateChildRequest,
+  UpdateChildRequest,
+  ChildrenResponse,
+  ChildResponse,
+  AcceptInviteRequest,
+} from "@daon/shared";
 
-// Child API types
-export interface Child {
-  id: string;
-  user_id: string;
-  name: string;
-  birth_date: string;
-  gender?: "male" | "female" | "other";
-  photo_url?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateChildRequest {
-  name: string;
-  birth_date: string;
-  gender?: "male" | "female" | "other";
-  photo_url?: string;
-}
-
-export interface UpdateChildRequest {
-  name?: string;
-  birth_date?: string;
-  gender?: "male" | "female" | "other";
-  photo_url?: string;
-}
-
-export interface ChildrenResponse {
-  children: Child[];
-}
-
-export interface ChildResponse {
-  child: Child;
-}
+// Re-export types for easy access
+export type { ChildApi, CreateChildRequest, UpdateChildRequest };
+export type Child = ChildApi;
 
 // Children API functions
 export const childrenApi = {
@@ -56,7 +34,7 @@ export const childrenApi = {
     return apiClient.delete(`/children/${id}`);
   },
 
-  async joinChild(inviteCode: string): Promise<ChildResponse> {
-    return apiClient.post<ChildResponse>("/children/join", { inviteCode });
+  async joinChild(data: AcceptInviteRequest): Promise<ChildResponse> {
+    return apiClient.post<ChildResponse>("/children/join", data);
   },
 };

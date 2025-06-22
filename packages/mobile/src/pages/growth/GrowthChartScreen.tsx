@@ -263,7 +263,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
     try {
       // Load growth records
       const filters: GrowthFilters = {
-        child_id: selectedChild,
+        childId: selectedChild,
         limit: 100,
         offset: 0,
       };
@@ -305,7 +305,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
     const child = children.find(c => c.id === childId);
     if (!child) return "";
     
-    const birthDate = new Date(child.birth_date);
+    const birthDate = new Date(child.birthDate);
     const recordDate = new Date(recordedAt);
     const diffTime = recordDate.getTime() - birthDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -353,44 +353,44 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
       <TouchableOpacity
         onPress={() => navigation.navigate("AddGrowthRecord", { 
           recordId: record.id, 
-          childId: record.child_id,
+          childId: record.childId,
           isEditing: true 
         })}
       >
         <View style={styles.recordHeader}>
           <View>
             <Text style={styles.recordDate}>
-              {formatDate(record.recorded_at)}
+              {formatDate(record.recordedAt)}
             </Text>
             <Text style={styles.recordAge}>
-              {calculateAge(record.child_id, record.recorded_at)}
+              {calculateAge(record.childId, record.recordedAt)}
             </Text>
           </View>
         </View>
         
         <View style={styles.recordMeasurements}>
-          {record.height_cm && (
+          {record.height && (
             <View style={styles.measurementItem}>
               <Text style={styles.measurementValue}>
-                {record.height_cm.toFixed(1)}cm
+                {record.height.toFixed(1)}cm
               </Text>
               <Text style={styles.measurementLabel}>키</Text>
             </View>
           )}
           
-          {record.weight_kg && (
+          {record.weight && (
             <View style={styles.measurementItem}>
               <Text style={styles.measurementValue}>
-                {record.weight_kg.toFixed(1)}kg
+                {record.weight.toFixed(1)}kg
               </Text>
               <Text style={styles.measurementLabel}>몸무게</Text>
             </View>
           )}
           
-          {record.head_circumference_cm && (
+          {record.headCircumference && (
             <View style={styles.measurementItem}>
               <Text style={styles.measurementValue}>
-                {record.head_circumference_cm.toFixed(1)}cm
+                {record.headCircumference.toFixed(1)}cm
               </Text>
               <Text style={styles.measurementLabel}>머리둘레</Text>
             </View>

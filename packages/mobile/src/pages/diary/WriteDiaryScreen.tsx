@@ -37,7 +37,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
   const [formData, setFormData] = useState<CreateDiaryEntryRequest>({
-    child_id: "",
+    childId: "",
     date: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
     content: "",
     photos: [],
@@ -173,7 +173,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
       if (!selectedChild && response.children.length === 1) {
         const childId = response.children[0].id;
         setSelectedChild(childId);
-        setFormData(prev => ({ ...prev, child_id: childId }));
+        setFormData(prev => ({ ...prev, childId }));
       }
     } catch (error: any) {
       Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
@@ -188,13 +188,13 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
       const response = await diaryApi.getDiaryEntry(diaryId);
       setDiary(response.diaryEntry);
       setFormData({
-        child_id: response.diaryEntry.child_id,
+        childId: response.diaryEntry.childId,
         date: response.diaryEntry.date,
         content: response.diaryEntry.content,
         photos: response.diaryEntry.photos || [],
         videos: response.diaryEntry.videos || [],
       });
-      setSelectedChild(response.diaryEntry.child_id);
+      setSelectedChild(response.diaryEntry.childId);
     } catch (error: any) {
       Alert.alert("오류", "일기를 불러오는데 실패했습니다.");
     } finally {
@@ -230,7 +230,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
     try {
       const diaryData = {
         ...formData,
-        child_id: selectedChild,
+        childId: selectedChild,
       };
 
       if (isEditing && diaryId) {
@@ -299,7 +299,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
                 ]}
                 onPress={() => {
                   setSelectedChild(child.id);
-                  setFormData(prev => ({ ...prev, child_id: child.id }));
+                  setFormData(prev => ({ ...prev, childId: child.id }));
                 }}
               >
                 <Text

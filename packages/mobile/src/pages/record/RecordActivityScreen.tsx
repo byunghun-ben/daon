@@ -176,13 +176,13 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
   // Initialize form data when activity data is loaded (for editing)
   useEffect(() => {
     if (activity && isEditing) {
-      setSelectedChild(activity.child_id);
+      setSelectedChild(activity.childId);
       setActivityType(activity.type);
       setFormData({
-        started_at: activity.started_at,
-        ended_at: activity.ended_at || "",
+        started_at: activity.timestamp,
+        ended_at: "", // ended_at은 더 이상 별도 필드가 아님
         notes: activity.notes || "",
-        metadata: activity.metadata || {},
+        metadata: activity.data || {},
       });
     }
   }, [activity, isEditing]);
@@ -246,12 +246,11 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
       } else {
         // Create new activity
         const activityData: CreateActivityRequest = {
-          child_id: selectedChild,
+          childId: selectedChild,
           type: activityType as any,
-          started_at: formData.started_at,
-          ended_at: formData.ended_at || undefined,
+          timestamp: formData.started_at,
+          data: formData.metadata,
           notes: formData.notes || undefined,
-          metadata: formData.metadata,
         };
 
         await createActivityMutation.mutateAsync(activityData);

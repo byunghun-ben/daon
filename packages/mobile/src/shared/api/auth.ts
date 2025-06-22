@@ -1,46 +1,12 @@
-import * as z from "zod/v4";
 import { apiClient, ApiError, authUtils } from "./client";
-
-// Auth API types
-export interface SignUpRequest {
-  email: string;
-  password: string;
-  name: string;
-}
-
-export interface SignInRequest {
-  email: string;
-  password: string;
-}
-
-const UserSchema = z.object({
-  id: z.string(),
-  email: z.string(),
-  name: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
-});
-
-type User = z.infer<typeof UserSchema>;
-
-const AuthResponseSchema = z.object({
-  message: z.string(),
-  session: z.object({
-    access_token: z.string(),
-    refresh_token: z.string(),
-    expires_in: z.number(),
-    expires_at: z.number(),
-    token_type: z.string(),
-  }),
-  user: UserSchema,
-  children: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-  })).optional(),
-  needs_child_setup: z.boolean().optional(),
-});
-
-type AuthResponse = z.infer<typeof AuthResponseSchema>;
+import {
+  SignUpRequest,
+  SignInRequest,
+  AuthResponse,
+  UserApi,
+  CreateChildRequest,
+  AcceptInviteRequest,
+} from "@daon/shared";
 
 type SignInSuccessResponse = {
   success: true;
@@ -159,26 +125,21 @@ export const authApi = {
     }
   },
 
-  async getProfile(): Promise<{ user: User }> {
-    return apiClient.get<{ user: User }>("/auth/profile");
+  async getProfile(): Promise<{ user: UserApi }> {
+    return apiClient.get<{ user: UserApi }>("/auth/profile");
   },
 
   async updateProfile(
-    data: Partial<Pick<User, "name">>
-  ): Promise<{ user: User }> {
-    return apiClient.put<{ user: User }>("/auth/profile", data);
+    data: Partial<Pick<UserApi, "name">>
+  ): Promise<{ user: UserApi }> {
+    return apiClient.put<{ user: UserApi }>("/auth/profile", data);
   },
 
-  async createChild(data: {
-    name: string;
-    birth_date: string;
-    gender?: "male" | "female" | "other";
-    photo_url?: string;
-  }): Promise<{ child: any }> {
-    return apiClient.post<{ child: any }>("/auth/create-child", data);
+  async createChild(data: CreateChildRequest): Promise<{ child: any }> {
+    return apiClient.post<{ child: any }>("/auth/children", data);
   },
 
-  async joinChild(data: { invite_code: string }): Promise<{ child: any }> {
+  async joinChild(data: AcceptInviteRequest): Promise<{ child: any }> {
     return apiClient.post<{ child: any }>("/auth/join-child", data);
   },
 };

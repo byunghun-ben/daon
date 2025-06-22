@@ -1,75 +1,22 @@
 import { apiClient } from "./client";
+import {
+  GrowthRecordApi,
+  CreateGrowthRecordRequest,
+  UpdateGrowthRecordRequest,
+  GrowthFilters,
+  GrowthRecordsResponse,
+  GrowthRecordResponse,
+  GrowthChartData,
+} from "@daon/shared";
 
-// Growth API types
-export interface GrowthRecord {
-  id: string;
-  child_id: string;
-  user_id: string;
-  recorded_at: string;
-  age_in_days: number;
-  height_cm?: number;
-  weight_kg?: number;
-  head_circumference_cm?: number;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateGrowthRecordRequest {
-  child_id: string;
-  recorded_at: string;
-  height_cm?: number;
-  weight_kg?: number;
-  head_circumference_cm?: number;
-  notes?: string;
-}
-
-export interface UpdateGrowthRecordRequest {
-  recorded_at?: string;
-  height_cm?: number;
-  weight_kg?: number;
-  head_circumference_cm?: number;
-  notes?: string;
-}
-
-export interface GrowthFilters {
-  child_id?: string;
-  date_from?: string;
-  date_to?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface GrowthRecordsResponse {
-  growthRecords: GrowthRecord[];
-  pagination: {
-    limit: number;
-    offset: number;
-    total: number;
-  };
-}
-
-export interface GrowthRecordResponse {
-  growthRecord: GrowthRecord;
-}
-
-export interface GrowthChartData {
-  childId: string;
-  childName: string;
-  birthDate: string;
-  gender?: string;
-  records: {
-    date: string;
-    ageInDays: number;
-    height?: number;
-    weight?: number;
-    headCircumference?: number;
-  }[];
-  percentiles?: {
-    height: { p3: number; p10: number; p25: number; p50: number; p75: number; p90: number; p97: number }[];
-    weight: { p3: number; p10: number; p25: number; p50: number; p75: number; p90: number; p97: number }[];
-  };
-}
+// Re-export types for easy access
+export type { 
+  GrowthRecordApi, 
+  CreateGrowthRecordRequest, 
+  UpdateGrowthRecordRequest, 
+  GrowthFilters 
+};
+export type GrowthRecord = GrowthRecordApi;
 
 // Growth API functions
 export const growthApi = {

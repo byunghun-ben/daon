@@ -1,38 +1,13 @@
-import { 
+import {
+  apiToDb,
   CreateChildRequestSchema,
-  UpdateChildRequestSchema,
-  ChildDbSchema,
-  ChildApiSchema,
   dbToApi,
-  apiToDb
+  UpdateChildRequestSchema,
 } from "@daon/shared";
-import { supabaseAdmin } from "../lib/supabase";
-import { logger } from "../utils/logger";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { z } from "zod";
-
-// DB 저장을 위한 변환 스키마 (camelCase → snake_case)
-const CreateChildDbSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  birth_date: z.string().refine((date) => {
-    const parsedDate = new Date(date);
-    const now = new Date();
-    const maxFutureDate = new Date();
-    maxFutureDate.setMonth(now.getMonth() + 10); // 임신 기간 최대 10개월 고려
-
-    return (
-      !isNaN(parsedDate.getTime()) &&
-      parsedDate >= new Date("1900-01-01") &&
-      parsedDate <= maxFutureDate
-    );
-  }, "Birth date must be valid and within reasonable range (can be future for expected birth)"),
-  gender: z.enum(["male", "female"], { required_error: "Gender is required" }),
-  photo_url: z.string().url().nullable(),
-  birth_weight: z.number().positive().nullable(),
-  birth_height: z.number().positive().nullable(),
-});
-
-const UpdateChildDbSchema = CreateChildDbSchema.partial();
+import { supabaseAdmin } from "../lib/supabase";
+import { createAuthenticatedHandler } from "../utils/auth-handler";
+import { logger } from "../utils/logger";
 
 /**
  * Create a new child profile
@@ -41,7 +16,7 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
     // API 요청 검증 (camelCase)
     const validatedApiData = CreateChildRequestSchema.parse(req.body);
-    
+
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = {
       name: validatedApiData.name,
@@ -141,7 +116,7 @@ export const getChildren = createAuthenticatedHandler(async (req, res) => {
     }
 
     // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
-    const apiChildren = children.map(child => dbToApi(child));
+    const apiChildren = children.map((child) => dbToApi(child));
 
     res.json({ children: apiChildren });
   } catch (error) {
@@ -204,7 +179,7 @@ export const updateChild = createAuthenticatedHandler(async (req, res) => {
     const { id } = req.params;
     // API 요청 검증 (camelCase)
     const validatedApiData = UpdateChildRequestSchema.parse(req.body);
-    
+
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = apiToDb(validatedApiData);
 

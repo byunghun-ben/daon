@@ -166,11 +166,11 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
           <View style={styles.childDetails}>
             <Text style={styles.childName}>{child.name}</Text>
             <Text style={styles.childMeta}>
-              {calculateAge(child.birth_date)}
+              {calculateAge(child.birthDate)}
               {child.gender && ` · ${formatGender(child.gender)}`}
             </Text>
             <Text style={styles.childMeta}>
-              생일: {new Date(child.birth_date).toLocaleDateString("ko-KR")}
+              생일: {new Date(child.birthDate).toLocaleDateString("ko-KR")}
             </Text>
           </View>
         </View>

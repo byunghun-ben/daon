@@ -11,7 +11,8 @@
     "dev": "react-native start",
     "build": "tsc --noEmit",
     "type-check": "tsc --noEmit",
-    "clean": "react-native clean"
+    "clean": "react-native clean",
+    "pod-install": "cd ios && pod install && cd .."
   },
   "dependencies": {
     "@daon/shared": "workspace:*",

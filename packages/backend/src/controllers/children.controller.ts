@@ -1,10 +1,18 @@
-import { z } from "zod";
+import { 
+  CreateChildRequestSchema,
+  UpdateChildRequestSchema,
+  ChildDbSchema,
+  ChildApiSchema,
+  dbToApi,
+  apiToDb
+} from "@daon/shared";
 import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
+import { z } from "zod";
 
-// Zod schemas for validation
-const CreateChildSchema = z.object({
+// DB 저장을 위한 변환 스키마 (camelCase → snake_case)
+const CreateChildDbSchema = z.object({
   name: z.string().min(1, "Name is required"),
   birth_date: z.string().refine((date) => {
     const parsedDate = new Date(date);
@@ -19,47 +27,35 @@ const CreateChildSchema = z.object({
     );
   }, "Birth date must be valid and within reasonable range (can be future for expected birth)"),
   gender: z.enum(["male", "female"], { required_error: "Gender is required" }),
-  photo_url: z.string().url().optional(),
-  birth_weight: z.number().positive().optional(),
-  birth_height: z.number().positive().optional(),
+  photo_url: z.string().url().nullable(),
+  birth_weight: z.number().positive().nullable(),
+  birth_height: z.number().positive().nullable(),
 });
 
-const UpdateChildSchema = z.object({
-  name: z.string().min(1).optional(),
-  birth_date: z
-    .string()
-    .refine((date) => {
-      const parsedDate = new Date(date);
-      const now = new Date();
-      const maxFutureDate = new Date();
-      maxFutureDate.setMonth(now.getMonth() + 10);
-
-      return (
-        !isNaN(parsedDate.getTime()) &&
-        parsedDate >= new Date("1900-01-01") &&
-        parsedDate <= maxFutureDate
-      );
-    })
-    .optional(),
-  gender: z.enum(["male", "female"]).optional(),
-  photo_url: z.string().url().optional(),
-  birth_weight: z.number().positive().optional(),
-  birth_height: z.number().positive().optional(),
-});
+const UpdateChildDbSchema = CreateChildDbSchema.partial();
 
 /**
  * Create a new child profile
  */
 export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = CreateChildSchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = CreateChildRequestSchema.parse(req.body);
+    
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = {
+      name: validatedApiData.name,
+      birth_date: validatedApiData.birthDate,
+      gender: validatedApiData.gender,
+      photo_url: validatedApiData.photoUrl,
+      birth_weight: validatedApiData.birthWeight,
+      birth_height: validatedApiData.birthHeight,
+      owner_id: req.user.id,
+    };
 
     const { data: child, error } = await supabaseAdmin
       .from("children")
-      .insert({
-        ...validatedData,
-        owner_id: req.user.id,
-      })
+      .insert(dbData)
       .select()
       .single();
 
@@ -95,9 +91,12 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
       userId: req.user.id,
     });
 
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiChild = dbToApi(child);
+
     res.status(201).json({
       message: "Child profile created successfully",
-      child,
+      child: apiChild,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -141,7 +140,10 @@ export const getChildren = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    res.json({ children });
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiChildren = children.map(child => dbToApi(child));
+
+    res.json({ children: apiChildren });
   } catch (error) {
     logger.error("Get children error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -200,7 +202,11 @@ export const getChild = createAuthenticatedHandler(async (req, res) => {
 export const updateChild = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const validatedData = UpdateChildSchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = UpdateChildRequestSchema.parse(req.body);
+    
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = apiToDb(validatedApiData);
 
     // Check if user owns this child
     const { data: ownership, error: ownershipError } = await supabaseAdmin
@@ -223,7 +229,7 @@ export const updateChild = createAuthenticatedHandler(async (req, res) => {
 
     const { data: updatedChild, error } = await supabaseAdmin
       .from("children")
-      .update(validatedData)
+      .update(dbData)
       .eq("id", id)
       .select()
       .single();
@@ -243,9 +249,12 @@ export const updateChild = createAuthenticatedHandler(async (req, res) => {
       userId: req.user.id,
     });
 
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiChild = dbToApi(updatedChild);
+
     res.json({
       message: "Child profile updated successfully",
-      child: updatedChild,
+      child: apiChild,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

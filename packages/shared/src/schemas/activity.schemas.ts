@@ -92,15 +92,15 @@ export const CreateTummyTimeDataRequestSchema = z.object({
   duration: z.number().positive(),
 });
 
-// Main activity schemas
+// Main activity schemas (실제 DB 구조에 맞춤)
 export const ActivityDbSchema = z.object({
   id: z.uuid(),
   child_id: z.uuid(),
   user_id: z.uuid(),
   type: ActivityTypeSchema,
-  started_at: z.iso.datetime(),
-  ended_at: z.iso.datetime().optional(),
-  notes: z.string().optional(),
+  timestamp: z.iso.datetime().default(() => new Date().toISOString()), // timestamp 필드 사용
+  data: z.record(z.string(), z.unknown()), // JSONB 타입으로 활동별 데이터 저장
+  notes: z.string().nullable(),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });
@@ -110,43 +110,60 @@ export const ActivityApiSchema = z.object({
   childId: z.uuid(),
   userId: z.uuid(),
   type: ActivityTypeSchema,
-  startedAt: z.iso.datetime(),
-  endedAt: z.iso.datetime().optional(),
-  notes: z.string().optional(),
+  timestamp: z.iso.datetime(),
+  data: z.union([
+    FeedingDataApiSchema,
+    DiaperDataApiSchema,
+    SleepDataApiSchema,
+    TummyTimeDataApiSchema,
+    z.record(z.string(), z.unknown()), // custom 타입용
+  ]),
+  notes: z.string().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   user: z.object({
     id: z.uuid(),
-    name: z.string(),
+    name: z.string().nullable(),
+    email: z.email(),
   }),
-  feedingData: FeedingDataApiSchema.optional(),
-  diaperData: DiaperDataApiSchema.optional(),
-  sleepData: SleepDataApiSchema.optional(),
-  tummyTimeData: TummyTimeDataApiSchema.optional(),
 });
 
 // Request schemas
 export const CreateActivityRequestSchema = z.object({
   childId: z.uuid(),
   type: ActivityTypeSchema,
-  startedAt: z.iso.datetime(),
-  endedAt: z.iso.datetime().optional(),
-  notes: z.string().optional(),
-  feedingData: CreateFeedingDataRequestSchema.optional(),
-  diaperData: CreateDiaperDataRequestSchema.optional(),
-  sleepData: CreateSleepDataRequestSchema.optional(),
-  tummyTimeData: CreateTummyTimeDataRequestSchema.optional(),
+  timestamp: z.iso.datetime().optional(), // 기본값은 서버에서 현재 시간
+  data: z.union([
+    CreateFeedingDataRequestSchema,
+    CreateDiaperDataRequestSchema,
+    CreateSleepDataRequestSchema,
+    CreateTummyTimeDataRequestSchema,
+    z.record(z.string(), z.unknown()), // custom 타입용
+  ]),
+  notes: z.string().nullable().optional(),
 });
 
-export const UpdateActivityRequestSchema =
-  CreateActivityRequestSchema.partial().omit({ childId: true });
+export const UpdateActivityRequestSchema = z.object({
+  type: ActivityTypeSchema.optional(),
+  timestamp: z.iso.datetime().optional(),
+  data: z
+    .union([
+      CreateFeedingDataRequestSchema,
+      CreateDiaperDataRequestSchema,
+      CreateSleepDataRequestSchema,
+      CreateTummyTimeDataRequestSchema,
+      z.record(z.string(), z.unknown()),
+    ])
+    .optional(),
+  notes: z.string().nullable().optional(),
+});
 
 // Filter schemas
 export const ActivityFiltersSchema = z.object({
   childId: z.uuid().optional(),
   type: ActivityTypeSchema.optional(),
-  startDate: z.iso.datetime().optional(),
-  endDate: z.iso.datetime().optional(),
+  dateFrom: z.iso.datetime().optional(),
+  dateTo: z.iso.datetime().optional(),
   limit: z.number().positive().max(100).default(20),
   offset: z.number().nonnegative().default(0),
 });

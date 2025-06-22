@@ -3,9 +3,11 @@ import { z } from "zod";
 import { supabaseAdmin } from "../lib/supabase";
 import {
   ActivityFiltersSchema,
-  CreateActivitySchema,
-  UpdateActivitySchema,
-} from "../schemas/activity.schemas";
+  CreateActivityRequestSchema,
+  UpdateActivityRequestSchema,
+  dbToApi,
+  apiToDb,
+} from "@daon/shared";
 import { isSleepData, type SleepData } from "../types/activity";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { logger } from "../utils/logger";
@@ -16,13 +18,14 @@ import { logger } from "../utils/logger";
 export const createActivity: RequestHandler = createAuthenticatedHandler(
   async (req, res) => {
     try {
-      const validatedData = CreateActivitySchema.parse(req.body);
+      // API 요청 검증 (camelCase)
+      const validatedApiData = CreateActivityRequestSchema.parse(req.body);
 
       // Check if user has access to this child
       const { data: access, error: accessError } = await supabaseAdmin
         .from("child_guardians")
         .select("role")
-        .eq("child_id", validatedData.child_id)
+        .eq("child_id", validatedApiData.childId)
         .eq("user_id", req.user.id)
         .not("accepted_at", "is", null)
         .single();
@@ -36,12 +39,12 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
       const { data: activity, error } = await supabaseAdmin
         .from("activities")
         .insert({
-          child_id: validatedData.child_id,
+          child_id: validatedApiData.childId,
           user_id: req.user.id,
-          type: validatedData.type,
-          timestamp: validatedData.timestamp || new Date().toISOString(),
-          data: validatedData.data,
-          notes: validatedData.notes,
+          type: validatedApiData.type,
+          timestamp: validatedApiData.timestamp || new Date().toISOString(),
+          data: validatedApiData.data as unknown,
+          notes: validatedApiData.notes,
         })
         .select(
           `
@@ -55,7 +58,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
       if (error) {
         logger.error("Failed to create activity", {
           userId: req.user.id,
-          childId: validatedData.child_id,
+          childId: validatedApiData.childId,
           error,
         });
         res.status(500).json({ error: "Failed to create activity record" });
@@ -64,14 +67,17 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
 
       logger.info("Activity created successfully", {
         activityId: activity.id,
-        childId: validatedData.child_id,
+        childId: validatedApiData.childId,
         userId: req.user.id,
-        type: validatedData.type,
+        type: validatedApiData.type,
       });
+
+      // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+      const apiActivity = dbToApi(activity);
 
       res.status(201).json({
         message: "Activity recorded successfully",
-        activity,
+        activity: apiActivity,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -135,20 +141,20 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
       query = query.in("child_id", allAccessibleChildIds);
 
       // Apply filters
-      if (filters.child_id) {
-        query = query.eq("child_id", filters.child_id);
+      if (filters.childId) {
+        query = query.eq("child_id", filters.childId);
       }
 
       if (filters.type) {
         query = query.eq("type", filters.type);
       }
 
-      if (filters.date_from) {
-        query = query.gte("timestamp", filters.date_from);
+      if (filters.dateFrom) {
+        query = query.gte("timestamp", filters.dateFrom);
       }
 
-      if (filters.date_to) {
-        query = query.lte("timestamp", filters.date_to);
+      if (filters.dateTo) {
+        query = query.lte("timestamp", filters.dateTo);
       }
 
       // Add pagination and ordering
@@ -171,8 +177,11 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
         return;
       }
 
+      // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+      const apiActivities = activities.map(activity => dbToApi(activity));
+
       res.json({
-        activities,
+        activities: apiActivities,
         pagination: {
           limit: filters.limit,
           offset: filters.offset,
@@ -239,7 +248,10 @@ export const getActivity: RequestHandler = createAuthenticatedHandler(
         return;
       }
 
-      res.json({ activity });
+      // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+      const apiActivity = dbToApi(activity);
+
+      res.json({ activity: apiActivity });
     } catch (error) {
       logger.error("Get activity error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -254,7 +266,11 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const validatedData = UpdateActivitySchema.parse(req.body);
+      // API 요청 검증 (camelCase)
+      const validatedApiData = UpdateActivityRequestSchema.parse(req.body);
+      
+      // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+      const dbData = apiToDb(validatedApiData);
 
       // Check if user created this activity
       const { data: existing, error: existingError } = await supabaseAdmin
@@ -277,7 +293,10 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
 
       const { data: updatedActivity, error } = await supabaseAdmin
         .from("activities")
-        .update(validatedData)
+        .update({
+          ...dbData,
+          data: dbData.data as unknown,
+        })
         .eq("id", id)
         .select(
           `
@@ -303,9 +322,12 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
         userId: req.user.id,
       });
 
+      // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+      const apiActivity = dbToApi(updatedActivity);
+
       res.json({
         message: "Activity updated successfully",
-        activity: updatedActivity,
+        activity: apiActivity,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -1,9 +1,9 @@
 import {
   ACTIVITY_LABELS,
-  FEEDING_TYPE_LABELS,
   DIAPER_TYPE_LABELS,
-  SLEEP_QUALITY_LABELS,
+  FEEDING_TYPE_LABELS,
   MILESTONE_TYPE_LABELS,
+  SLEEP_QUALITY_LABELS,
 } from "../constants";
 
 // 날짜 포맷팅
@@ -133,7 +133,7 @@ export const calculateAge = (birthDate: string): string => {
 };
 
 // 활동 요약 텍스트 생성
-export const formatActivitySummary = (activity: any): string => {
+export const formatActivitySummary = (activity: Activity): string => {
   const typeLabel = formatActivityType(activity.type);
 
   switch (activity.type) {

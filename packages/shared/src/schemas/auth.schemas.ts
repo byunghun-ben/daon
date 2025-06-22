@@ -1,11 +1,13 @@
 import z from "zod/v4";
 
-// User schemas
+// User schemas (실제 DB 구조에 맞춤)
 export const UserDbSchema = z.object({
   id: z.uuid(),
   email: z.email(),
-  name: z.string().min(1).max(100),
-  registration_status: z.enum(["pending", "completed"]),
+  name: z.string().nullable(),
+  avatar_url: z.string().url().nullable(),
+  phone: z.string().nullable(),
+  registration_status: z.string().default("incomplete"),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });
@@ -13,8 +15,10 @@ export const UserDbSchema = z.object({
 export const UserApiSchema = z.object({
   id: z.uuid(),
   email: z.email(),
-  name: z.string().min(1).max(100),
-  registrationStatus: z.enum(["pending", "completed"]),
+  name: z.string().nullable(),
+  avatarUrl: z.string().url().nullable(),
+  phone: z.string().nullable(),
+  registrationStatus: z.string().default("incomplete"),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });
@@ -33,6 +37,12 @@ export const SignInRequestSchema = z.object({
 
 export const UpdateProfileRequestSchema = z.object({
   name: z.string().min(1).max(100).optional(),
+});
+
+export const UpdateUserProfileRequestSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  avatarUrl: z.string().url().optional(),
+  phone: z.string().optional(),
 });
 
 // Auth response schemas

@@ -1,13 +1,16 @@
 import z from "zod/v4";
 
-// Base child schema with database fields (snake_case)
+// Base child schema with database fields (실제 DB 구조에 맞춤)
 export const ChildDbSchema = z.object({
   id: z.uuid(),
-  user_id: z.uuid(),
-  name: z.string().min(1).max(100),
-  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  photo_url: z.url().optional(),
+  name: z.string().min(1).max(255),
+  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // DATE 타입
+  gender: z.enum(["male", "female"]), // NOT NULL, 'other' 제거
+  photo_url: z.string().url().nullable(),
+  birth_weight: z.number().positive().nullable(), // DECIMAL(5,2), kg 단위
+  birth_height: z.number().positive().nullable(), // DECIMAL(5,2), cm 단위
+  owner_id: z.uuid(), // 소유자 ID (NOT NULL)
+  invite_code: z.string().nullable(), // 초대 코드
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });
@@ -15,11 +18,14 @@ export const ChildDbSchema = z.object({
 // API response schema with frontend fields (camelCase)
 export const ChildApiSchema = z.object({
   id: z.uuid(),
-  userId: z.uuid(),
-  name: z.string().min(1).max(100),
+  name: z.string().min(1).max(255),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  photoUrl: z.url().optional(),
+  gender: z.enum(["male", "female"]),
+  photoUrl: z.string().url().nullable(),
+  birthWeight: z.number().positive().nullable(),
+  birthHeight: z.number().positive().nullable(),
+  ownerId: z.uuid(),
+  inviteCode: z.string().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });
@@ -28,8 +34,10 @@ export const ChildApiSchema = z.object({
 export const CreateChildRequestSchema = z.object({
   name: z.string().min(1).max(100),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(["male", "female"]),
   photoUrl: z.url().optional(),
+  birthWeight: z.number().positive().optional(),
+  birthHeight: z.number().positive().optional(),
 });
 
 export const UpdateChildRequestSchema = CreateChildRequestSchema.partial();

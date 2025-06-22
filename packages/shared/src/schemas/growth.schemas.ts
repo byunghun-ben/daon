@@ -5,11 +5,11 @@ export const GrowthRecordDbSchema = z.object({
   id: z.uuid(),
   child_id: z.uuid(),
   user_id: z.uuid(),
-  weight: z.number().positive().optional(), // kg
-  height: z.number().positive().optional(), // cm
-  head_circumference: z.number().positive().optional(), // cm
+  weight: z.number().positive().nullable(), // kg
+  height: z.number().positive().nullable(), // cm
+  head_circumference: z.number().positive().nullable(), // cm
   recorded_at: z.iso.datetime(),
-  notes: z.string().optional(),
+  notes: z.string().nullable(),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });
@@ -18,16 +18,17 @@ export const GrowthRecordApiSchema = z.object({
   id: z.uuid(),
   childId: z.uuid(),
   userId: z.uuid(),
-  weight: z.number().positive().optional(), // kg
-  height: z.number().positive().optional(), // cm
-  headCircumference: z.number().positive().optional(), // cm
+  weight: z.number().positive().nullable(), // kg
+  height: z.number().positive().nullable(), // cm
+  headCircumference: z.number().positive().nullable(), // cm
   recordedAt: z.iso.datetime(),
-  notes: z.string().optional(),
+  notes: z.string().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   user: z.object({
     id: z.uuid(),
-    name: z.string(),
+    name: z.string().nullable(),
+    email: z.email(),
   }),
 });
 

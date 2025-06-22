@@ -1,7 +1,7 @@
-import { z } from "zod";
+import z from "zod/v4";
 
 // 공통 검증 스키마
-export const emailSchema = z.string().email("올바른 이메일을 입력해주세요");
+export const emailSchema = z.email("올바른 이메일을 입력해주세요");
 export const phoneSchema = z
   .string()
   .regex(/^010-?\d{4}-?\d{4}$/, "올바른 휴대폰 번호를 입력해주세요")
@@ -37,7 +37,7 @@ export const createChildSchema = z.object({
       birthDate >= new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000)
     );
   }, "올바른 생년월일을 입력해주세요"),
-  gender: z.enum(["MALE", "FEMALE"], { required_error: "성별을 선택해주세요" }),
+  gender: z.enum(["MALE", "FEMALE"], "성별을 선택해주세요"),
   birthWeight: z.number().positive().max(10).optional(),
   birthHeight: z.number().positive().max(100).optional(),
 });
@@ -116,7 +116,7 @@ export const createGrowthRecordSchema = z
       .optional(),
   })
   .refine((data) => {
-    return data.weight || data.height || data.headCircumference;
+    return data.weight ?? data.height ?? data.headCircumference;
   }, "체중, 신장, 머리둘레 중 하나 이상을 입력해주세요");
 
 // 보호자 초대 검증

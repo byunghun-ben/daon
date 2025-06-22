@@ -3,28 +3,27 @@ import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import {
-  CreateDiaryEntrySchema,
-  UpdateDiaryEntrySchema,
+  CreateDiaryEntryRequestSchema,
+  UpdateDiaryEntryRequestSchema,
   DiaryFiltersSchema,
-  MilestoneSchema,
-  type CreateDiaryEntryInput,
-  type UpdateDiaryEntryInput,
-  type DiaryFilters,
-  type MilestoneInput,
-} from "../schemas/diary.schemas";
+  CreateMilestoneRequestSchema,
+  dbToApi,
+  apiToDb,
+} from "@daon/shared";
 
 /**
  * Create a new diary entry
  */
 export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = CreateDiaryEntrySchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = CreateDiaryEntryRequestSchema.parse(req.body);
 
     // Check if user has access to this child
     const { data: access, error: accessError } = await supabaseAdmin
       .from("child_guardians")
       .select("role")
-      .eq("child_id", validatedData.child_id)
+      .eq("child_id", validatedApiData.childId)
       .eq("user_id", req.user.id)
       .not("accepted_at", "is", null)
       .single();
@@ -34,17 +33,20 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = {
+      child_id: validatedApiData.childId,
+      user_id: req.user.id,
+      date: validatedApiData.date,
+      content: validatedApiData.content,
+      photos: validatedApiData.photos || [],
+      videos: validatedApiData.videos || [],
+    };
+
     // Create diary entry
     const { data: diaryEntry, error } = await supabaseAdmin
       .from("diary_entries")
-      .insert({
-        child_id: validatedData.child_id,
-        user_id: req.user.id,
-        date: validatedData.date,
-        content: validatedData.content,
-        photos: validatedData.photos || [],
-        videos: validatedData.videos || [],
-      })
+      .insert(dbData)
       .select(`
         *,
         children(name),
@@ -55,7 +57,7 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
     if (error) {
       logger.error("Failed to create diary entry", { 
         userId: req.user.id,
-        childId: validatedData.child_id,
+        childId: validatedApiData.childId,
         error 
       });
       res.status(500).json({ error: "Failed to create diary entry" });
@@ -64,7 +66,7 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
 
     logger.info("Diary entry created successfully", { 
       diaryEntryId: diaryEntry.id,
-      childId: validatedData.child_id,
+      childId: validatedApiData.childId,
       userId: req.user.id
     });
 
@@ -134,16 +136,16 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     query = query.in("child_id", allAccessibleChildIds);
 
     // Apply filters
-    if (filters.child_id) {
-      query = query.eq("child_id", filters.child_id);
+    if (filters.childId) {
+      query = query.eq("child_id", filters.childId);
     }
 
-    if (filters.date_from) {
-      query = query.gte("date", filters.date_from);
+    if (filters.dateFrom) {
+      query = query.gte("date", filters.dateFrom);
     }
 
-    if (filters.date_to) {
-      query = query.lte("date", filters.date_to);
+    if (filters.dateTo) {
+      query = query.lte("date", filters.dateTo);
     }
 
     // Add pagination and ordering
@@ -238,7 +240,7 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
 export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const validatedData = UpdateDiaryEntrySchema.parse(req.body);
+    const validatedData = UpdateDiaryEntryRequestSchema.parse(req.body);
 
     // Check if user created this diary entry
     const { data: existing, error: existingError } = await supabaseAdmin
@@ -358,7 +360,7 @@ export const deleteDiaryEntry = createAuthenticatedHandler(async (req, res) => {
  */
 export const addMilestone = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = MilestoneSchema.parse(req.body);
+    const validatedData = CreateMilestoneRequestSchema.parse(req.body);
 
     // Check if user has access to this child
     const { data: access, error: accessError } = await supabaseAdmin

@@ -42,18 +42,19 @@ export const CreateMilestoneRequestSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().optional(),
   achievedAt: z.iso.datetime(),
+  childId: z.uuid(),
+  diaryEntryId: z.uuid().optional(),
 });
 
-// Diary entry schemas
+// Diary entry schemas (실제 DB 구조에 맞춤)
 export const DiaryEntryDbSchema = z.object({
   id: z.uuid(),
   child_id: z.uuid(),
   user_id: z.uuid(),
-  title: z.string().min(1).max(200),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // entry_date가 아닌 date 필드
   content: z.string(),
-  photos: z.array(z.url()),
-  videos: z.array(z.url()),
-  entry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  photos: z.array(z.string()).nullable(), // TEXT[] 타입
+  videos: z.array(z.string()).nullable(), // TEXT[] 타입
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
 });
@@ -62,16 +63,16 @@ export const DiaryEntryApiSchema = z.object({
   id: z.uuid(),
   childId: z.uuid(),
   userId: z.uuid(),
-  title: z.string().min(1).max(200),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   content: z.string(),
-  photos: z.array(z.url()),
-  videos: z.array(z.url()),
-  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  photos: z.array(z.string()).nullable(),
+  videos: z.array(z.string()).nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   user: z.object({
     id: z.uuid(),
-    name: z.string(),
+    name: z.string().nullable(),
+    email: z.email(),
   }),
   milestones: z.array(MilestoneApiSchema),
 });
@@ -79,25 +80,32 @@ export const DiaryEntryApiSchema = z.object({
 // Request schemas
 export const CreateDiaryEntryRequestSchema = z.object({
   childId: z.uuid(),
-  title: z.string().min(1).max(200),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   content: z.string(),
-  photos: z.array(z.url()).default([]),
-  videos: z.array(z.url()).default([]),
-  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  photos: z.array(z.string()).default([]),
+  videos: z.array(z.string()).default([]),
   milestones: z.array(CreateMilestoneRequestSchema).default([]),
 });
 
-export const UpdateDiaryEntryRequestSchema =
-  CreateDiaryEntryRequestSchema.partial().omit({ childId: true });
+export const UpdateDiaryEntryRequestSchema = z.object({
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  content: z.string().optional(),
+  photos: z.array(z.string()).optional(),
+  videos: z.array(z.string()).optional(),
+  milestones: z.array(CreateMilestoneRequestSchema).optional(),
+});
 
 // Filter schemas
 export const DiaryFiltersSchema = z.object({
   childId: z.uuid().optional(),
-  startDate: z
+  dateFrom: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
-  endDate: z
+  dateTo: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),

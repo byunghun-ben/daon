@@ -5,46 +5,24 @@ import { isAuthenticatedRequest } from "../middleware/auth";
 import type { TablesUpdate } from "../types/supabase";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { logger } from "../utils/logger";
+import {
+  SignUpRequestSchema,
+  SignInRequestSchema,
+  UpdateUserProfileRequestSchema,
+  CreateChildRequestSchema,
+  JoinChildRequestSchema,
+  dbToApi,
+  apiToDb,
+} from "@daon/shared";
 
-// Zod schemas for request validation
-const SignUpSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().min(1, "Name is required"),
-});
-
-const SignInSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
-});
-
-const UpdateProfileSchema = z.object({
-  name: z.string().optional(),
-  avatar_url: z.string().url().optional(),
-  phone: z.string().optional(),
-});
-
-const CreateChildSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  birth_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Birth date must be in YYYY-MM-DD format"),
-  gender: z.enum(["male", "female"]),
-  photo_url: z.string().url().optional(),
-  birth_weight: z.number().positive().optional(),
-  birth_height: z.number().positive().optional(),
-});
-
-const JoinChildSchema = z.object({
-  invite_code: z.string().min(1, "Invite code is required"),
-});
+// Using shared schemas for request validation
 
 /**
  * Sign up a new user
  */
 export async function signUp(req: Request, res: Response): Promise<void> {
   try {
-    const validatedData = SignUpSchema.parse(req.body);
+    const validatedData = SignUpRequestSchema.parse(req.body);
     const { email, password, name } = validatedData;
 
     // Create user in Supabase Auth
@@ -114,7 +92,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
 export async function signIn(req: Request, res: Response): Promise<void> {
   try {
     logger.debug("[signIn] data", req.body);
-    const validatedData = SignInSchema.parse(req.body);
+    const validatedData = SignInRequestSchema.parse(req.body);
     const { email, password } = validatedData;
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -256,7 +234,10 @@ export const getProfile = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    res.json({ user: profile });
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiUser = dbToApi(profile);
+
+    res.json({ user: apiUser });
   } catch (error) {
     logger.error("Get profile error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -268,11 +249,15 @@ export const getProfile = createAuthenticatedHandler(async (req, res) => {
  */
 export const updateProfile = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = UpdateProfileSchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = UpdateUserProfileRequestSchema.parse(req.body);
+    
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = apiToDb(validatedApiData);
 
     const { data: updatedProfile, error } = await supabaseAdmin
       .from("users")
-      .update(validatedData)
+      .update(dbData)
       .eq("id", req.user.id)
       .select()
       .single();
@@ -287,9 +272,12 @@ export const updateProfile = createAuthenticatedHandler(async (req, res) => {
     }
 
     logger.info("User profile updated", { userId: req.user.id });
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiUser = dbToApi(updatedProfile);
+
     res.json({
       message: "Profile updated successfully",
-      user: updatedProfile,
+      user: apiUser,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -310,15 +298,24 @@ export const updateProfile = createAuthenticatedHandler(async (req, res) => {
  */
 export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = CreateChildSchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = CreateChildRequestSchema.parse(req.body);
+    
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = {
+      name: validatedApiData.name,
+      birth_date: validatedApiData.birthDate,
+      gender: validatedApiData.gender,
+      photo_url: validatedApiData.photoUrl,
+      birth_weight: validatedApiData.birthWeight,
+      birth_height: validatedApiData.birthHeight,
+      owner_id: req.user.id,
+    };
 
     // Create the child
     const { data: child, error: childError } = await supabaseAdmin
       .from("children")
-      .insert({
-        ...validatedData,
-        owner_id: req.user.id,
-      })
+      .insert(dbData)
       .select()
       .single();
 
@@ -350,11 +347,14 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
       inviteCode: child.invite_code,
     });
 
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiChild = dbToApi(child);
+
     res.status(201).json({
       message: "Child created successfully",
       child: {
-        ...child,
-        invite_code: child.invite_code, // Include invite code for sharing
+        ...apiChild,
+        inviteCode: child.invite_code, // Include invite code for sharing
       },
     });
   } catch (error) {
@@ -376,20 +376,20 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
  */
 export const joinChild = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = JoinChildSchema.parse(req.body);
-    const { invite_code } = validatedData;
+    const validatedData = JoinChildRequestSchema.parse(req.body);
+    const { inviteCode } = validatedData;
 
     // Find the child by invite code
     const { data: child, error: childError } = await supabaseAdmin
       .from("children")
       .select("*")
-      .eq("invite_code", invite_code)
+      .eq("invite_code", inviteCode)
       .single();
 
     if (childError || !child) {
       logger.warn("Invalid invite code", {
         userId: req.user.id,
-        inviteCode: invite_code,
+        inviteCode: inviteCode,
         error: childError,
       });
       res.status(404).json({ error: "Invalid invite code" });
@@ -447,18 +447,21 @@ export const joinChild = createAuthenticatedHandler(async (req, res) => {
     logger.info("User joined child successfully", {
       userId: req.user.id,
       childId: child.id,
-      inviteCode: invite_code,
+      inviteCode: inviteCode,
+    });
+
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiChild = dbToApi({
+      id: child.id,
+      name: child.name,
+      birth_date: child.birth_date,
+      gender: child.gender,
+      photo_url: child.photo_url,
     });
 
     res.json({
       message: "Successfully joined child",
-      child: {
-        id: child.id,
-        name: child.name,
-        birth_date: child.birth_date,
-        gender: child.gender,
-        photo_url: child.photo_url,
-      },
+      child: apiChild,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

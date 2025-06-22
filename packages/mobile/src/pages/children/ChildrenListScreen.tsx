@@ -14,10 +14,7 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-
-interface ChildrenListScreenProps {
-  navigation: any;
-}
+import { ChildrenListScreenProps } from "../../shared/types/navigation";
 
 export default function ChildrenListScreen({
   navigation,
@@ -186,21 +183,30 @@ export default function ChildrenListScreen({
           title="활동 기록"
           size="small"
           buttonStyle={styles.actionButton}
-          onPress={() => navigation.navigate("Record", { childId: child.id })}
+          onPress={() =>
+            navigation.navigate("RecordActivity", {
+              activityType: "feeding",
+              childId: child.id,
+            })
+          }
         />
         <Button
           title="일기 쓰기"
           size="small"
           variant="secondary"
           buttonStyle={styles.actionButton}
-          onPress={() => navigation.navigate("Diary", { childId: child.id })}
+          onPress={() =>
+            navigation.navigate("DiaryList", { childId: child.id })
+          }
         />
         <Button
           title="성장 기록"
           size="small"
           variant="outline"
           buttonStyle={styles.actionButton}
-          onPress={() => navigation.navigate("Growth", { childId: child.id })}
+          onPress={() =>
+            navigation.navigate("GrowthChart", { childId: child.id })
+          }
         />
       </View>
     </Card>
@@ -239,7 +245,7 @@ export default function ChildrenListScreen({
             </Text>
             <Button
               title="첫 아이 프로필 만들기"
-              onPress={() => navigation.navigate("ChildProfile")}
+              onPress={() => navigation.navigate("ChildProfile", {})}
             />
           </View>
         ) : (
@@ -249,7 +255,7 @@ export default function ChildrenListScreen({
               title="새 아이 프로필 추가"
               variant="outline"
               buttonStyle={styles.addButton}
-              onPress={() => navigation.navigate("ChildProfile")}
+              onPress={() => navigation.navigate("ChildProfile", {})}
             />
           </>
         )}

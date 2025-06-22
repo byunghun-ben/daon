@@ -17,10 +17,7 @@ import {
   useTodayActivities,
   useRecentActivities,
 } from "../../shared/api/hooks/useActivities";
-
-interface HomeScreenProps {
-  navigation: any; // Replace with proper navigation type
-}
+import { HomeScreenProps } from "../../shared/types/navigation";
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
@@ -284,7 +281,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               </Text>
               <Button
                 title="아이 등록하기"
-                onPress={() => navigation.navigate("Children")}
+                onPress={() => navigation.navigate("ChildrenList")}
               />
             </Card>
           ) : (
@@ -365,7 +362,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                       title="첫 활동 기록하기"
                       variant="outline"
                       onPress={() =>
-                        navigation.navigate("Record", {
+                        navigation.navigate("RecordActivity", {
+                          activityType: "feeding",
                           childId: currentChildId,
                         })
                       }
@@ -379,6 +377,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                         style={styles.activityItem}
                         onPress={() =>
                           navigation.navigate("RecordActivity", {
+                            activityType: activity.type,
                             activityId: activity.id,
                             childId: currentChildId,
                             isEditing: true,

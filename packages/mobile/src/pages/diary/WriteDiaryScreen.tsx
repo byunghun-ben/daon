@@ -20,17 +20,7 @@ import {
   type ChildApi as Child,
   type DiaryEntryApi as DiaryEntry,
 } from "@daon/shared";
-
-interface WriteDiaryScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      childId?: string;
-      diaryId?: string;
-      isEditing?: boolean;
-    };
-  };
-}
+import { WriteDiaryScreenProps } from "../../shared/types/navigation";
 
 export default function WriteDiaryScreen({
   navigation,

@@ -17,15 +17,7 @@ import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import { growthApi } from "../../shared/api/growth";
-
-interface GrowthChartScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      childId?: string;
-    };
-  };
-}
+import { GrowthChartScreenProps } from "../../shared/types/navigation";
 
 const { width: screenWidth } = Dimensions.get("window");
 

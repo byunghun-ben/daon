@@ -15,17 +15,7 @@ import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import Input from "../../shared/ui/Input";
-
-interface ChildProfileScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      childId?: string;
-      isEditing?: boolean;
-      isFirstChild?: boolean; // For 2-step registration
-    };
-  };
-}
+import { ChildProfileScreenProps } from "../../shared/types/navigation";
 
 export default function ChildProfileScreen({
   navigation,

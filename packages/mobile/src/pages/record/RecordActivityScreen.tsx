@@ -20,18 +20,7 @@ import {
   useUpdateActivity,
   useDeleteActivity,
 } from "../../shared/api/hooks/useActivities";
-
-interface RecordActivityScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      activityType?: "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
-      activityId?: string;
-      childId?: string;
-      isEditing?: boolean;
-    };
-  };
-}
+import { RecordActivityScreenProps } from "../../shared/types/navigation";
 
 const ACTIVITY_TYPES = [
   { key: "feeding", label: "수유", icon: "🍼" },

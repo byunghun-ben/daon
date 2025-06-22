@@ -10,10 +10,7 @@ import {
 import { SignUpForm } from "../../features/auth";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-
-interface SignUpScreenProps {
-  navigation: any; // Replace with proper navigation type
-}
+import { SignUpScreenProps } from "../../shared/types/navigation";
 
 export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   const styles = useThemedStyles((theme) => ({

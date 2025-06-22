@@ -19,17 +19,7 @@ import {
   type ChildApi as Child,
   type GrowthRecordApi as GrowthRecord,
 } from "@daon/shared";
-
-interface AddGrowthRecordScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      childId?: string;
-      recordId?: string;
-      isEditing?: boolean;
-    };
-  };
-}
+import { AddGrowthRecordScreenProps } from "../../shared/types/navigation";
 
 export default function AddGrowthRecordScreen({
   navigation,

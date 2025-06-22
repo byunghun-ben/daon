@@ -7,8 +7,6 @@ import {
   UpdateDiaryEntryRequestSchema,
   DiaryFiltersSchema,
   CreateMilestoneRequestSchema,
-  dbToApi,
-  apiToDb,
 } from "@daon/shared";
 
 /**
@@ -366,7 +364,7 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     const { data: access, error: accessError } = await supabaseAdmin
       .from("child_guardians")
       .select("role")
-      .eq("child_id", validatedData.child_id)
+      .eq("child_id", validatedData.childId)
       .eq("user_id", req.user.id)
       .not("accepted_at", "is", null)
       .single();
@@ -376,10 +374,20 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
+    // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
+    const dbData = {
+      type: validatedData.type,
+      title: validatedData.title,
+      description: validatedData.description || "",
+      achieved_at: validatedData.achievedAt,
+      child_id: validatedData.childId,
+      diary_entry_id: validatedData.diaryEntryId || null,
+    };
+
     // Create milestone
     const { data: milestone, error } = await supabaseAdmin
       .from("milestones")
-      .insert(validatedData)
+      .insert(dbData)
       .select(`
         *,
         children(name),
@@ -390,7 +398,7 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     if (error) {
       logger.error("Failed to create milestone", { 
         userId: req.user.id,
-        childId: validatedData.child_id,
+        childId: validatedData.childId,
         error 
       });
       res.status(500).json({ error: "Failed to create milestone" });
@@ -399,7 +407,7 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
 
     logger.info("Milestone created successfully", { 
       milestoneId: milestone.id,
-      childId: validatedData.child_id,
+      childId: validatedData.childId,
       userId: req.user.id
     });
 

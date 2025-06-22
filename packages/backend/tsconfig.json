@@ -22,6 +22,9 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
     "paths": {
       "@daon/shared": ["../shared/dist/index"]
     }

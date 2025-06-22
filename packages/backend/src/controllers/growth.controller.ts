@@ -3,26 +3,25 @@ import { supabaseAdmin } from "../lib/supabase";
 import { logger } from "../utils/logger";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import {
-  CreateGrowthRecordSchema,
-  UpdateGrowthRecordSchema,
+  CreateGrowthRecordRequestSchema,
+  UpdateGrowthRecordRequestSchema,
   GrowthFiltersSchema,
-  type CreateGrowthRecordInput,
-  type UpdateGrowthRecordInput,
-  type GrowthFilters,
-} from "../schemas/growth.schemas";
+  dbToApi,
+} from "@daon/shared";
 
 /**
  * Create a new growth record
  */
 export const createGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
-    const validatedData = CreateGrowthRecordSchema.parse(req.body);
+    // API 요청 검증 (camelCase)
+    const validatedApiData = CreateGrowthRecordRequestSchema.parse(req.body);
 
     // Check if user has access to this child
     const { data: access, error: accessError } = await supabaseAdmin
       .from("child_guardians")
       .select("role")
-      .eq("child_id", validatedData.child_id)
+      .eq("child_id", validatedApiData.childId)
       .eq("user_id", req.user.id)
       .not("accepted_at", "is", null)
       .single();
@@ -36,12 +35,12 @@ export const createGrowthRecord = createAuthenticatedHandler(async (req, res) =>
     const { data: growthRecord, error } = await supabaseAdmin
       .from("growth_records")
       .insert({
-        child_id: validatedData.child_id,
+        child_id: validatedApiData.childId,
         user_id: req.user.id,
-        recorded_at: validatedData.recorded_at || new Date().toISOString(),
-        weight: validatedData.weight,
-        height: validatedData.height,
-        head_circumference: validatedData.head_circumference,
+        recorded_at: validatedApiData.recordedAt || new Date().toISOString(),
+        weight: validatedApiData.weight,
+        height: validatedApiData.height,
+        head_circumference: validatedApiData.headCircumference,
       })
       .select(`
         *,
@@ -53,7 +52,7 @@ export const createGrowthRecord = createAuthenticatedHandler(async (req, res) =>
     if (error) {
       logger.error("Failed to create growth record", { 
         userId: req.user.id,
-        childId: validatedData.child_id,
+        childId: validatedApiData.childId,
         error 
       });
       res.status(500).json({ error: "Failed to create growth record" });
@@ -62,13 +61,16 @@ export const createGrowthRecord = createAuthenticatedHandler(async (req, res) =>
 
     logger.info("Growth record created successfully", { 
       growthRecordId: growthRecord.id,
-      childId: validatedData.child_id,
+      childId: validatedApiData.childId,
       userId: req.user.id
     });
 
+    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
+    const apiGrowthRecord = dbToApi(growthRecord);
+
     res.status(201).json({
       message: "Growth record created successfully",
-      growthRecord,
+      growthRecord: apiGrowthRecord,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -131,16 +133,16 @@ export const getGrowthRecords = createAuthenticatedHandler(async (req, res) => {
     query = query.in("child_id", allAccessibleChildIds);
 
     // Apply filters
-    if (filters.child_id) {
-      query = query.eq("child_id", filters.child_id);
+    if (filters.childId) {
+      query = query.eq("child_id", filters.childId);
     }
 
-    if (filters.date_from) {
-      query = query.gte("recorded_at", filters.date_from);
+    if (filters.startDate) {
+      query = query.gte("recorded_at", filters.startDate);
     }
 
-    if (filters.date_to) {
-      query = query.lte("recorded_at", filters.date_to);
+    if (filters.endDate) {
+      query = query.lte("recorded_at", filters.endDate);
     }
 
     // Add pagination and ordering
@@ -234,7 +236,7 @@ export const getGrowthRecord = createAuthenticatedHandler(async (req, res) => {
 export const updateGrowthRecord = createAuthenticatedHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const validatedData = UpdateGrowthRecordSchema.parse(req.body);
+    const validatedData = UpdateGrowthRecordRequestSchema.parse(req.body);
 
     // Check if user created this growth record
     const { data: existing, error: existingError } = await supabaseAdmin

@@ -1,19 +1,18 @@
-import { Request, RequestHandler, Response } from "express";
+import {
+  CreateChildRequestSchema,
+  JoinChildRequestSchema,
+  SignInRequestSchema,
+  SignUpRequestSchema,
+  UpdateUserProfileRequestSchema,
+  apiToDb,
+  dbToApi,
+} from "@daon/shared";
+import { Request, Response } from "express";
 import z from "zod/v4";
 import { supabase, supabaseAdmin } from "../lib/supabase";
-import { isAuthenticatedRequest } from "../middleware/auth";
 import type { TablesUpdate } from "../types/supabase";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { logger } from "../utils/logger";
-import {
-  SignUpRequestSchema,
-  SignInRequestSchema,
-  UpdateUserProfileRequestSchema,
-  CreateChildRequestSchema,
-  JoinChildRequestSchema,
-  dbToApi,
-  apiToDb,
-} from "@daon/shared";
 
 // Using shared schemas for request validation
 
@@ -251,7 +250,7 @@ export const updateProfile = createAuthenticatedHandler(async (req, res) => {
   try {
     // API 요청 검증 (camelCase)
     const validatedApiData = UpdateUserProfileRequestSchema.parse(req.body);
-    
+
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = apiToDb(validatedApiData);
 
@@ -300,7 +299,7 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
   try {
     // API 요청 검증 (camelCase)
     const validatedApiData = CreateChildRequestSchema.parse(req.body);
-    
+
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = {
       name: validatedApiData.name,

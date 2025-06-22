@@ -1,14 +1,14 @@
-import { RequestHandler } from "express";
-import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase";
 import {
   ActivityFiltersSchema,
   CreateActivityRequestSchema,
   UpdateActivityRequestSchema,
-  dbToApi,
   apiToDb,
+  dbToApi,
 } from "@daon/shared";
-import { isSleepData, type SleepData } from "../types/activity";
+import { RequestHandler } from "express";
+import { z } from "zod";
+import { supabaseAdmin } from "../lib/supabase";
+import type { SleepDataApi } from "@daon/shared";
 import { createAuthenticatedHandler } from "../utils/auth-handler";
 import { logger } from "../utils/logger";
 
@@ -43,7 +43,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
           user_id: req.user.id,
           type: validatedApiData.type,
           timestamp: validatedApiData.timestamp || new Date().toISOString(),
-          data: validatedApiData.data as unknown,
+          data: JSON.parse(JSON.stringify(validatedApiData.data)),
           notes: validatedApiData.notes,
         })
         .select(
@@ -178,7 +178,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
       }
 
       // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
-      const apiActivities = activities.map(activity => dbToApi(activity));
+      const apiActivities = activities.map((activity) => dbToApi(activity));
 
       res.json({
         activities: apiActivities,
@@ -268,7 +268,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
       const { id } = req.params;
       // API 요청 검증 (camelCase)
       const validatedApiData = UpdateActivityRequestSchema.parse(req.body);
-      
+
       // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
       const dbData = apiToDb(validatedApiData);
 
@@ -295,7 +295,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
         .from("activities")
         .update({
           ...dbData,
-          data: dbData.data as unknown,
+          data: dbData.data ? JSON.parse(JSON.stringify(dbData.data)) : null,
         })
         .eq("id", id)
         .select(
@@ -461,15 +461,22 @@ export const getActivitySummary: RequestHandler = createAuthenticatedHandler(
         sleep: {
           count: activities.filter((a) => a.type === "sleep").length,
           totalHours: activities
-            .filter(
-              (a) => a.type === "sleep" && isSleepData(a.data) && a.data.endTime
-            )
+            .filter((a) => {
+              return a.type === "sleep" && 
+                     a.data && 
+                     typeof a.data === "object" && 
+                     "endedAt" in a.data && 
+                     a.data.endedAt;
+            })
             .reduce((total, activity) => {
-              if (!isSleepData(activity.data) || !activity.data.endTime)
+              if (!activity.data || typeof activity.data !== "object" || !("endedAt" in activity.data)) {
                 return total;
-              const sleepData: SleepData = activity.data;
-              const start = new Date(sleepData.startTime);
-              const end = new Date(sleepData.endTime || "");
+              }
+              const sleepData = activity.data as SleepDataApi;
+              if (!sleepData.endedAt) return total;
+              
+              const start = new Date(sleepData.startedAt);
+              const end = new Date(sleepData.endedAt);
               return (
                 total + (end.getTime() - start.getTime()) / (1000 * 60 * 60)
               );

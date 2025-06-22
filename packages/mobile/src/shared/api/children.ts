@@ -55,4 +55,8 @@ export const childrenApi = {
   async deleteChild(id: string): Promise<void> {
     return apiClient.delete(`/children/${id}`);
   },
+
+  async joinChild(inviteCode: string): Promise<ChildResponse> {
+    return apiClient.post<ChildResponse>("/children/join", { inviteCode });
+  },
 };

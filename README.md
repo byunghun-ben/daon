@@ -179,6 +179,14 @@ packages/mobile/src/
 - **JWT 기반 인증**: Supabase Auth 통합으로 안전한 세션 관리
 - **로그아웃 기능**: 서버 세션 무효화 및 로컬 토큰 정리
 
+#### 활동 기록 시스템 (Phase 4 완료)
+- **TanStack Query 도입**: 서버 상태 관리, 캐싱, 실시간 동기화
+- **Axios HTTP 클라이언트**: 인터셉터 기반 인증 처리 및 에러 핸들링  
+- **활동 CRUD**: 수유, 기저귀, 수면, 배밀이 등 완전한 생성/조회/수정/삭제
+- **실시간 대시보드**: HomeScreen에서 오늘 활동 요약 및 최근 기록 표시
+- **활동 목록 및 필터링**: ActivityListScreen에서 전체 활동 조회
+- **자동 데이터 동기화**: Pull-to-refresh 및 mutation 후 자동 캐시 업데이트
+
 #### 모바일 앱 UI/UX
 - **Feature-Sliced Design (FSD) 아키텍처**: 확장 가능한 코드 구조
 - **테마 시스템**: 일관된 디자인 및 다크모드 대응 준비
@@ -193,7 +201,10 @@ packages/mobile/src/
 
 ### 🔧 기술적 성과
 
+- **서버 상태 관리**: TanStack Query로 캐싱, 동기화, 낙관적 업데이트 구현
 - **타입 안전성**: `as` 타입 단언 없이 완전한 타입 안전성 확보
+- **HTTP 클라이언트**: Axios 인터셉터로 자동 인증 토큰 처리 및 에러 핸들링
+- **실시간 UI**: 데이터 변경 시 즉시 UI 업데이트 및 Pull-to-refresh
 - **에러 처리**: 체계적인 에러 처리 및 사용자 피드백
 - **모노레포**: Turborepo + pnpm으로 효율적인 개발 환경
 - **코드 품질**: ESLint + Prettier + TypeScript 설정
@@ -226,17 +237,20 @@ packages/mobile/src/
 - [x] 일기 작성 기본 API
 - [x] 마일스톤 기록 시스템
 
-### Phase 4: 모바일 앱 구현 (4주) - 🔄 진행 중
+### Phase 4: 활동 기록 기능 (4주) - ✅ 완료
 
 - [x] 모바일 앱 기본 UI 구현 (FSD 아키텍처)
 - [x] 인증 화면 구현 (로그인/회원가입)
 - [x] 아이 프로필 관리 화면 (2단계 등록 시스템 포함)
 - [x] 보호자 초대 코드 시스템
 - [x] 로그아웃 기능 구현
-- [ ] 활동 기록 화면 (수유, 기저귀, 수면 등)
-- [ ] 일기 작성 화면
-- [ ] 성장 차트 화면
-- [ ] 데이터 동기화 및 오프라인 지원
+- [x] TanStack Query 기반 서버 상태 관리 구현
+- [x] Axios HTTP 클라이언트 도입
+- [x] 활동 기록 화면 (수유, 기저귀, 수면, 배밀이)
+- [x] 실시간 활동 CRUD (생성/조회/수정/삭제)
+- [x] 활동 목록 및 필터링
+- [x] HomeScreen 실시간 대시보드 구현
+- [x] 데이터 동기화 및 캐싱
 
 ### Phase 5: 고급 기능 및 분석 (3주)
 
@@ -267,7 +281,7 @@ packages/mobile/src/
 
 - Node.js 24+ 및 pnpm
 - React Native 개발 환경
-- PostgreSQL 데이터베이스
+- PostgreSQL 데이터베이스 (Supabase)
 - iOS/Android 개발 도구
 
 ### 설치
@@ -306,6 +320,27 @@ pnpm test
 # 프로덕션 빌드
 pnpm build
 ```
+
+### 핵심 기술 스택
+
+#### 프론트엔드 (모바일)
+- **React Native 0.80** + TypeScript
+- **TanStack Query** - 서버 상태 관리 및 캐싱
+- **Axios** - HTTP 클라이언트
+- **Feature-Sliced Design (FSD)** - 아키텍처 패턴
+- **Zustand** - 로컬 상태 관리
+- **React Navigation v7** - 네비게이션
+
+#### 백엔드
+- **Node.js + Express.js**
+- **Supabase** - PostgreSQL + 실시간 기능 + 인증
+- **Zod** - 스키마 검증 및 타입 안전성
+- **JWT** - 인증 토큰
+
+#### 개발 도구
+- **pnpm** + **Turborepo** - 모노레포 관리
+- **ESLint + Prettier** - 코드 품질
+- **Jest** - 테스트 프레임워크
 
 ## 📱 플랫폼 지원
 

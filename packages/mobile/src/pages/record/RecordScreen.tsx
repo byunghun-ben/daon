@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,10 @@ import { useThemedStyles } from '../../shared/lib/hooks/useTheme';
 import { SCREEN_PADDING } from '../../shared/config/theme';
 import Button from '../../shared/ui/Button';
 import Card from '../../shared/ui/Card';
-import { activitiesApi, type Activity } from '../../shared/api/activities';
-import { childrenApi, type Child } from '../../shared/api/children';
+import { type Activity } from '../../shared/api/activities';
+import { type Child } from '../../shared/api/children';
+import { useChildren } from '../../shared/api/hooks/useChildren';
+import { useRecentActivities } from '../../shared/api/hooks/useActivities';
 
 interface RecordScreenProps {
   navigation: any;
@@ -26,10 +28,26 @@ interface RecordScreenProps {
 
 export default function RecordScreen({ navigation, route }: RecordScreenProps) {
   const { childId } = route?.params || {};
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(childId || null);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // React Query hooks
+  const { 
+    data: childrenData, 
+    isLoading: childrenLoading, 
+    refetch: refetchChildren 
+  } = useChildren();
+  
+  const children = childrenData?.children || [];
+  const currentChildId = selectedChildId || children[0]?.id;
+  
+  const { 
+    data: activitiesData, 
+    isLoading: activitiesLoading,
+    refetch: refetchActivities 
+  } = useRecentActivities(currentChildId || "", 10);
+  
+  const activities = activitiesData?.activities || [];
+  const isLoading = childrenLoading || activitiesLoading;
   const [refreshing, setRefreshing] = useState(false);
 
   const recordTypes = [
@@ -75,7 +93,7 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
       marginBottom: theme.spacing.xl,
     },
     recordButton: {
-      width: "48%",
+      width: "48%" as const,
       marginBottom: theme.spacing.md,
     },
     recordCard: {
@@ -97,8 +115,8 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
       marginBottom: theme.spacing.xl,
     },
     sectionTitle: {
-      fontSize: theme.typography.h3.fontSize,
-      fontWeight: theme.typography.h3.fontWeight,
+      fontSize: theme.typography.title.fontSize,
+      fontWeight: theme.typography.title.fontWeight,
       color: theme.colors.text.primary,
       marginBottom: theme.spacing.md,
     },
@@ -139,57 +157,23 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
     },
   }));
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedChildId) {
-      loadActivities();
+  // Auto-select first child if none selected
+  React.useEffect(() => {
+    if (!selectedChildId && children.length > 0) {
+      setSelectedChildId(children[0].id);
     }
-  }, [selectedChildId]);
+  }, [children, selectedChildId]);
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all([loadChildren(), loadActivities()]);
-    } catch (error) {
-      console.error("Failed to load data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadChildren = async () => {
-    try {
-      const response = await childrenApi.getChildren();
-      setChildren(response.children);
-      if (!selectedChildId && response.children.length > 0) {
-        setSelectedChildId(response.children[0].id);
-      }
-    } catch (error) {
-      Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
-    }
-  };
-
-  const loadActivities = async () => {
-    if (!selectedChildId) return;
-    
-    try {
-      const response = await activitiesApi.getActivities({
-        child_id: selectedChildId,
-        limit: 10,
-      });
-      setActivities(response.activities);
-    } catch (error) {
-      Alert.alert("오류", "활동 기록을 불러오는데 실패했습니다.");
-    }
-  };
-
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    loadData().finally(() => setRefreshing(false));
-  }, [selectedChildId]);
+    try {
+      await Promise.all([refetchChildren(), refetchActivities()]);
+    } catch (error) {
+      Alert.alert("오류", "데이터를 새로고침하는데 실패했습니다.");
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchChildren, refetchActivities]);
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("ko-KR", {
@@ -210,13 +194,13 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
   };
 
   const handleRecordType = (type: string) => {
-    if (!selectedChildId) {
+    if (!currentChildId) {
       Alert.alert("알림", "먼저 아이를 선택해주세요.");
       return;
     }
     navigation.navigate("RecordActivity", { 
       activityType: type, 
-      childId: selectedChildId 
+      childId: currentChildId 
     });
   };
 
@@ -226,7 +210,7 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
       style={styles.activityItem}
       onPress={() => navigation.navigate("RecordActivity", {
         activityId: activity.id,
-        childId: selectedChildId,
+        childId: currentChildId,
         isEditing: true,
       })}
     >
@@ -267,7 +251,7 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
         <View style={styles.header}>
           <Text style={styles.title}>활동 기록</Text>
           <Text style={styles.subtitle}>
-            {selectedChildId ? "아이의 일상 활동을 기록하세요" : "아이를 선택해주세요"}
+            {currentChildId ? "아이의 일상 활동을 기록하세요" : "아이를 선택해주세요"}
           </Text>
         </View>
 
@@ -279,7 +263,7 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
                 <Button
                   key={child.id}
                   title={child.name}
-                  variant={selectedChildId === child.id ? "primary" : "outline"}
+                  variant={currentChildId === child.id ? "primary" : "outline"}
                   size="small"
                   onPress={() => setSelectedChildId(child.id)}
                 />

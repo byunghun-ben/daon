@@ -228,13 +228,16 @@ interface GrowthRecord {
 - [x] 로그아웃 기능 및 세션 관리
 - [x] AuthContext 기반 인증 상태 관리
 
-### Phase 4: 활동 기록 기능 (4주) - 🔄 진행 중
+### Phase 4: 활동 기록 기능 (4주) - ✅ 완료
 
+- [x] TanStack Query 기반 서버 상태 관리 구축
+- [x] Axios HTTP 클라이언트 도입 및 인터셉터 설정
 - [x] 활동 기록 API (백엔드 완료)
-- [ ] 활동 기록 화면 UI 개선
-- [ ] 실시간 활동 추가/수정/삭제
-- [ ] 활동 목록 및 필터링
-- [ ] 데이터 동기화
+- [x] 활동 기록 화면 UI 개선 (수유, 기저귀, 수면, 배밀이)
+- [x] 실시간 활동 CRUD (생성/조회/수정/삭제)
+- [x] 활동 목록 및 필터링 (ActivityListScreen)
+- [x] HomeScreen 실시간 대시보드 구현
+- [x] 데이터 동기화 및 캐싱 (pull-to-refresh, 자동 invalidation)
 
 ### Phase 5: 일기 및 성장 기능 (3주)
 

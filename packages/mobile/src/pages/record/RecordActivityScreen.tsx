@@ -13,11 +13,17 @@ import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
 import { 
-  activitiesApi, 
   type CreateActivityRequest,
   type Activity 
 } from "../../shared/api/activities";
-import { childrenApi, type Child } from "../../shared/api/children";
+import { type Child } from "../../shared/api/children";
+import { useChildren } from "../../shared/api/hooks/useChildren";
+import { 
+  useActivity, 
+  useCreateActivity, 
+  useUpdateActivity, 
+  useDeleteActivity 
+} from "../../shared/api/hooks/useActivities";
 
 interface RecordActivityScreenProps {
   navigation: any;
@@ -42,18 +48,31 @@ const ACTIVITY_TYPES = [
 export default function RecordActivityScreen({ navigation, route }: RecordActivityScreenProps) {
   const { activityType: initialType, childId: initialChildId, activityId, isEditing = false } = route?.params || {};
   
-  const [children, setChildren] = useState<Child[]>([]);
+  // React Query hooks
+  const { data: childrenData, isLoading: childrenLoading } = useChildren();
+  const { data: activityData, isLoading: activityLoading } = useActivity(activityId || "");
+  const createActivityMutation = useCreateActivity();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivity();
+  
+  const children = childrenData?.children || [];
+  const activity = activityData?.activity || null;
+  
+  // Local state
   const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
   const [activityType, setActivityType] = useState<string>(initialType || "");
-  const [activity, setActivity] = useState<Activity | null>(null);
   const [formData, setFormData] = useState({
     started_at: new Date().toISOString(),
     ended_at: "",
     notes: "",
     metadata: {} as Record<string, any>,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const isLoading = childrenLoading || activityLoading || 
+    createActivityMutation.isPending || 
+    updateActivityMutation.isPending || 
+    deleteActivityMutation.isPending;
 
   const styles = useThemedStyles((theme) => ({
     container: {
@@ -154,50 +173,26 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
     },
   }));
 
+  // Initialize form data when activity data is loaded (for editing)
   useEffect(() => {
-    loadChildren();
-    if (isEditing && activityId) {
-      loadActivity();
-    }
-  }, []);
-
-  const loadActivity = async () => {
-    if (!activityId) return;
-    
-    setIsLoading(true);
-    try {
-      const response = await activitiesApi.getActivity(activityId);
-      const activityData = response.activity;
-      setActivity(activityData);
-      setSelectedChild(activityData.child_id);
-      setActivityType(activityData.type);
+    if (activity && isEditing) {
+      setSelectedChild(activity.child_id);
+      setActivityType(activity.type);
       setFormData({
-        started_at: activityData.started_at,
-        ended_at: activityData.ended_at || "",
-        notes: activityData.notes || "",
-        metadata: activityData.metadata || {},
+        started_at: activity.started_at,
+        ended_at: activity.ended_at || "",
+        notes: activity.notes || "",
+        metadata: activity.metadata || {},
       });
-    } catch (error) {
-      Alert.alert("오류", "활동 정보를 불러오는데 실패했습니다.");
-      navigation.goBack();
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [activity, isEditing]);
 
-  const loadChildren = async () => {
-    try {
-      const response = await childrenApi.getChildren();
-      setChildren(response.children);
-      
-      // If no child is selected and there's only one child, select it automatically
-      if (!selectedChild && response.children.length === 1) {
-        setSelectedChild(response.children[0].id);
-      }
-    } catch (error: any) {
-      Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
+  // Auto-select child if only one exists
+  useEffect(() => {
+    if (!selectedChild && children.length === 1) {
+      setSelectedChild(children[0].id);
     }
-  };
+  }, [children, selectedChild]);
 
   const formatDateTime = (date: Date): string => {
     return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
@@ -233,7 +228,6 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
   const handleSave = async () => {
     if (!validateForm()) return;
 
-    setIsLoading(true);
     try {
       if (isEditing && activityId) {
         // Update existing activity
@@ -244,7 +238,7 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           metadata: formData.metadata,
         };
 
-        await activitiesApi.updateActivity(activityId, updateData);
+        await updateActivityMutation.mutateAsync({ id: activityId, data: updateData });
         
         Alert.alert("성공", "활동이 업데이트되었습니다!", [
           { text: "확인", onPress: () => navigation.goBack() },
@@ -260,7 +254,7 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           metadata: formData.metadata,
         };
 
-        await activitiesApi.createActivity(activityData);
+        await createActivityMutation.mutateAsync(activityData);
         
         Alert.alert("성공", "활동이 기록되었습니다!", [
           { text: "확인", onPress: () => navigation.goBack() },
@@ -271,8 +265,6 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
         "오류",
         error.message || "활동 기록 중 오류가 발생했습니다."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -288,16 +280,13 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           text: "삭제",
           style: "destructive",
           onPress: async () => {
-            setIsLoading(true);
             try {
-              await activitiesApi.deleteActivity(activityId);
+              await deleteActivityMutation.mutateAsync(activityId);
               Alert.alert("삭제 완료", "활동이 삭제되었습니다.", [
                 { text: "확인", onPress: () => navigation.goBack() },
               ]);
             } catch (error) {
               Alert.alert("오류", "삭제 중 오류가 발생했습니다.");
-            } finally {
-              setIsLoading(false);
             }
           },
         },

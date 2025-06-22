@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from "axios";
 
 // API base configuration
 const API_BASE_URL = __DEV__ 
@@ -24,77 +25,93 @@ export class ApiError extends Error {
   }
 }
 
-// HTTP client with authentication
+// HTTP client with authentication using axios
 class ApiClient {
-  private baseURL: string;
+  private client: AxiosInstance;
 
   constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
-
-  private async getAuthToken(): Promise<string | null> {
-    try {
-      return await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    } catch (error) {
-      console.warn("Failed to get auth token:", error);
-      return null;
-    }
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const token = await this.getAuthToken();
-
-    const config: RequestInit = {
-      ...options,
+    this.client = axios.create({
+      baseURL,
+      timeout: 10000,
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
       },
-    };
+    });
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
+    this.setupInterceptors();
+  }
 
-      if (!response.ok) {
-        throw new ApiError(response.status, data.error || "API Error", data);
+  private setupInterceptors() {
+    // Request interceptor to add auth token
+    this.client.interceptors.request.use(
+      async (config) => {
+        try {
+          const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.warn("Failed to get auth token:", error);
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response interceptor to handle errors
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError) => {
+        if (error.response) {
+          // Server responded with error status
+          const { status, data } = error.response;
+          throw new ApiError(
+            status, 
+            (data as any)?.error || error.message || "API Error", 
+            data
+          );
+        } else if (error.request) {
+          // Network error
+          throw new ApiError(0, "Network Error", { originalError: error });
+        } else {
+          // Other error
+          throw new ApiError(0, error.message || "Unknown Error", { originalError: error });
+        }
       }
-
-      return data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(0, "Network Error", { originalError: error });
-    }
+    );
   }
 
   // HTTP methods
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" });
+  async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.get<T>(endpoint, config);
+    return response.data;
   }
 
-  async post<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
+  async post<T>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.post<T>(endpoint, data, config);
+    return response.data;
+  }
+
+  async put<T>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.put<T>(endpoint, data, config);
+    return response.data;
+  }
+
+  async delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.delete<T>(endpoint, config);
+    return response.data;
+  }
+
+  // File upload support
+  async postFormData<T>(endpoint: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.post<T>(endpoint, formData, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        "Content-Type": "multipart/form-data",
+      },
     });
-  }
-
-  async put<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body: data ? JSON.stringify(data) : undefined,
-    });
-  }
-
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "DELETE" });
+    return response.data;
   }
 }
 

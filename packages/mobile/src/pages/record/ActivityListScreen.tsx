@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,11 +13,12 @@ import { SCREEN_PADDING, COLORS } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import { 
-  activitiesApi, 
   type Activity,
-  type ActivityFilters 
+  type GetActivitiesRequest 
 } from "../../shared/api/activities";
-import { childrenApi, type Child } from "../../shared/api/children";
+import { type Child } from "../../shared/api/children";
+import { useChildren } from "../../shared/api/hooks/useChildren";
+import { useActivities } from "../../shared/api/hooks/useActivities";
 
 interface ActivityListScreenProps {
   navigation: any;
@@ -47,10 +48,26 @@ const ACTIVITY_ICONS = {
 export default function ActivityListScreen({ navigation, route }: ActivityListScreenProps) {
   const { childId: initialChildId } = route?.params || {};
   
-  const [children, setChildren] = useState<Child[]>([]);
+  // React Query hooks
+  const { data: childrenData, isLoading: childrenLoading, refetch: refetchChildren } = useChildren();
+  const children = childrenData?.children || [];
+  
   const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const currentChildId = selectedChild || children[0]?.id;
+  
+  const [filters, setFilters] = useState<GetActivitiesRequest>({
+    child_id: currentChildId || "",
+    limit: 50,
+  });
+  
+  const { 
+    data: activitiesData, 
+    isLoading: activitiesLoading, 
+    refetch: refetchActivities 
+  } = useActivities(filters);
+  
+  const activities = activitiesData?.activities || [];
+  const isLoading = childrenLoading || activitiesLoading;
   const [refreshing, setRefreshing] = useState(false);
 
   const styles = useThemedStyles((theme) => ({
@@ -174,54 +191,33 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
     },
   }));
 
-  useEffect(() => {
-    loadChildren();
-  }, []);
-
-  useEffect(() => {
-    if (selectedChild) {
-      loadActivities();
+  // Auto-select first child if none selected
+  React.useEffect(() => {
+    if (!selectedChild && children.length > 0) {
+      setSelectedChild(children[0].id);
     }
-  }, [selectedChild]);
+  }, [children, selectedChild]);
 
-  const loadChildren = async () => {
-    try {
-      const response = await childrenApi.getChildren();
-      setChildren(response.children);
-      
-      // If no child is selected and there's only one child, select it automatically
-      if (!selectedChild && response.children.length === 1) {
-        setSelectedChild(response.children[0].id);
-      }
-    } catch (error: any) {
-      Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
+  // Update filters when child selection changes
+  React.useEffect(() => {
+    if (currentChildId) {
+      setFilters(prev => ({
+        ...prev,
+        child_id: currentChildId,
+      }));
     }
-  };
+  }, [currentChildId]);
 
-  const loadActivities = async () => {
-    if (!selectedChild) return;
-    
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
     try {
-      const filters: ActivityFilters = {
-        child_id: selectedChild,
-        limit: 50,
-        offset: 0,
-      };
-      
-      const response = await activitiesApi.getActivities(filters);
-      setActivities(response.activities);
-    } catch (error: any) {
-      Alert.alert("오류", "활동 목록을 불러오는데 실패했습니다.");
+      await Promise.all([refetchChildren(), refetchActivities()]);
+    } catch (error) {
+      Alert.alert("오류", "데이터를 새로고침하는데 실패했습니다.");
     } finally {
-      setIsLoading(false);
       setRefreshing(false);
     }
-  };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    loadActivities();
-  }, [selectedChild]);
+  }, [refetchChildren, refetchActivities]);
 
   const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString);
@@ -350,14 +346,14 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
                 key={child.id}
                 style={[
                   styles.childButton,
-                  selectedChild === child.id && styles.childButtonSelected,
+                  currentChildId === child.id && styles.childButtonSelected,
                 ]}
                 onPress={() => setSelectedChild(child.id)}
               >
                 <Text
                   style={[
                     styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    currentChildId === child.id && styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -378,7 +374,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
             </Text>
             <Button
               title="첫 활동 기록하기"
-              onPress={() => navigation.navigate("RecordActivity", { childId: selectedChild })}
+              onPress={() => navigation.navigate("RecordActivity", { childId: currentChildId })}
             />
           </View>
         ) : (
@@ -387,10 +383,10 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
       </ScrollView>
 
       {/* Floating Action Button */}
-      {selectedChild && (
+      {currentChildId && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate("RecordActivity", { childId: selectedChild })}
+          onPress={() => navigation.navigate("RecordActivity", { childId: currentChildId })}
         >
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

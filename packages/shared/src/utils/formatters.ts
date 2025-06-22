@@ -5,6 +5,13 @@ import {
   MILESTONE_TYPE_LABELS,
   SLEEP_QUALITY_LABELS,
 } from "../constants";
+import type {
+  ActivityApi,
+  DiaperDataApi,
+  FeedingDataApi,
+  SleepDataApi,
+  TummyTimeDataApi,
+} from "../schemas";
 
 // 날짜 포맷팅
 export const formatDate = (
@@ -133,45 +140,75 @@ export const calculateAge = (birthDate: string): string => {
 };
 
 // 활동 요약 텍스트 생성
-export const formatActivitySummary = (activity: Activity): string => {
-  const typeLabel = formatActivityType(activity.type);
+export const formatActivitySummary = (activity: ActivityApi): string => {
+  const typeLabel = formatActivityType(
+    activity.type.toUpperCase() as keyof typeof ACTIVITY_LABELS
+  );
 
   switch (activity.type) {
-    case "FEEDING":
-      if (activity.feedingData) {
-        const { type, amount, duration } = activity.feedingData;
-        const parts = [formatFeedingType(type)];
-        if (amount) parts.push(`${amount}ml`);
-        if (duration) parts.push(`${duration}분`);
+    case "feeding":
+      if (
+        activity.data &&
+        typeof activity.data === "object" &&
+        "type" in activity.data
+      ) {
+        const feedingData = activity.data as FeedingDataApi;
+        const parts = [
+          formatFeedingType(
+            feedingData.type.toUpperCase() as keyof typeof FEEDING_TYPE_LABELS
+          ),
+        ];
+        if (feedingData.amount) parts.push(`${feedingData.amount}ml`);
+        if (feedingData.duration) parts.push(`${feedingData.duration}분`);
         return `${typeLabel} - ${parts.join(", ")}`;
       }
       return typeLabel;
 
-    case "DIAPER":
-      if (activity.diaperData) {
-        return `${typeLabel} - ${formatDiaperType(activity.diaperData.type)}`;
+    case "diaper":
+      if (
+        activity.data &&
+        typeof activity.data === "object" &&
+        "type" in activity.data
+      ) {
+        const diaperData = activity.data as DiaperDataApi;
+        return `${typeLabel} - ${formatDiaperType(diaperData.type.toUpperCase() as keyof typeof DIAPER_TYPE_LABELS)}`;
       }
       return typeLabel;
 
-    case "SLEEP":
-      if (activity.sleepData) {
-        const { startTime, endTime, quality } = activity.sleepData;
-        if (endTime) {
+    case "sleep":
+      if (
+        activity.data &&
+        typeof activity.data === "object" &&
+        "startedAt" in activity.data
+      ) {
+        const sleepData = activity.data as SleepDataApi;
+        if (sleepData.endedAt) {
           const duration = Math.floor(
-            (new Date(endTime).getTime() - new Date(startTime).getTime()) /
+            (new Date(sleepData.endedAt).getTime() -
+              new Date(sleepData.startedAt).getTime()) /
               (1000 * 60)
           );
           const parts = [formatDuration(duration)];
-          if (quality) parts.push(formatSleepQuality(quality));
+          if (sleepData.quality)
+            parts.push(
+              formatSleepQuality(
+                sleepData.quality.toUpperCase() as keyof typeof SLEEP_QUALITY_LABELS
+              )
+            );
           return `${typeLabel} - ${parts.join(", ")}`;
         }
         return `${typeLabel} - 진행 중`;
       }
       return typeLabel;
 
-    case "TUMMY_TIME":
-      if (activity.tummyTimeData) {
-        return `${typeLabel} - ${formatDuration(activity.tummyTimeData.duration)}`;
+    case "tummy_time":
+      if (
+        activity.data &&
+        typeof activity.data === "object" &&
+        "duration" in activity.data
+      ) {
+        const tummyTimeData = activity.data as TummyTimeDataApi;
+        return `${typeLabel} - ${formatDuration(tummyTimeData.duration)}`;
       }
       return typeLabel;
 

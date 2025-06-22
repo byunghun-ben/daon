@@ -34,7 +34,7 @@ export const ChildApiSchema = z.object({
 export const CreateChildRequestSchema = z.object({
   name: z.string().min(1).max(100),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female"]).optional(),
+  gender: z.enum(["male", "female"]),
   photoUrl: z.url().optional(),
   birthWeight: z.number().positive().optional(),
   birthHeight: z.number().positive().optional(),

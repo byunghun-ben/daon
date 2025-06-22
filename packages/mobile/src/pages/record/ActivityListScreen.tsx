@@ -1,24 +1,20 @@
-import React, { useState, useCallback } from "react";
+import { ActivityFilters, type ActivityApi as Activity } from "@daon/shared";
+import React, { useCallback, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
   Alert,
   RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { useActivities } from "../../shared/api/hooks/useActivities";
+import { useChildren } from "../../shared/api/hooks/useChildren";
+import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING, COLORS } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { 
-  type Activity,
-  type GetActivitiesRequest 
-} from "../../shared/api/activities";
-import { type Child } from "../../shared/api/children";
-import { useChildren } from "../../shared/api/hooks/useChildren";
-import { useActivities } from "../../shared/api/hooks/useActivities";
 
 interface ActivityListScreenProps {
   navigation: any;
@@ -45,28 +41,37 @@ const ACTIVITY_ICONS = {
   custom: "📝",
 } as const;
 
-export default function ActivityListScreen({ navigation, route }: ActivityListScreenProps) {
+export default function ActivityListScreen({
+  navigation,
+  route,
+}: ActivityListScreenProps) {
   const { childId: initialChildId } = route?.params || {};
-  
+
   // React Query hooks
-  const { data: childrenData, isLoading: childrenLoading, refetch: refetchChildren } = useChildren();
+  const {
+    data: childrenData,
+    isLoading: childrenLoading,
+    refetch: refetchChildren,
+  } = useChildren();
   const children = childrenData?.children || [];
-  
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
+
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
   const currentChildId = selectedChild || children[0]?.id;
-  
-  const [filters, setFilters] = useState<GetActivitiesRequest>({
+
+  const [filters, setFilters] = useState<ActivityFilters>({
     childId: currentChildId || "",
     limit: 50,
     offset: 0,
   });
-  
-  const { 
-    data: activitiesData, 
-    isLoading: activitiesLoading, 
-    refetch: refetchActivities 
+
+  const {
+    data: activitiesData,
+    isLoading: activitiesLoading,
+    refetch: refetchActivities,
   } = useActivities(filters);
-  
+
   const activities = activitiesData?.activities || [];
   const isLoading = childrenLoading || activitiesLoading;
   const [refreshing, setRefreshing] = useState(false);
@@ -202,7 +207,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
   // Update filters when child selection changes
   React.useEffect(() => {
     if (currentChildId) {
-      setFilters(prev => ({
+      setFilters((prev) => ({
         ...prev,
         childId: currentChildId,
       }));
@@ -232,11 +237,13 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
 
   const formatDuration = (startedAt: string, endedAt?: string): string => {
     if (!endedAt) return "";
-    
+
     const start = new Date(startedAt);
     const end = new Date(endedAt);
-    const diffMinutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
-    
+    const diffMinutes = Math.floor(
+      (end.getTime() - start.getTime()) / (1000 * 60)
+    );
+
     if (diffMinutes < 60) {
       return `${diffMinutes}분`;
     } else {
@@ -248,35 +255,65 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
 
   const renderActivityDetails = (activity: Activity) => {
     const details = [];
-    
+
     // 수면 활동에서 종료시간이 있을 경우 소요시간 표시
-    if (activity.type === 'sleep' && typeof activity.data === 'object' && activity.data && 'endedAt' in activity.data) {
+    if (
+      activity.type === "sleep" &&
+      typeof activity.data === "object" &&
+      activity.data &&
+      "endedAt" in activity.data
+    ) {
       details.push({
         label: "소요시간",
-        value: formatDuration(activity.timestamp, activity.data.endedAt as string),
+        value: formatDuration(
+          activity.timestamp,
+          activity.data.endedAt as string
+        ),
       });
     }
 
     // Activity-specific metadata
     switch (activity.type) {
       case "feeding":
-        if (typeof activity.data === 'object' && activity.data && 'amount' in activity.data && activity.data.amount) {
+        if (
+          typeof activity.data === "object" &&
+          activity.data &&
+          "amount" in activity.data &&
+          activity.data.amount
+        ) {
           details.push({ label: "수유량", value: `${activity.data.amount}ml` });
         }
-        if (typeof activity.data === 'object' && activity.data && 'type' in activity.data && activity.data.type) {
+        if (
+          typeof activity.data === "object" &&
+          activity.data &&
+          "type" in activity.data &&
+          activity.data.type
+        ) {
           details.push({ label: "종류", value: activity.data.type as string });
         }
         break;
-      
+
       case "diaper":
-        if (typeof activity.data === 'object' && activity.data && 'type' in activity.data && activity.data.type) {
+        if (
+          typeof activity.data === "object" &&
+          activity.data &&
+          "type" in activity.data &&
+          activity.data.type
+        ) {
           details.push({ label: "상태", value: activity.data.type as string });
         }
         break;
-      
+
       case "sleep":
-        if (typeof activity.data === 'object' && activity.data && 'quality' in activity.data) {
-          details.push({ label: "수면 품질", value: activity.data.quality as string });
+        if (
+          typeof activity.data === "object" &&
+          activity.data &&
+          "quality" in activity.data
+        ) {
+          details.push({
+            label: "수면 품질",
+            value: activity.data.quality as string,
+          });
         }
         break;
     }
@@ -286,11 +323,13 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
 
   const renderActivityCard = (activity: Activity) => {
     const details = renderActivityDetails(activity);
-    
+
     return (
       <Card key={activity.id} style={styles.activityCard}>
         <TouchableOpacity
-          onPress={() => navigation.navigate("ActivityDetail", { activityId: activity.id })}
+          onPress={() =>
+            navigation.navigate("ActivityDetail", { activityId: activity.id })
+          }
         >
           <View style={styles.activityHeader}>
             <Text style={styles.activityIcon}>
@@ -303,7 +342,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
               {formatDateTime(activity.timestamp)}
             </Text>
           </View>
-          
+
           {details.length > 0 && (
             <View style={styles.activityDetails}>
               {details.map((detail, index) => (
@@ -314,11 +353,9 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
               ))}
             </View>
           )}
-          
+
           {activity.notes && (
-            <Text style={styles.activityNotes}>
-              "{activity.notes}"
-            </Text>
+            <Text style={styles.activityNotes}>"{activity.notes}"</Text>
           )}
         </TouchableOpacity>
       </Card>
@@ -335,9 +372,7 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
       >
         <View style={styles.header}>
           <Text style={styles.title}>활동 기록</Text>
-          <Text style={styles.subtitle}>
-            아이의 일상 활동을 확인하세요
-          </Text>
+          <Text style={styles.subtitle}>아이의 일상 활동을 확인하세요</Text>
         </View>
 
         {/* Child Selection */}
@@ -355,7 +390,8 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
                 <Text
                   style={[
                     styles.childButtonText,
-                    currentChildId === child.id && styles.childButtonTextSelected,
+                    currentChildId === child.id &&
+                      styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -371,12 +407,15 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
         ) : activities.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              아직 기록된 활동이 없습니다.{"\n"}
-              첫 번째 활동을 기록해보세요!
+              아직 기록된 활동이 없습니다.{"\n"}첫 번째 활동을 기록해보세요!
             </Text>
             <Button
               title="첫 활동 기록하기"
-              onPress={() => navigation.navigate("RecordActivity", { childId: currentChildId })}
+              onPress={() =>
+                navigation.navigate("RecordActivity", {
+                  childId: currentChildId,
+                })
+              }
             />
           </View>
         ) : (
@@ -388,7 +427,9 @@ export default function ActivityListScreen({ navigation, route }: ActivityListSc
       {currentChildId && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate("RecordActivity", { childId: currentChildId })}
+          onPress={() =>
+            navigation.navigate("RecordActivity", { childId: currentChildId })
+          }
         >
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

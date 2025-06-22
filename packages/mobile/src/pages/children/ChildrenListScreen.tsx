@@ -1,24 +1,27 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { type ChildApi as Child } from "@daon/shared";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
   Alert,
   RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { childrenApi } from "../../shared/api/children";
 import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { childrenApi, type Child } from "../../shared/api/children";
 
 interface ChildrenListScreenProps {
   navigation: any;
 }
 
-export default function ChildrenListScreen({ navigation }: ChildrenListScreenProps) {
+export default function ChildrenListScreen({
+  navigation,
+}: ChildrenListScreenProps) {
   const [children, setChildren] = useState<Child[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -114,12 +117,12 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
   const calculateAge = (birthDate: string): string => {
     const birth = new Date(birthDate);
     const now = new Date();
-    
+
     if (birth > now) {
       const diffTime = birth.getTime() - now.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       const diffWeeks = Math.floor(diffDays / 7);
-      
+
       if (diffWeeks > 0) {
         return `출산까지 ${diffWeeks}주`;
       } else {
@@ -130,7 +133,7 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       const diffWeeks = Math.floor(diffDays / 7);
       const diffMonths = Math.floor(diffDays / 30);
-      
+
       if (diffMonths > 0) {
         return `${diffMonths}개월`;
       } else if (diffWeeks > 0) {
@@ -157,10 +160,12 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
   const renderChildCard = (child: Child) => (
     <Card key={child.id} style={styles.childCard}>
       <TouchableOpacity
-        onPress={() => navigation.navigate("ChildProfile", { 
-          childId: child.id, 
-          isEditing: true 
-        })}
+        onPress={() =>
+          navigation.navigate("ChildProfile", {
+            childId: child.id,
+            isEditing: true,
+          })
+        }
       >
         <View style={styles.childInfo}>
           <View style={styles.childDetails}>
@@ -175,7 +180,7 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
           </View>
         </View>
       </TouchableOpacity>
-      
+
       <View style={styles.childActions}>
         <Button
           title="활동 기록"
@@ -229,8 +234,8 @@ export default function ChildrenListScreen({ navigation }: ChildrenListScreenPro
         {children.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              아직 등록된 아이가 없습니다.{"\n"}
-              첫 번째 아이의 프로필을 만들어보세요!
+              아직 등록된 아이가 없습니다.{"\n"}첫 번째 아이의 프로필을
+              만들어보세요!
             </Text>
             <Button
               title="첫 아이 프로필 만들기"

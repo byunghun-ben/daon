@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { type ChildApi as Child, type CreateChildRequest } from "@daon/shared";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
   Alert,
   Platform,
-  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
-import Card from "../../shared/ui/Card";
-import { childrenApi, type CreateChildRequest, type Child } from "../../shared/api/children";
 import { authApi } from "../../shared/api/auth";
+import { childrenApi } from "../../shared/api/children";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import Input from "../../shared/ui/Input";
 
 interface ChildProfileScreenProps {
   navigation: any;
@@ -27,12 +27,19 @@ interface ChildProfileScreenProps {
   };
 }
 
-export default function ChildProfileScreen({ navigation, route }: ChildProfileScreenProps) {
-  const { childId, isEditing = false, isFirstChild = false } = route?.params || {};
+export default function ChildProfileScreen({
+  navigation,
+  route,
+}: ChildProfileScreenProps) {
+  const {
+    childId,
+    isEditing = false,
+    isFirstChild = false,
+  } = route?.params || {};
   const [formData, setFormData] = useState<CreateChildRequest>({
     name: "",
     birthDate: "",
-    gender: undefined,
+    gender: "male",
   });
   const [errors, setErrors] = useState<Partial<CreateChildRequest>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +139,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
 
   const loadChild = async () => {
     if (!childId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await childrenApi.getChild(childId);
@@ -194,10 +201,10 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
         ]);
       } else {
         // Use auth API for 2-step registration to properly complete registration
-        const response = isFirstChild 
+        const response = isFirstChild
           ? await authApi.createChild(formData)
           : await childrenApi.createChild(formData);
-        
+
         Alert.alert("성공", "아이 프로필이 생성되었습니다!", [
           { text: "확인", onPress: () => navigation.navigate("MainTabs") },
         ]);
@@ -225,10 +232,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
         { text: "확인", onPress: () => navigation.navigate("MainTabs") },
       ]);
     } catch (error: any) {
-      Alert.alert(
-        "오류",
-        error.message || "초대 코드가 올바르지 않습니다."
-      );
+      Alert.alert("오류", error.message || "초대 코드가 올바르지 않습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -236,7 +240,7 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
 
   const handleDelete = () => {
     if (!childId) return;
-    
+
     Alert.alert(
       "아이 프로필 삭제",
       "정말로 이 아이의 프로필과 모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
@@ -250,7 +254,10 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
             try {
               await childrenApi.deleteChild(childId);
               Alert.alert("삭제 완료", "아이 프로필이 삭제되었습니다.", [
-                { text: "확인", onPress: () => navigation.navigate("MainTabs") },
+                {
+                  text: "확인",
+                  onPress: () => navigation.navigate("MainTabs"),
+                },
               ]);
             } catch (error: any) {
               Alert.alert("오류", "삭제 중 오류가 발생했습니다.");
@@ -268,15 +275,18 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            {isEditing ? "아이 정보 수정" : isFirstChild ? "아이 프로필 만들기" : "새 아이 프로필"}
+            {isEditing
+              ? "아이 정보 수정"
+              : isFirstChild
+              ? "아이 프로필 만들기"
+              : "새 아이 프로필"}
           </Text>
           <Text style={styles.subtitle}>
-            {isEditing 
-              ? "아이의 정보를 수정해주세요" 
+            {isEditing
+              ? "아이의 정보를 수정해주세요"
               : isFirstChild
               ? "회원가입을 완료하려면 아이 프로필을 만들거나 기존 아이에 참여하세요"
-              : "소중한 아이의 정보를 입력해주세요"
-            }
+              : "소중한 아이의 정보를 입력해주세요"}
           </Text>
         </View>
 
@@ -284,7 +294,8 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
           <View style={styles.inviteSection}>
             <Text style={styles.inviteTitle}>어떻게 시작하시겠어요?</Text>
             <Text style={styles.inviteDescription}>
-              새로운 아이의 프로필을 만들거나, 파트너가 보낸 초대 코드로 기존 아이에 참여할 수 있습니다.
+              새로운 아이의 프로필을 만들거나, 파트너가 보낸 초대 코드로 기존
+              아이에 참여할 수 있습니다.
             </Text>
             <View style={styles.optionButtons}>
               <Button
@@ -330,68 +341,84 @@ export default function ChildProfileScreen({ navigation, route }: ChildProfileSc
             )}
 
             <Card>
-          <Input
-            label="아이 이름"
-            value={formData.name}
-            onChangeText={(name) => setFormData({ ...formData, name })}
-            error={errors.name}
-            placeholder="예: 다온이"
-          />
-
-          <Input
-            label="생년월일 (또는 출산예정일)"
-            value={formData.birthDate}
-            onChangeText={(birthDate) => setFormData({ ...formData, birthDate })}
-            error={errors.birthDate}
-            placeholder="YYYY-MM-DD"
-            keyboardType={Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"}
-          />
-
-          <View style={styles.genderContainer}>
-            <Text style={styles.genderLabel}>성별 (선택사항)</Text>
-            <View style={styles.genderButtons}>
-              <Button
-                title="남아"
-                variant={formData.gender === "male" ? "primary" : "outline"}
-                size="small"
-                buttonStyle={styles.genderButton}
-                onPress={() => setFormData({ 
-                  ...formData, 
-                  gender: formData.gender === "male" ? undefined : "male" as const
-                })}
+              <Input
+                label="아이 이름"
+                value={formData.name}
+                onChangeText={(name) => setFormData({ ...formData, name })}
+                error={errors.name}
+                placeholder="예: 다온이"
               />
-              <Button
-                title="여아"
-                variant={formData.gender === "female" ? "primary" : "outline"}
-                size="small"
-                buttonStyle={styles.genderButton}
-                onPress={() => setFormData({ 
-                  ...formData, 
-                  gender: formData.gender === "female" ? undefined : "female" as const
-                })}
-              />
-            </View>
-          </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              title={isLoading ? "저장 중..." : isEditing ? "정보 업데이트" : "프로필 생성"}
-              onPress={handleSave}
-              disabled={isLoading}
-            />
-
-            {isEditing && (
-              <Button
-                title="프로필 삭제"
-                variant="outline"
-                buttonStyle={styles.deleteButton}
-                onPress={handleDelete}
-                disabled={isLoading}
+              <Input
+                label="생년월일 (또는 출산예정일)"
+                value={formData.birthDate}
+                onChangeText={(birthDate) =>
+                  setFormData({ ...formData, birthDate })
+                }
+                error={errors.birthDate}
+                placeholder="YYYY-MM-DD"
+                keyboardType={
+                  Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"
+                }
               />
-            )}
-          </View>
-        </Card>
-        </>
+
+              <View style={styles.genderContainer}>
+                <Text style={styles.genderLabel}>성별 (선택사항)</Text>
+                <View style={styles.genderButtons}>
+                  <Button
+                    title="남아"
+                    variant={formData.gender === "male" ? "primary" : "outline"}
+                    size="small"
+                    buttonStyle={styles.genderButton}
+                    onPress={() =>
+                      setFormData({
+                        ...formData,
+                        gender: "male",
+                      })
+                    }
+                  />
+                  <Button
+                    title="여아"
+                    variant={
+                      formData.gender === "female" ? "primary" : "outline"
+                    }
+                    size="small"
+                    buttonStyle={styles.genderButton}
+                    onPress={() =>
+                      setFormData({
+                        ...formData,
+                        gender: "female",
+                      })
+                    }
+                  />
+                </View>
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <Button
+                  title={
+                    isLoading
+                      ? "저장 중..."
+                      : isEditing
+                      ? "정보 업데이트"
+                      : "프로필 생성"
+                  }
+                  onPress={handleSave}
+                  disabled={isLoading}
+                />
+
+                {isEditing && (
+                  <Button
+                    title="프로필 삭제"
+                    variant="outline"
+                    buttonStyle={styles.deleteButton}
+                    onPress={handleDelete}
+                    disabled={isLoading}
+                  />
+                )}
+              </View>
+            </Card>
+          </>
         )}
       </ScrollView>
     </SafeAreaView>

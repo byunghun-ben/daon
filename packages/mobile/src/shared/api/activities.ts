@@ -1,23 +1,12 @@
-import { apiClient } from "./client";
 import {
-  ActivityApi,
-  CreateActivityRequest,
-  UpdateActivityRequest,
-  ActivityFilters,
   ActivitiesResponse,
+  ActivityFilters,
   ActivityResponse,
   ActivitySummaryResponse,
+  CreateActivityRequest,
+  UpdateActivityRequest,
 } from "@daon/shared";
-
-// Re-export types for easy access
-export type { 
-  ActivityApi, 
-  CreateActivityRequest, 
-  UpdateActivityRequest, 
-  ActivityFilters 
-};
-export type Activity = ActivityApi;
-export type GetActivitiesRequest = ActivityFilters;
+import { apiClient } from "./client";
 
 // Activities API functions
 export const activitiesApi = {
@@ -27,7 +16,7 @@ export const activitiesApi = {
 
   async getActivities(filters?: ActivityFilters): Promise<ActivitiesResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -38,7 +27,7 @@ export const activitiesApi = {
 
     const queryString = queryParams.toString();
     const endpoint = queryString ? `/activities?${queryString}` : "/activities";
-    
+
     return apiClient.get<ActivitiesResponse>(endpoint);
   },
 
@@ -46,7 +35,10 @@ export const activitiesApi = {
     return apiClient.get<ActivityResponse>(`/activities/${id}`);
   },
 
-  async updateActivity(id: string, data: UpdateActivityRequest): Promise<ActivityResponse> {
+  async updateActivity(
+    id: string,
+    data: UpdateActivityRequest
+  ): Promise<ActivityResponse> {
     return apiClient.put<ActivityResponse>(`/activities/${id}`, data);
   },
 

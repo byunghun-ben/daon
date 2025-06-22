@@ -13,12 +13,13 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
-import { 
-  diaryApi, 
-  type CreateDiaryEntryRequest,
-  type DiaryEntry 
-} from "../../shared/api/diary";
-import { childrenApi, type Child } from "../../shared/api/children";
+import { diaryApi } from "../../shared/api/diary";
+import { childrenApi } from "../../shared/api/children";
+import {
+  CreateDiaryEntryRequest,
+  type ChildApi as Child,
+  type DiaryEntryApi as DiaryEntry,
+} from "@daon/shared";
 
 interface WriteDiaryScreenProps {
   navigation: any;
@@ -31,17 +32,27 @@ interface WriteDiaryScreenProps {
   };
 }
 
-export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreenProps) {
-  const { childId: initialChildId, diaryId, isEditing = false } = route?.params || {};
-  
+export default function WriteDiaryScreen({
+  navigation,
+  route,
+}: WriteDiaryScreenProps) {
+  const {
+    childId: initialChildId,
+    diaryId,
+    isEditing = false,
+  } = route?.params || {};
+
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
   const [formData, setFormData] = useState<CreateDiaryEntryRequest>({
     childId: "",
     date: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
     content: "",
     photos: [],
     videos: [],
+    milestones: [],
   });
   const [diary, setDiary] = useState<DiaryEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -168,12 +179,12 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
     try {
       const response = await childrenApi.getChildren();
       setChildren(response.children);
-      
+
       // If no child is selected and there's only one child, select it automatically
       if (!selectedChild && response.children.length === 1) {
         const childId = response.children[0].id;
         setSelectedChild(childId);
-        setFormData(prev => ({ ...prev, childId }));
+        setFormData((prev) => ({ ...prev, childId }));
       }
     } catch (error: any) {
       Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
@@ -182,7 +193,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
 
   const loadDiary = async () => {
     if (!diaryId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await diaryApi.getDiaryEntry(diaryId);
@@ -193,6 +204,10 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
         content: response.diaryEntry.content,
         photos: response.diaryEntry.photos || [],
         videos: response.diaryEntry.videos || [],
+        milestones: response.diaryEntry.milestones.map((milestone) => ({
+          ...milestone,
+          childId: response.diaryEntry.childId,
+        })),
       });
       setSelectedChild(response.diaryEntry.childId);
     } catch (error: any) {
@@ -245,10 +260,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
         ]);
       }
     } catch (error: any) {
-      Alert.alert(
-        "오류",
-        error.message || "일기 저장 중 오류가 발생했습니다."
-      );
+      Alert.alert("오류", error.message || "일기 저장 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -265,7 +277,7 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
   };
 
   const removeMedia = (type: "photos" | "videos", index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [type]: prev[type]?.filter((_, i) => i !== index) || [],
     }));
@@ -279,10 +291,9 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
             {isEditing ? "일기 수정" : "일기 쓰기"}
           </Text>
           <Text style={styles.subtitle}>
-            {isEditing 
-              ? "소중한 추억을 수정해보세요" 
-              : "오늘의 소중한 순간을 기록해보세요"
-            }
+            {isEditing
+              ? "소중한 추억을 수정해보세요"
+              : "오늘의 소중한 순간을 기록해보세요"}
           </Text>
         </View>
 
@@ -299,13 +310,14 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
                 ]}
                 onPress={() => {
                   setSelectedChild(child.id);
-                  setFormData(prev => ({ ...prev, childId: child.id }));
+                  setFormData((prev) => ({ ...prev, childId: child.id }));
                 }}
               >
                 <Text
                   style={[
                     styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    selectedChild === child.id &&
+                      styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -367,7 +379,9 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
             {/* Photos List */}
             {formData.photos && formData.photos.length > 0 && (
               <View style={styles.mediaList}>
-                <Text style={styles.sectionTitle}>사진 ({formData.photos.length})</Text>
+                <Text style={styles.sectionTitle}>
+                  사진 ({formData.photos.length})
+                </Text>
                 {formData.photos.map((photo, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
@@ -387,7 +401,9 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
             {/* Videos List */}
             {formData.videos && formData.videos.length > 0 && (
               <View style={styles.mediaList}>
-                <Text style={styles.sectionTitle}>동영상 ({formData.videos.length})</Text>
+                <Text style={styles.sectionTitle}>
+                  동영상 ({formData.videos.length})
+                </Text>
                 {formData.videos.map((video, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
@@ -408,7 +424,9 @@ export default function WriteDiaryScreen({ navigation, route }: WriteDiaryScreen
 
         {/* Save Button */}
         <Button
-          title={isLoading ? "저장 중..." : isEditing ? "일기 수정" : "일기 저장"}
+          title={
+            isLoading ? "저장 중..." : isEditing ? "일기 수정" : "일기 저장"
+          }
           onPress={handleSave}
           disabled={isLoading}
         />

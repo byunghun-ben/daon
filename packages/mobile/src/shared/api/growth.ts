@@ -1,32 +1,26 @@
-import { apiClient } from "./client";
 import {
-  GrowthRecordApi,
   CreateGrowthRecordRequest,
-  UpdateGrowthRecordRequest,
-  GrowthFilters,
-  GrowthRecordsResponse,
-  GrowthRecordResponse,
   GrowthChartData,
+  GrowthFilters,
+  GrowthRecordResponse,
+  GrowthRecordsResponse,
+  UpdateGrowthRecordRequest,
 } from "@daon/shared";
-
-// Re-export types for easy access
-export type { 
-  GrowthRecordApi, 
-  CreateGrowthRecordRequest, 
-  UpdateGrowthRecordRequest, 
-  GrowthFilters 
-};
-export type GrowthRecord = GrowthRecordApi;
+import { apiClient } from "./client";
 
 // Growth API functions
 export const growthApi = {
-  async createGrowthRecord(data: CreateGrowthRecordRequest): Promise<GrowthRecordResponse> {
+  async createGrowthRecord(
+    data: CreateGrowthRecordRequest
+  ): Promise<GrowthRecordResponse> {
     return apiClient.post<GrowthRecordResponse>("/growth", data);
   },
 
-  async getGrowthRecords(filters?: GrowthFilters): Promise<GrowthRecordsResponse> {
+  async getGrowthRecords(
+    filters?: GrowthFilters
+  ): Promise<GrowthRecordsResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -37,7 +31,7 @@ export const growthApi = {
 
     const queryString = queryParams.toString();
     const endpoint = queryString ? `/growth?${queryString}` : "/growth";
-    
+
     return apiClient.get<GrowthRecordsResponse>(endpoint);
   },
 
@@ -45,7 +39,10 @@ export const growthApi = {
     return apiClient.get<GrowthRecordResponse>(`/growth/${id}`);
   },
 
-  async updateGrowthRecord(id: string, data: UpdateGrowthRecordRequest): Promise<GrowthRecordResponse> {
+  async updateGrowthRecord(
+    id: string,
+    data: UpdateGrowthRecordRequest
+  ): Promise<GrowthRecordResponse> {
     return apiClient.put<GrowthRecordResponse>(`/growth/${id}`, data);
   },
 

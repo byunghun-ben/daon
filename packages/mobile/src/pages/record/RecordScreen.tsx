@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,14 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
-} from 'react-native';
-import { useThemedStyles } from '../../shared/lib/hooks/useTheme';
-import { SCREEN_PADDING } from '../../shared/config/theme';
-import Button from '../../shared/ui/Button';
-import Card from '../../shared/ui/Card';
-import { type Activity } from '../../shared/api/activities';
-import { type Child } from '../../shared/api/children';
-import { useChildren } from '../../shared/api/hooks/useChildren';
-import { useRecentActivities } from '../../shared/api/hooks/useActivities';
+} from "react-native";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import { type ActivityApi as Activity } from "@daon/shared";
+import { useChildren } from "../../shared/api/hooks/useChildren";
+import { useRecentActivities } from "../../shared/api/hooks/useActivities";
 
 interface RecordScreenProps {
   navigation: any;
@@ -28,33 +27,35 @@ interface RecordScreenProps {
 
 export default function RecordScreen({ navigation, route }: RecordScreenProps) {
   const { childId } = route?.params || {};
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(childId || null);
-  
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(
+    childId || null
+  );
+
   // React Query hooks
-  const { 
-    data: childrenData, 
-    isLoading: childrenLoading, 
-    refetch: refetchChildren 
+  const {
+    data: childrenData,
+    isLoading: childrenLoading,
+    refetch: refetchChildren,
   } = useChildren();
-  
+
   const children = childrenData?.children || [];
   const currentChildId = selectedChildId || children[0]?.id;
-  
-  const { 
-    data: activitiesData, 
+
+  const {
+    data: activitiesData,
     isLoading: activitiesLoading,
-    refetch: refetchActivities 
+    refetch: refetchActivities,
   } = useRecentActivities(currentChildId || "", 10);
-  
+
   const activities = activitiesData?.activities || [];
   const isLoading = childrenLoading || activitiesLoading;
   const [refreshing, setRefreshing] = useState(false);
 
   const recordTypes = [
-    { id: 'feeding', title: '수유', icon: '🍼', color: 'primary' },
-    { id: 'diaper', title: '기저귀', icon: '👶', color: 'secondary' },
-    { id: 'sleep', title: '수면', icon: '😴', color: 'tertiary' },
-    { id: 'tummy_time', title: '배밀이', icon: '🤱', color: 'quaternary' },
+    { id: "feeding", title: "수유", icon: "🍼", color: "primary" },
+    { id: "diaper", title: "기저귀", icon: "👶", color: "secondary" },
+    { id: "sleep", title: "수면", icon: "😴", color: "tertiary" },
+    { id: "tummy_time", title: "배밀이", icon: "🤱", color: "quaternary" },
   ] as const;
 
   const styles = useThemedStyles((theme) => ({
@@ -198,9 +199,9 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
       Alert.alert("알림", "먼저 아이를 선택해주세요.");
       return;
     }
-    navigation.navigate("RecordActivity", { 
-      activityType: type, 
-      childId: currentChildId 
+    navigation.navigate("RecordActivity", {
+      activityType: type,
+      childId: currentChildId,
     });
   };
 
@@ -208,11 +209,13 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
     <TouchableOpacity
       key={activity.id}
       style={styles.activityItem}
-      onPress={() => navigation.navigate("RecordActivity", {
-        activityId: activity.id,
-        childId: currentChildId,
-        isEditing: true,
-      })}
+      onPress={() =>
+        navigation.navigate("RecordActivity", {
+          activityId: activity.id,
+          childId: currentChildId,
+          isEditing: true,
+        })
+      }
     >
       <View style={styles.activityHeader}>
         <Text style={styles.activityType}>
@@ -251,7 +254,9 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
         <View style={styles.header}>
           <Text style={styles.title}>활동 기록</Text>
           <Text style={styles.subtitle}>
-            {currentChildId ? "아이의 일상 활동을 기록하세요" : "아이를 선택해주세요"}
+            {currentChildId
+              ? "아이의 일상 활동을 기록하세요"
+              : "아이를 선택해주세요"}
           </Text>
         </View>
 
@@ -286,7 +291,7 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
             </TouchableOpacity>
           ))}
         </View>
-        
+
         <View style={styles.recentSection}>
           <Text style={styles.sectionTitle}>최근 기록</Text>
           {activities.length === 0 ? (
@@ -299,13 +304,10 @@ export default function RecordScreen({ navigation, route }: RecordScreenProps) {
               </View>
             </Card>
           ) : (
-            <Card>
-              {activities.map(renderActivityItem)}
-            </Card>
+            <Card>{activities.map(renderActivityItem)}</Card>
           )}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-

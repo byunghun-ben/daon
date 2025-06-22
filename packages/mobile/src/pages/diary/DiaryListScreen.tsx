@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useCallback } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
+  type ChildApi as Child,
+  type DiaryEntryApi as DiaryEntry,
+  type DiaryFilters,
+} from "@daon/shared";
+import React, { useCallback, useEffect, useState } from "react";
+import {
   Alert,
   RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { childrenApi } from "../../shared/api/children";
+import { diaryApi } from "../../shared/api/diary";
 import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { 
-  diaryApi, 
-  type DiaryEntry,
-  type DiaryFilters 
-} from "../../shared/api/diary";
-import { childrenApi, type Child } from "../../shared/api/children";
 
 interface DiaryListScreenProps {
   navigation: any;
@@ -28,11 +29,16 @@ interface DiaryListScreenProps {
   };
 }
 
-export default function DiaryListScreen({ navigation, route }: DiaryListScreenProps) {
+export default function DiaryListScreen({
+  navigation,
+  route,
+}: DiaryListScreenProps) {
   const { childId: initialChildId } = route?.params || {};
-  
+
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -185,7 +191,7 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
     try {
       const response = await childrenApi.getChildren();
       setChildren(response.children);
-      
+
       // If no child is selected and there's only one child, select it automatically
       if (!selectedChild && response.children.length === 1) {
         setSelectedChild(response.children[0].id);
@@ -197,14 +203,14 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
 
   const loadDiaryEntries = async () => {
     if (!selectedChild) return;
-    
+
     try {
       const filters: DiaryFilters = {
         childId: selectedChild,
         limit: 50,
         offset: 0,
       };
-      
+
       const response = await diaryApi.getDiaryEntries(filters);
       setDiaryEntries(response.diaryEntries);
     } catch (error: any) {
@@ -268,12 +274,12 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
   const renderDiaryCard = (diary: DiaryEntry) => (
     <Card key={diary.id} style={styles.diaryCard}>
       <TouchableOpacity
-        onPress={() => navigation.navigate("DiaryDetail", { diaryId: diary.id })}
+        onPress={() =>
+          navigation.navigate("DiaryDetail", { diaryId: diary.id })
+        }
       >
         <View style={styles.diaryHeader}>
-          <Text style={styles.diaryDate}>
-            {formatDate(diary.date)}
-          </Text>
+          <Text style={styles.diaryDate}>{formatDate(diary.date)}</Text>
           <View style={styles.diaryActions}>
             <TouchableOpacity
               style={styles.actionButton}
@@ -285,37 +291,40 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
               style={styles.actionButton}
               onPress={() => handleDeleteDiary(diary)}
             >
-              <Text style={[styles.actionButtonText, { color: styles.container.backgroundColor }]}>
+              <Text
+                style={[
+                  styles.actionButtonText,
+                  { color: styles.container.backgroundColor },
+                ]}
+              >
                 삭제
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-        
-        <Text style={styles.diaryPreview}>
-          {getPreviewText(diary.content)}
-        </Text>
-        
+
+        <Text style={styles.diaryPreview}>{getPreviewText(diary.content)}</Text>
+
         <View style={styles.diaryMeta}>
           {diary.photos && diary.photos.length > 0 && (
             <View style={styles.metaItem}>
               <Text style={styles.metaText}>📷 {diary.photos.length}</Text>
             </View>
           )}
-          
+
           {diary.videos && diary.videos.length > 0 && (
             <View style={styles.metaItem}>
               <Text style={styles.metaText}>🎥 {diary.videos.length}</Text>
             </View>
           )}
-          
+
           <View style={styles.metaItem}>
             <Text style={styles.metaText}>
               {new Date(diary.createdAt).toLocaleDateString("ko-KR")} 작성
             </Text>
           </View>
         </View>
-        
+
         {diary.milestones && diary.milestones.length > 0 && (
           <View style={styles.milestoneTag}>
             <Text style={styles.milestoneText}>
@@ -357,7 +366,8 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
                 <Text
                   style={[
                     styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    selectedChild === child.id &&
+                      styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -373,12 +383,13 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
         ) : diaryEntries.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              아직 작성된 일기가 없습니다.{"\n"}
-              첫 번째 일기를 써보세요!
+              아직 작성된 일기가 없습니다.{"\n"}첫 번째 일기를 써보세요!
             </Text>
             <Button
               title="첫 일기 쓰기"
-              onPress={() => navigation.navigate("WriteDiary", { childId: selectedChild })}
+              onPress={() =>
+                navigation.navigate("WriteDiary", { childId: selectedChild })
+              }
             />
           </View>
         ) : (
@@ -390,7 +401,9 @@ export default function DiaryListScreen({ navigation, route }: DiaryListScreenPr
       {selectedChild && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate("WriteDiary", { childId: selectedChild })}
+          onPress={() =>
+            navigation.navigate("WriteDiary", { childId: selectedChild })
+          }
         >
           <Text style={styles.fabText}>✏️</Text>
         </TouchableOpacity>

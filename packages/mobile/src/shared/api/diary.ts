@@ -1,23 +1,13 @@
-import { apiClient } from "./client";
 import {
-  DiaryEntryApi,
-  MilestoneApi,
   CreateDiaryEntryRequest,
-  UpdateDiaryEntryRequest,
   CreateMilestoneRequest,
-  DiaryFilters,
   DiaryEntriesResponse,
   DiaryEntryResponse,
+  DiaryFilters,
+  MilestoneApi,
+  UpdateDiaryEntryRequest,
 } from "@daon/shared";
-
-// Re-export types for easy access
-export type { 
-  DiaryEntryApi, 
-  CreateDiaryEntryRequest, 
-  UpdateDiaryEntryRequest, 
-  DiaryFilters 
-};
-export type DiaryEntry = DiaryEntryApi;
+import { apiClient } from "./client";
 
 export interface MilestoneResponse {
   milestone: MilestoneApi;
@@ -25,13 +15,15 @@ export interface MilestoneResponse {
 
 // Diary API functions
 export const diaryApi = {
-  async createDiaryEntry(data: CreateDiaryEntryRequest): Promise<DiaryEntryResponse> {
+  async createDiaryEntry(
+    data: CreateDiaryEntryRequest
+  ): Promise<DiaryEntryResponse> {
     return apiClient.post<DiaryEntryResponse>("/diary", data);
   },
 
   async getDiaryEntries(filters?: DiaryFilters): Promise<DiaryEntriesResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -42,7 +34,7 @@ export const diaryApi = {
 
     const queryString = queryParams.toString();
     const endpoint = queryString ? `/diary?${queryString}` : "/diary";
-    
+
     return apiClient.get<DiaryEntriesResponse>(endpoint);
   },
 
@@ -50,7 +42,10 @@ export const diaryApi = {
     return apiClient.get<DiaryEntryResponse>(`/diary/${id}`);
   },
 
-  async updateDiaryEntry(id: string, data: UpdateDiaryEntryRequest): Promise<DiaryEntryResponse> {
+  async updateDiaryEntry(
+    id: string,
+    data: UpdateDiaryEntryRequest
+  ): Promise<DiaryEntryResponse> {
     return apiClient.put<DiaryEntryResponse>(`/diary/${id}`, data);
   },
 

@@ -1,25 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { GrowthChartData, GrowthFilters, GrowthRecordApi } from "@daon/shared";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
   Alert,
-  RefreshControl,
   Dimensions,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { childrenApi } from "../../shared/api/children";
+import { type ChildApi as Child } from "@daon/shared";
 import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { 
-  growthApi, 
-  type GrowthRecord,
-  type GrowthFilters,
-  type GrowthChartData 
-} from "../../shared/api/growth";
-import { childrenApi, type Child } from "../../shared/api/children";
+import { growthApi } from "../../shared/api/growth";
 
 interface GrowthChartScreenProps {
   navigation: any;
@@ -32,14 +29,21 @@ interface GrowthChartScreenProps {
 
 const { width: screenWidth } = Dimensions.get("window");
 
-export default function GrowthChartScreen({ navigation, route }: GrowthChartScreenProps) {
+export default function GrowthChartScreen({
+  navigation,
+  route,
+}: GrowthChartScreenProps) {
   const { childId: initialChildId } = route?.params || {};
-  
+
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
-  const [growthRecords, setGrowthRecords] = useState<GrowthRecord[]>([]);
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
+  const [growthRecords, setGrowthRecords] = useState<GrowthRecordApi[]>([]);
   const [chartData, setChartData] = useState<GrowthChartData | null>(null);
-  const [selectedMetric, setSelectedMetric] = useState<"height" | "weight" | "head">("height");
+  const [selectedMetric, setSelectedMetric] = useState<
+    "height" | "weight" | "head"
+  >("height");
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -247,7 +251,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
     try {
       const response = await childrenApi.getChildren();
       setChildren(response.children);
-      
+
       // If no child is selected and there's only one child, select it automatically
       if (!selectedChild && response.children.length === 1) {
         setSelectedChild(response.children[0].id);
@@ -259,7 +263,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
 
   const loadGrowthData = async () => {
     if (!selectedChild) return;
-    
+
     try {
       // Load growth records
       const filters: GrowthFilters = {
@@ -267,7 +271,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
         limit: 100,
         offset: 0,
       };
-      
+
       const recordsResponse = await growthApi.getGrowthRecords(filters);
       setGrowthRecords(recordsResponse.growthRecords);
 
@@ -302,19 +306,19 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
   };
 
   const calculateAge = (childId: string, recordedAt: string): string => {
-    const child = children.find(c => c.id === childId);
+    const child = children.find((c) => c.id === childId);
     if (!child) return "";
-    
+
     const birthDate = new Date(child.birthDate);
     const recordDate = new Date(recordedAt);
     const diffTime = recordDate.getTime() - birthDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return "출생 전";
-    
+
     const months = Math.floor(diffDays / 30);
     const weeks = Math.floor((diffDays % 30) / 7);
-    
+
     if (months > 0) {
       return `${months}개월`;
     } else {
@@ -324,19 +328,21 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
 
   const getMetricTitle = (metric: string): string => {
     switch (metric) {
-      case "height": return "키 성장 차트";
-      case "weight": return "몸무게 성장 차트";
-      case "head": return "머리둘레 성장 차트";
-      default: return "성장 차트";
+      case "height":
+        return "키 성장 차트";
+      case "weight":
+        return "몸무게 성장 차트";
+      case "head":
+        return "머리둘레 성장 차트";
+      default:
+        return "성장 차트";
     }
   };
 
   const renderGrowthChart = () => {
     return (
       <Card style={styles.chartCard}>
-        <Text style={styles.chartTitle}>
-          {getMetricTitle(selectedMetric)}
-        </Text>
+        <Text style={styles.chartTitle}>{getMetricTitle(selectedMetric)}</Text>
         <View style={styles.chartPlaceholder}>
           <Text style={styles.chartPlaceholderText}>
             📊{"\n"}
@@ -348,14 +354,16 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
     );
   };
 
-  const renderRecordCard = (record: GrowthRecord) => (
+  const renderRecordCard = (record: GrowthRecordApi) => (
     <Card key={record.id} style={styles.recordCard}>
       <TouchableOpacity
-        onPress={() => navigation.navigate("AddGrowthRecord", { 
-          recordId: record.id, 
-          childId: record.childId,
-          isEditing: true 
-        })}
+        onPress={() =>
+          navigation.navigate("AddGrowthRecord", {
+            recordId: record.id,
+            childId: record.childId,
+            isEditing: true,
+          })
+        }
       >
         <View style={styles.recordHeader}>
           <View>
@@ -367,7 +375,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
             </Text>
           </View>
         </View>
-        
+
         <View style={styles.recordMeasurements}>
           {record.height && (
             <View style={styles.measurementItem}>
@@ -377,7 +385,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
               <Text style={styles.measurementLabel}>키</Text>
             </View>
           )}
-          
+
           {record.weight && (
             <View style={styles.measurementItem}>
               <Text style={styles.measurementValue}>
@@ -386,7 +394,7 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
               <Text style={styles.measurementLabel}>몸무게</Text>
             </View>
           )}
-          
+
           {record.headCircumference && (
             <View style={styles.measurementItem}>
               <Text style={styles.measurementValue}>
@@ -396,11 +404,9 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
             </View>
           )}
         </View>
-        
+
         {record.notes && (
-          <Text style={styles.recordNotes}>
-            "{record.notes}"
-          </Text>
+          <Text style={styles.recordNotes}>"{record.notes}"</Text>
         )}
       </TouchableOpacity>
     </Card>
@@ -436,7 +442,8 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
                 <Text
                   style={[
                     styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    selectedChild === child.id &&
+                      styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -461,13 +468,14 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
                 <Text
                   style={[
                     styles.metricButtonText,
-                    selectedMetric === "height" && styles.metricButtonTextSelected,
+                    selectedMetric === "height" &&
+                      styles.metricButtonTextSelected,
                   ]}
                 >
                   키
                 </Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[
                   styles.metricButton,
@@ -479,13 +487,14 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
                 <Text
                   style={[
                     styles.metricButtonText,
-                    selectedMetric === "weight" && styles.metricButtonTextSelected,
+                    selectedMetric === "weight" &&
+                      styles.metricButtonTextSelected,
                   ]}
                 >
                   몸무게
                 </Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[
                   styles.metricButton,
@@ -497,7 +506,8 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
                 <Text
                   style={[
                     styles.metricButtonText,
-                    selectedMetric === "head" && styles.metricButtonTextSelected,
+                    selectedMetric === "head" &&
+                      styles.metricButtonTextSelected,
                   ]}
                 >
                   머리둘레
@@ -516,12 +526,16 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
         ) : growthRecords.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              아직 기록된 성장 데이터가 없습니다.{"\n"}
-              첫 번째 성장 기록을 추가해보세요!
+              아직 기록된 성장 데이터가 없습니다.{"\n"}첫 번째 성장 기록을
+              추가해보세요!
             </Text>
             <Button
               title="첫 성장 기록 추가"
-              onPress={() => navigation.navigate("AddGrowthRecord", { childId: selectedChild })}
+              onPress={() =>
+                navigation.navigate("AddGrowthRecord", {
+                  childId: selectedChild,
+                })
+              }
             />
           </View>
         ) : (
@@ -538,7 +552,9 @@ export default function GrowthChartScreen({ navigation, route }: GrowthChartScre
       {selectedChild && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate("AddGrowthRecord", { childId: selectedChild })}
+          onPress={() =>
+            navigation.navigate("AddGrowthRecord", { childId: selectedChild })
+          }
         >
           <Text style={styles.fabText}>📏</Text>
         </TouchableOpacity>

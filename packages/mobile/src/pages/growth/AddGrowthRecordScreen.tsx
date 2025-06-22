@@ -12,12 +12,13 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
-import { 
-  growthApi, 
-  type CreateGrowthRecordRequest,
-  type GrowthRecord 
-} from "../../shared/api/growth";
-import { childrenApi, type Child } from "../../shared/api/children";
+import { growthApi } from "../../shared/api/growth";
+import { childrenApi } from "../../shared/api/children";
+import {
+  CreateGrowthRecordRequest,
+  type ChildApi as Child,
+  type GrowthRecordApi as GrowthRecord,
+} from "@daon/shared";
 
 interface AddGrowthRecordScreenProps {
   navigation: any;
@@ -30,17 +31,26 @@ interface AddGrowthRecordScreenProps {
   };
 }
 
-export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRecordScreenProps) {
-  const { childId: initialChildId, recordId, isEditing = false } = route?.params || {};
-  
+export default function AddGrowthRecordScreen({
+  navigation,
+  route,
+}: AddGrowthRecordScreenProps) {
+  const {
+    childId: initialChildId,
+    recordId,
+    isEditing = false,
+  } = route?.params || {};
+
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
   const [formData, setFormData] = useState<CreateGrowthRecordRequest>({
-    child_id: "",
-    recorded_at: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
-    height_cm: undefined,
-    weight_kg: undefined,
-    head_circumference_cm: undefined,
+    childId: "",
+    recordedAt: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
+    height: undefined,
+    weight: undefined,
+    headCircumference: undefined,
     notes: "",
   });
   const [record, setRecord] = useState<GrowthRecord | null>(null);
@@ -148,12 +158,12 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
     try {
       const response = await childrenApi.getChildren();
       setChildren(response.children);
-      
+
       // If no child is selected and there's only one child, select it automatically
       if (!selectedChild && response.children.length === 1) {
         const childId = response.children[0].id;
         setSelectedChild(childId);
-        setFormData(prev => ({ ...prev, child_id: childId }));
+        setFormData((prev) => ({ ...prev, child_id: childId }));
       }
     } catch (error: any) {
       Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
@@ -162,20 +172,20 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
 
   const loadRecord = async () => {
     if (!recordId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await growthApi.getGrowthRecord(recordId);
       setRecord(response.growthRecord);
       setFormData({
-        child_id: response.growthRecord.child_id,
-        recorded_at: response.growthRecord.recorded_at.split("T")[0],
-        height_cm: response.growthRecord.height_cm,
-        weight_kg: response.growthRecord.weight_kg,
-        head_circumference_cm: response.growthRecord.head_circumference_cm,
+        childId: response.growthRecord.childId,
+        recordedAt: response.growthRecord.recordedAt.split("T")[0],
+        height: response.growthRecord.height || undefined,
+        weight: response.growthRecord.weight || undefined,
+        headCircumference: response.growthRecord.headCircumference || undefined,
         notes: response.growthRecord.notes || "",
       });
-      setSelectedChild(response.growthRecord.child_id);
+      setSelectedChild(response.growthRecord.childId);
     } catch (error: any) {
       Alert.alert("오류", "성장 기록을 불러오는데 실패했습니다.");
     } finally {
@@ -190,31 +200,32 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
       newErrors.child = "아이를 선택해주세요";
     }
 
-    if (!formData.recorded_at) {
-      newErrors.recorded_at = "측정 날짜를 입력해주세요";
+    if (!formData.recordedAt) {
+      newErrors.recordedAt = "측정 날짜를 입력해주세요";
     }
 
     // At least one measurement should be provided
-    if (!formData.height_cm && !formData.weight_kg && !formData.head_circumference_cm) {
-      newErrors.measurements = "키, 몸무게, 머리둘레 중 최소 하나는 입력해주세요";
+    if (!formData.height && !formData.weight && !formData.headCircumference) {
+      newErrors.measurements =
+        "키, 몸무게, 머리둘레 중 최소 하나는 입력해주세요";
     }
 
     // Validate measurements ranges
-    if (formData.height_cm !== undefined) {
-      if (formData.height_cm <= 0 || formData.height_cm > 200) {
-        newErrors.height_cm = "올바른 키를 입력해주세요 (1-200cm)";
+    if (formData.height !== undefined) {
+      if (formData.height <= 0 || formData.height > 200) {
+        newErrors.height = "올바른 키를 입력해주세요 (1-200cm)";
       }
     }
 
-    if (formData.weight_kg !== undefined) {
-      if (formData.weight_kg <= 0 || formData.weight_kg > 50) {
-        newErrors.weight_kg = "올바른 몸무게를 입력해주세요 (0.1-50kg)";
+    if (formData.weight !== undefined) {
+      if (formData.weight <= 0 || formData.weight > 50) {
+        newErrors.weight = "올바른 몸무게를 입력해주세요 (0.1-50kg)";
       }
     }
 
-    if (formData.head_circumference_cm !== undefined) {
-      if (formData.head_circumference_cm <= 0 || formData.head_circumference_cm > 70) {
-        newErrors.head_circumference_cm = "올바른 머리둘레를 입력해주세요 (1-70cm)";
+    if (formData.headCircumference !== undefined) {
+      if (formData.headCircumference <= 0 || formData.headCircumference > 70) {
+        newErrors.headCircumference = "올바른 머리둘레를 입력해주세요 (1-70cm)";
       }
     }
 
@@ -254,20 +265,20 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
   };
 
   const calculateAge = (childId: string, recordedAt: string): string => {
-    const child = children.find(c => c.id === childId);
+    const child = children.find((c) => c.id === childId);
     if (!child) return "";
-    
-    const birthDate = new Date(child.birth_date);
+
+    const birthDate = new Date(child.birthDate);
     const recordDate = new Date(recordedAt);
     const diffTime = recordDate.getTime() - birthDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return "출생 전";
-    
+
     const months = Math.floor(diffDays / 30);
     const weeks = Math.floor((diffDays % 30) / 7);
     const days = diffDays % 7;
-    
+
     if (months > 0) {
       return `${months}개월 ${weeks}주`;
     } else if (weeks > 0) {
@@ -285,10 +296,9 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
             {isEditing ? "성장 기록 수정" : "성장 기록 추가"}
           </Text>
           <Text style={styles.subtitle}>
-            {isEditing 
-              ? "아이의 성장 기록을 수정해주세요" 
-              : "아이의 키, 몸무게, 머리둘레를 기록해주세요"
-            }
+            {isEditing
+              ? "아이의 성장 기록을 수정해주세요"
+              : "아이의 키, 몸무게, 머리둘레를 기록해주세요"}
           </Text>
         </View>
 
@@ -305,13 +315,14 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
                 ]}
                 onPress={() => {
                   setSelectedChild(child.id);
-                  setFormData(prev => ({ ...prev, child_id: child.id }));
+                  setFormData((prev) => ({ ...prev, child_id: child.id }));
                 }}
               >
                 <Text
                   style={[
                     styles.childButtonText,
-                    selectedChild === child.id && styles.childButtonTextSelected,
+                    selectedChild === child.id &&
+                      styles.childButtonTextSelected,
                   ]}
                 >
                   {child.name}
@@ -326,14 +337,16 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>측정 날짜</Text>
           <Input
-            value={formData.recorded_at}
-            onChangeText={(recorded_at) => setFormData({ ...formData, recorded_at })}
-            error={errors.recorded_at}
+            value={formData.recordedAt}
+            onChangeText={(recordedAt) =>
+              setFormData({ ...formData, recordedAt })
+            }
+            error={errors.recordedAt}
             placeholder="YYYY-MM-DD"
           />
-          {selectedChild && formData.recorded_at && (
+          {selectedChild && formData.recordedAt && (
             <Text style={styles.infoText}>
-              측정 시 나이: {calculateAge(selectedChild, formData.recorded_at)}
+              측정 시 나이: {calculateAge(selectedChild, formData.recordedAt)}
             </Text>
           )}
         </Card>
@@ -341,16 +354,16 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
         {/* Measurements */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>측정값</Text>
-          
+
           {/* Height and Weight */}
           <View style={styles.measurementRow}>
             <Input
               label="키 (cm)"
-              value={formData.height_cm?.toString() || ""}
-              onChangeText={(height) => 
-                setFormData({ 
-                  ...formData, 
-                  height_cm: height ? parseFloat(height) : undefined 
+              value={formData.height?.toString() || ""}
+              onChangeText={(height) =>
+                setFormData({
+                  ...formData,
+                  height: height ? parseFloat(height) : undefined,
                 })
               }
               keyboardType="numeric"
@@ -358,14 +371,14 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
               containerStyle={styles.measurementInput}
               error={errors.height_cm}
             />
-            
+
             <Input
               label="몸무게 (kg)"
-              value={formData.weight_kg?.toString() || ""}
-              onChangeText={(weight) => 
-                setFormData({ 
-                  ...formData, 
-                  weight_kg: weight ? parseFloat(weight) : undefined 
+              value={formData.weight?.toString() || ""}
+              onChangeText={(weight) =>
+                setFormData({
+                  ...formData,
+                  weight: weight ? parseFloat(weight) : undefined,
                 })
               }
               keyboardType="numeric"
@@ -378,11 +391,11 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
           {/* Head Circumference */}
           <Input
             label="머리둘레 (cm)"
-            value={formData.head_circumference_cm?.toString() || ""}
-            onChangeText={(headCirc) => 
-              setFormData({ 
-                ...formData, 
-                head_circumference_cm: headCirc ? parseFloat(headCirc) : undefined 
+            value={formData.headCircumference?.toString() || ""}
+            onChangeText={(headCirc) =>
+              setFormData({
+                ...formData,
+                headCircumference: headCirc ? parseFloat(headCirc) : undefined,
               })
             }
             keyboardType="numeric"
@@ -390,10 +403,13 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
             error={errors.head_circumference_cm}
           />
 
-          {errors.measurements && <Text style={styles.error}>{errors.measurements}</Text>}
-          
+          {errors.measurements && (
+            <Text style={styles.error}>{errors.measurements}</Text>
+          )}
+
           <Text style={styles.helpText}>
-            💡 정확한 측정을 위해 동일한 시간대(예: 오전)에 측정하는 것을 권장합니다.
+            💡 정확한 측정을 위해 동일한 시간대(예: 오전)에 측정하는 것을
+            권장합니다.
           </Text>
         </Card>
 
@@ -412,7 +428,9 @@ export default function AddGrowthRecordScreen({ navigation, route }: AddGrowthRe
 
         {/* Save Button */}
         <Button
-          title={isLoading ? "저장 중..." : isEditing ? "기록 수정" : "기록 저장"}
+          title={
+            isLoading ? "저장 중..." : isEditing ? "기록 수정" : "기록 저장"
+          }
           onPress={handleSave}
           disabled={isLoading}
         />

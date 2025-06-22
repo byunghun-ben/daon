@@ -1,16 +1,11 @@
-import { apiClient } from "./client";
 import {
-  ChildApi,
-  CreateChildRequest,
-  UpdateChildRequest,
+  AcceptInviteRequest,
   ChildrenResponse,
   ChildResponse,
-  AcceptInviteRequest,
+  CreateChildRequest,
+  UpdateChildRequest,
 } from "@daon/shared";
-
-// Re-export types for easy access
-export type { ChildApi, CreateChildRequest, UpdateChildRequest };
-export type Child = ChildApi;
+import { apiClient } from "./client";
 
 // Children API functions
 export const childrenApi = {
@@ -26,7 +21,10 @@ export const childrenApi = {
     return apiClient.get<ChildResponse>(`/children/${id}`);
   },
 
-  async updateChild(id: string, data: UpdateChildRequest): Promise<ChildResponse> {
+  async updateChild(
+    id: string,
+    data: UpdateChildRequest
+  ): Promise<ChildResponse> {
     return apiClient.put<ChildResponse>(`/children/${id}`, data);
   },
 

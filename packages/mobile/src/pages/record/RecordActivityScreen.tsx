@@ -12,17 +12,13 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import Button from "../../shared/ui/Button";
 import Input from "../../shared/ui/Input";
 import Card from "../../shared/ui/Card";
-import { 
-  type CreateActivityRequest,
-  type Activity 
-} from "../../shared/api/activities";
-import { type Child } from "../../shared/api/children";
+import { type CreateActivityRequest } from "@daon/shared";
 import { useChildren } from "../../shared/api/hooks/useChildren";
-import { 
-  useActivity, 
-  useCreateActivity, 
-  useUpdateActivity, 
-  useDeleteActivity 
+import {
+  useActivity,
+  useCreateActivity,
+  useUpdateActivity,
+  useDeleteActivity,
 } from "../../shared/api/hooks/useActivities";
 
 interface RecordActivityScreenProps {
@@ -45,21 +41,33 @@ const ACTIVITY_TYPES = [
   { key: "custom", label: "기타", icon: "📝" },
 ] as const;
 
-export default function RecordActivityScreen({ navigation, route }: RecordActivityScreenProps) {
-  const { activityType: initialType, childId: initialChildId, activityId, isEditing = false } = route?.params || {};
-  
+export default function RecordActivityScreen({
+  navigation,
+  route,
+}: RecordActivityScreenProps) {
+  const {
+    activityType: initialType,
+    childId: initialChildId,
+    activityId,
+    isEditing = false,
+  } = route?.params || {};
+
   // React Query hooks
   const { data: childrenData, isLoading: childrenLoading } = useChildren();
-  const { data: activityData, isLoading: activityLoading } = useActivity(activityId || "");
+  const { data: activityData, isLoading: activityLoading } = useActivity(
+    activityId || ""
+  );
   const createActivityMutation = useCreateActivity();
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
-  
+
   const children = childrenData?.children || [];
   const activity = activityData?.activity || null;
-  
+
   // Local state
-  const [selectedChild, setSelectedChild] = useState<string>(initialChildId || "");
+  const [selectedChild, setSelectedChild] = useState<string>(
+    initialChildId || ""
+  );
   const [activityType, setActivityType] = useState<string>(initialType || "");
   const [formData, setFormData] = useState({
     started_at: new Date().toISOString(),
@@ -68,10 +76,12 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
     metadata: {} as Record<string, any>,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
-  const isLoading = childrenLoading || activityLoading || 
-    createActivityMutation.isPending || 
-    updateActivityMutation.isPending || 
+
+  const isLoading =
+    childrenLoading ||
+    activityLoading ||
+    createActivityMutation.isPending ||
+    updateActivityMutation.isPending ||
     deleteActivityMutation.isPending;
 
   const styles = useThemedStyles((theme) => ({
@@ -217,7 +227,10 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
       newErrors.started_at = "시작 시간을 입력해주세요";
     }
 
-    if (formData.ended_at && new Date(formData.ended_at) <= new Date(formData.started_at)) {
+    if (
+      formData.ended_at &&
+      new Date(formData.ended_at) <= new Date(formData.started_at)
+    ) {
       newErrors.ended_at = "종료 시간은 시작 시간보다 늦어야 합니다";
     }
 
@@ -238,8 +251,11 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           metadata: formData.metadata,
         };
 
-        await updateActivityMutation.mutateAsync({ id: activityId, data: updateData });
-        
+        await updateActivityMutation.mutateAsync({
+          id: activityId,
+          data: updateData,
+        });
+
         Alert.alert("성공", "활동이 업데이트되었습니다!", [
           { text: "확인", onPress: () => navigation.goBack() },
         ]);
@@ -254,43 +270,36 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
         };
 
         await createActivityMutation.mutateAsync(activityData);
-        
+
         Alert.alert("성공", "활동이 기록되었습니다!", [
           { text: "확인", onPress: () => navigation.goBack() },
         ]);
       }
     } catch (error: any) {
-      Alert.alert(
-        "오류",
-        error.message || "활동 기록 중 오류가 발생했습니다."
-      );
+      Alert.alert("오류", error.message || "활동 기록 중 오류가 발생했습니다.");
     }
   };
 
   const handleDelete = async () => {
     if (!isEditing || !activityId) return;
 
-    Alert.alert(
-      "활동 삭제",
-      "이 활동 기록을 삭제하시겠습니까?",
-      [
-        { text: "취소", style: "cancel" },
-        {
-          text: "삭제",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteActivityMutation.mutateAsync(activityId);
-              Alert.alert("삭제 완료", "활동이 삭제되었습니다.", [
-                { text: "확인", onPress: () => navigation.goBack() },
-              ]);
-            } catch (error) {
-              Alert.alert("오류", "삭제 중 오류가 발생했습니다.");
-            }
-          },
+    Alert.alert("활동 삭제", "이 활동 기록을 삭제하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteActivityMutation.mutateAsync(activityId);
+            Alert.alert("삭제 완료", "활동이 삭제되었습니다.", [
+              { text: "확인", onPress: () => navigation.goBack() },
+            ]);
+          } catch (error) {
+            Alert.alert("오류", "삭제 중 오류가 발생했습니다.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const renderMetadataInputs = () => {
@@ -301,10 +310,13 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
             <Input
               label="수유량 (ml)"
               value={formData.metadata.amount?.toString() || ""}
-              onChangeText={(amount) => 
+              onChangeText={(amount) =>
                 setFormData({
                   ...formData,
-                  metadata: { ...formData.metadata, amount: amount ? parseInt(amount) : undefined }
+                  metadata: {
+                    ...formData.metadata,
+                    amount: amount ? parseInt(amount) : undefined,
+                  },
                 })
               }
               keyboardType="numeric"
@@ -313,51 +325,51 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
             <Input
               label="수유 종류"
               value={formData.metadata.type || ""}
-              onChangeText={(type) => 
+              onChangeText={(type) =>
                 setFormData({
                   ...formData,
-                  metadata: { ...formData.metadata, type }
+                  metadata: { ...formData.metadata, type },
                 })
               }
               placeholder="예: 모유, 분유, 이유식"
             />
           </View>
         );
-      
+
       case "diaper":
         return (
           <View style={styles.metadataContainer}>
             <Input
               label="기저귀 상태"
               value={formData.metadata.type || ""}
-              onChangeText={(type) => 
+              onChangeText={(type) =>
                 setFormData({
                   ...formData,
-                  metadata: { ...formData.metadata, type }
+                  metadata: { ...formData.metadata, type },
                 })
               }
               placeholder="예: 소변, 대변, 소변+대변"
             />
           </View>
         );
-      
+
       case "sleep":
         return (
           <View style={styles.metadataContainer}>
             <Input
               label="수면 품질"
               value={formData.metadata.quality || ""}
-              onChangeText={(quality) => 
+              onChangeText={(quality) =>
                 setFormData({
                   ...formData,
-                  metadata: { ...formData.metadata, quality }
+                  metadata: { ...formData.metadata, quality },
                 })
               }
               placeholder="예: 좋음, 보통, 나쁨"
             />
           </View>
         );
-      
+
       default:
         return null;
     }
@@ -371,10 +383,9 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
             {isEditing ? "활동 수정" : "활동 기록"}
           </Text>
           <Text style={styles.subtitle}>
-            {isEditing 
-              ? "활동 정보를 수정하세요" 
-              : "아이의 일상 활동을 기록해보세요"
-            }
+            {isEditing
+              ? "활동 정보를 수정하세요"
+              : "아이의 일상 활동을 기록해보세요"}
           </Text>
         </View>
 
@@ -395,7 +406,8 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
                   <Text
                     style={[
                       styles.childButtonText,
-                      selectedChild === child.id && styles.childButtonTextSelected,
+                      selectedChild === child.id &&
+                        styles.childButtonTextSelected,
                     ]}
                   >
                     {child.name}
@@ -403,7 +415,9 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
                 </TouchableOpacity>
               ))}
             </View>
-            {errors.child && <Text style={{ color: "red" }}>{errors.child}</Text>}
+            {errors.child && (
+              <Text style={{ color: "red" }}>{errors.child}</Text>
+            )}
           </Card>
         )}
 
@@ -411,7 +425,8 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>아이</Text>
             <Text style={{ fontSize: 16, color: "#666" }}>
-              {children.find(c => c.id === selectedChild)?.name || "로딩 중..."}
+              {children.find((c) => c.id === selectedChild)?.name ||
+                "로딩 중..."}
             </Text>
           </Card>
         )}
@@ -422,10 +437,12 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
           {isEditing ? (
             <View style={{ alignItems: "center", padding: 16 }}>
               <Text style={styles.activityIcon}>
-                {ACTIVITY_TYPES.find(a => a.key === activityType)?.icon || "📝"}
+                {ACTIVITY_TYPES.find((a) => a.key === activityType)?.icon ||
+                  "📝"}
               </Text>
               <Text style={styles.activityLabel}>
-                {ACTIVITY_TYPES.find(a => a.key === activityType)?.label || activityType}
+                {ACTIVITY_TYPES.find((a) => a.key === activityType)?.label ||
+                  activityType}
               </Text>
             </View>
           ) : (
@@ -436,7 +453,8 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
                     key={activity.key}
                     style={[
                       styles.activityButton,
-                      activityType === activity.key && styles.activityButtonSelected,
+                      activityType === activity.key &&
+                        styles.activityButtonSelected,
                     ]}
                     onPress={() => setActivityType(activity.key)}
                   >
@@ -445,7 +463,9 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
                   </TouchableOpacity>
                 ))}
               </View>
-              {errors.activityType && <Text style={{ color: "red" }}>{errors.activityType}</Text>}
+              {errors.activityType && (
+                <Text style={{ color: "red" }}>{errors.activityType}</Text>
+              )}
             </>
           )}
         </Card>
@@ -457,20 +477,27 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
             <Input
               label="시작 시간"
               value={formatDateTime(new Date(formData.started_at))}
-              onChangeText={(started_at) => 
-                setFormData({ ...formData, started_at: new Date(started_at).toISOString() })
+              onChangeText={(started_at) =>
+                setFormData({
+                  ...formData,
+                  started_at: new Date(started_at).toISOString(),
+                })
               }
               containerStyle={styles.timeInput}
               error={errors.started_at}
             />
-            
+
             <Input
               label="종료 시간 (선택사항)"
-              value={formData.ended_at ? formatDateTime(new Date(formData.ended_at)) : ""}
-              onChangeText={(ended_at) => 
-                setFormData({ 
-                  ...formData, 
-                  ended_at: ended_at ? new Date(ended_at).toISOString() : "" 
+              value={
+                formData.ended_at
+                  ? formatDateTime(new Date(formData.ended_at))
+                  : ""
+              }
+              onChangeText={(ended_at) =>
+                setFormData({
+                  ...formData,
+                  ended_at: ended_at ? new Date(ended_at).toISOString() : "",
                 })
               }
               containerStyle={styles.timeInput}
@@ -502,7 +529,13 @@ export default function RecordActivityScreen({ navigation, route }: RecordActivi
 
         {/* Action Buttons */}
         <Button
-          title={isLoading ? "저장 중..." : isEditing ? "활동 업데이트" : "활동 기록 저장"}
+          title={
+            isLoading
+              ? "저장 중..."
+              : isEditing
+              ? "활동 업데이트"
+              : "활동 기록 저장"
+          }
           onPress={handleSave}
           disabled={isLoading}
         />

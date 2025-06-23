@@ -1,6 +1,6 @@
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import type { RouteProp, NavigationProp } from "@react-navigation/native";
+import type { RouteProp } from "@react-navigation/native";
 import type { CompositeNavigationProp } from "@react-navigation/native";
 
 // Navigation Stack Param Lists
@@ -125,9 +125,12 @@ export type DiaryScreenProps = MainTabScreenProps<"Diary">;
 export type GrowthScreenProps = MainTabScreenProps<"Growth">;
 export type SettingsScreenProps = MainTabScreenProps<"Settings">;
 
-export type OnboardingNotificationPermissionScreenProps = OnboardingScreenProps<"NotificationPermission">;
-export type OnboardingChildOnboardingScreenProps = OnboardingScreenProps<"ChildOnboarding">;
-export type OnboardingChildProfileScreenProps = OnboardingScreenProps<"ChildProfile">;
+export type OnboardingNotificationPermissionScreenProps =
+  OnboardingScreenProps<"NotificationPermission">;
+export type OnboardingChildOnboardingScreenProps =
+  OnboardingScreenProps<"ChildOnboarding">;
+export type OnboardingChildProfileScreenProps =
+  OnboardingScreenProps<"ChildProfile">;
 export type OnboardingJoinChildScreenProps = OnboardingScreenProps<"JoinChild">;
 
 export type ChildrenListScreenProps = AppScreenProps<"ChildrenList">;
@@ -141,9 +144,9 @@ export type AddGrowthRecordScreenProps = AppScreenProps<"AddGrowthRecord">;
 
 // Composite navigation props (앱 내에서 다른 스택으로 네비게이션할 때 사용)
 export type CompositeScreenProps<
-  T extends keyof AppStackParamList | keyof MainTabParamList
+  T extends keyof AppStackParamList | keyof MainTabParamList,
 > = T extends keyof AppStackParamList
   ? AppScreenProps<T>
   : T extends keyof MainTabParamList
-  ? MainTabScreenProps<T>
-  : never;
+    ? MainTabScreenProps<T>
+    : never;

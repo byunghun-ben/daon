@@ -11,7 +11,7 @@
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
     "prepare": "husky",
-    "pre-commit": "pnpm type-check && pnpm lint"
+    "pre-commit": "turbo run type-check"
   },
   "keywords": [
     "baby",

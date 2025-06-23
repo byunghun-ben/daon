@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { childrenApi } from "../children";
 import {
-  ChildApi,
   CreateChildRequest,
   UpdateChildRequest,
   JoinChildRequest,

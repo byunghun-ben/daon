@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Platform } from "react-native";
 import { checkNotifications } from "react-native-permissions";
 import { useQuery } from "@tanstack/react-query";
 import { childrenApi } from "../../api/children";
@@ -11,8 +10,9 @@ interface OnboardingState {
 }
 
 export const useOnboarding = () => {
-  const [notificationPermissionGranted, setNotificationPermissionGranted] = useState(false);
-  
+  const [notificationPermissionGranted, setNotificationPermissionGranted] =
+    useState(false);
+
   // 알림 권한 상태 확인
   useEffect(() => {
     const checkNotificationPermission = async () => {
@@ -36,7 +36,8 @@ export const useOnboarding = () => {
 
   const onboardingState: OnboardingState = {
     needsNotificationPermission: !notificationPermissionGranted,
-    needsChildRegistration: !isChildrenLoading && (!children || children.children.length === 0),
+    needsChildRegistration:
+      !isChildrenLoading && (!children || children.children.length === 0),
     isLoading: isChildrenLoading,
   };
 

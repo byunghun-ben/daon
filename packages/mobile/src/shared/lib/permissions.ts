@@ -1,4 +1,4 @@
-import { Alert, Linking, Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import {
   PERMISSIONS,
   RESULTS,

@@ -4,7 +4,6 @@ import {
   ImagePickerResponse,
   launchCamera,
   launchImageLibrary,
-  MediaType,
   CameraOptions,
   ImageLibraryOptions,
 } from "react-native-image-picker";

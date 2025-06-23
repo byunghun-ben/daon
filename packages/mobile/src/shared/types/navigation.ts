@@ -19,6 +19,20 @@ export type MainTabParamList = {
   Settings: undefined;
 };
 
+export type OnboardingStackParamList = {
+  NotificationPermission: undefined;
+  ChildOnboarding: undefined;
+  ChildProfile: {
+    childId?: string;
+    isEditing?: boolean;
+    isFirstChild?: boolean;
+    onComplete?: () => void;
+  };
+  JoinChild: {
+    onComplete?: () => void;
+  };
+};
+
 export type AppStackParamList = {
   MainTabs: undefined;
   // Children Management
@@ -69,6 +83,12 @@ export type AuthScreenProps<T extends keyof AuthStackParamList> = {
   route: RouteProp<AuthStackParamList, T>;
 };
 
+// Screen Props Types for Onboarding Stack
+export type OnboardingScreenProps<T extends keyof OnboardingStackParamList> = {
+  navigation: StackNavigationProp<OnboardingStackParamList, T>;
+  route: RouteProp<OnboardingStackParamList, T>;
+};
+
 // Screen Props Types for App Stack (with ability to navigate to Tab)
 export type AppScreenProps<T extends keyof AppStackParamList> = {
   navigation: CompositeNavigationProp<
@@ -104,6 +124,11 @@ export type RecordScreenProps = MainTabScreenProps<"Record">;
 export type DiaryScreenProps = MainTabScreenProps<"Diary">;
 export type GrowthScreenProps = MainTabScreenProps<"Growth">;
 export type SettingsScreenProps = MainTabScreenProps<"Settings">;
+
+export type OnboardingNotificationPermissionScreenProps = OnboardingScreenProps<"NotificationPermission">;
+export type OnboardingChildOnboardingScreenProps = OnboardingScreenProps<"ChildOnboarding">;
+export type OnboardingChildProfileScreenProps = OnboardingScreenProps<"ChildProfile">;
+export type OnboardingJoinChildScreenProps = OnboardingScreenProps<"JoinChild">;
 
 export type ChildrenListScreenProps = AppScreenProps<"ChildrenList">;
 export type ChildProfileScreenProps = AppScreenProps<"ChildProfile">;

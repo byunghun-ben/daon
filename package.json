@@ -11,7 +11,12 @@
     "clean": "turbo run clean",
     "type-check": "turbo run type-check"
   },
-  "keywords": ["baby", "parenting", "diary", "react-native"],
+  "keywords": [
+    "baby",
+    "parenting",
+    "diary",
+    "react-native"
+  ],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.11.1",

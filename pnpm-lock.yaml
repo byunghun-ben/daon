@@ -138,6 +138,9 @@ importers:
       react-native-gesture-handler:
         specifier: ^2.26.0
         version: 2.26.0(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
+      react-native-permissions:
+        specifier: ^5.4.1
+        version: 5.4.1(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
       react-native-safe-area-context:
         specifier: ^5.4.1
         version: 5.4.1(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
@@ -4397,6 +4400,16 @@ packages:
       react: '*'
       react-native: '*'
 
+  react-native-permissions@5.4.1:
+    resolution: {integrity: sha512-MTou5DVn8IADr7OQjYePJzcxrVNEeODBvSpB8XOt5qBI9ui3HduSBn/KTNZECH/Ph2Y20OnZBMqe6Wp9IryrgQ==}
+    peerDependencies:
+      react: '>=18.1.0'
+      react-native: '>=0.70.0'
+      react-native-windows: '>=0.70.0'
+    peerDependenciesMeta:
+      react-native-windows:
+        optional: true
+
   react-native-safe-area-context@5.4.1:
     resolution: {integrity: sha512-x+g3NblZ9jof8y+XkVvaGlpMrSlixhrJJ33BRzhTAKUKctQVecO1heSXmzxc5UdjvGYBKS6kPZVUw2b8NxHcPg==}
     peerDependencies:
@@ -6967,9 +6980,7 @@ snapshots:
       metro-runtime: 0.82.4
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/new-app-screen@0.80.0(@types/react@19.1.8)(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -10710,6 +10721,11 @@ snapshots:
       react-native: 0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0)
 
   react-native-is-edge-to-edge@1.1.7(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      react-native: 0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0)
+
+  react-native-permissions@5.4.1(react-native@0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0):
     dependencies:
       react: 19.1.0
       react-native: 0.80.0(@babel/core@7.27.4)(@react-native-community/cli@19.0.0(typescript@5.0.4))(@types/react@19.1.8)(react@19.1.0)

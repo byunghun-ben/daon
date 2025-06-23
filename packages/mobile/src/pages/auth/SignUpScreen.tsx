@@ -69,7 +69,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           </Text>
         </View>
 
-        <SignUpForm navigation={navigation} />
+        <SignUpForm />
 
         <View style={styles.footer}>
           <Text style={styles.linkText}>

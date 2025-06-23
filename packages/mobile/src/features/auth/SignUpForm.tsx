@@ -30,16 +30,14 @@ const SignUpFormSchema = z
 
 type SignUpFormSchemaType = z.infer<typeof SignUpFormSchema>;
 
-interface SignUpFormProps {
-  navigation: any;
-}
+interface SignUpFormProps {}
 
 const normalizePhoneNumber = (value: string) => {
   // 숫자만 추출 (하이픈 등 특수문자 제거)
   return value.replace(/\D/g, "");
 };
 
-export const SignUpForm = ({ navigation }: SignUpFormProps) => {
+export const SignUpForm = ({}: SignUpFormProps) => {
   const { signIn } = useAuth();
 
   const form = useForm<SignUpFormSchemaType>({
@@ -58,17 +56,16 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
       const { success, data, error } = await authApi.signUp(form.getValues());
 
       if (success) {
-        // AuthContext 상태 업데이트
+        // AuthContext 상태 업데이트 (온보딩 플로우가 시작됨)
         await signIn();
 
         Alert.alert(
           "회원가입 성공",
-          `환영합니다, ${data.user.name}님! 이제 아이의 첫 프로필을 만들어보세요.`,
+          `환영합니다, ${data.user.name}님! 이제 앱 설정을 완료해보세요.`,
           [
             {
               text: "확인",
-              onPress: () =>
-                navigation.navigate("ChildProfile", { isFirstChild: true }),
+              // 온보딩 플로우는 AppNavigator에서 자동으로 처리됨
             },
           ]
         );

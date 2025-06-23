@@ -11,6 +11,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text } from "react-native";
 import { authUtils } from "../../shared/api/client";
 import { SyncManager } from "../../shared/lib/sync/syncManager";
+import { OnboardingNavigator } from "./OnboardingNavigator";
+import { useOnboarding } from "../../shared/lib/hooks/useOnboarding";
 import type {
   AuthStackParamList,
   AppStackParamList,
@@ -50,8 +52,10 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 interface AuthContextType {
   isAuthenticated: boolean | null;
   isLoading: boolean;
+  needsOnboarding: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  completeOnboarding: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +72,7 @@ export const useAuth = () => {
 function MainTabNavigator() {
   return (
     <Tab.Navigator
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -82,14 +87,6 @@ function MainTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          title: "홈",
-          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🏠</Text>,
-        }}
-      />
-      <Tab.Screen
         name="Record"
         component={RecordScreen}
         options={{
@@ -103,6 +100,14 @@ function MainTabNavigator() {
         options={{
           title: "일기",
           tabBarIcon: () => <Text style={{ fontSize: 20 }}>📖</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: "홈",
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🏠</Text>,
         }}
       />
       <Tab.Screen
@@ -200,6 +205,7 @@ function AppNavigator() {
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
     const initializeSync = () => {
@@ -231,22 +237,34 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     // 토큰 재확인 후 상태 업데이트
     const token = await authUtils.getStoredToken();
     setIsAuthenticated(!!token);
+    
+    // 로그인 시 온보딩 필요 여부 확인
+    if (token) {
+      setNeedsOnboarding(true);
+    }
   }, []);
 
   const signOut = useCallback(async () => {
     try {
       await authUtils.clearTokens();
       setIsAuthenticated(false);
+      setNeedsOnboarding(false);
     } catch (error) {
       console.error("Failed to sign out:", error);
     }
   }, []);
 
+  const completeOnboarding = useCallback(() => {
+    setNeedsOnboarding(false);
+  }, []);
+
   const value: AuthContextType = {
     isAuthenticated,
     isLoading,
+    needsOnboarding,
     signIn,
     signOut,
+    completeOnboarding,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -254,7 +272,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
 // Root navigation component
 function RootNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding, completeOnboarding } = useAuth();
 
   if (isLoading) {
     // You can replace this with a proper loading screen component
@@ -263,7 +281,13 @@ function RootNavigator() {
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
+      {!isAuthenticated ? (
+        <AuthNavigator />
+      ) : needsOnboarding ? (
+        <OnboardingNavigator onComplete={completeOnboarding} />
+      ) : (
+        <AppNavigator />
+      )}
     </NavigationContainer>
   );
 }

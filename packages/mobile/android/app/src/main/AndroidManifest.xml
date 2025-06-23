@@ -1,6 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 네트워크 통신 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- 카메라 (사진 촬영) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- 갤러리 접근 (사진/동영상 선택) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    
+    <!-- 푸시 알림 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Android 12 이하 호환성 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
 
     <application
       android:name=".MainApplication"

@@ -4,8 +4,6 @@ import {
   SignInRequest,
   AuthResponse,
   UserApi,
-  CreateChildRequest,
-  AcceptInviteRequest,
 } from "@daon/shared";
 
 type SignInSuccessResponse = {
@@ -44,7 +42,7 @@ export const authApi = {
       // Store tokens
       await authUtils.saveTokens(
         response.session.access_token,
-        response.session.refresh_token
+        response.session.refresh_token,
       );
 
       return {
@@ -68,7 +66,7 @@ export const authApi = {
       // Store tokens
       await authUtils.saveTokens(
         response.session.access_token,
-        response.session.refresh_token
+        response.session.refresh_token,
       );
 
       return {
@@ -102,19 +100,22 @@ export const authApi = {
 
   async signOut(): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await apiClient.post<{ 
-        message: string; 
-        success: boolean; 
+      const response = await apiClient.post<{
+        message: string;
+        success: boolean;
       }>("/auth/signout");
-      
+
       console.log("[authApi] signOut response", response);
-      
+
       return {
         success: true,
         message: response.message,
       };
     } catch (error) {
-      console.warn("[authApi] signOut failed, but clearing local tokens", error);
+      console.warn(
+        "[authApi] signOut failed, but clearing local tokens",
+        error,
+      );
       return {
         success: false,
         message: "로그아웃 처리 중 오류가 발생했습니다.",
@@ -130,16 +131,8 @@ export const authApi = {
   },
 
   async updateProfile(
-    data: Partial<Pick<UserApi, "name">>
+    data: Partial<Pick<UserApi, "name">>,
   ): Promise<{ user: UserApi }> {
     return apiClient.put<{ user: UserApi }>("/auth/profile", data);
-  },
-
-  async createChild(data: CreateChildRequest): Promise<{ child: any }> {
-    return apiClient.post<{ child: any }>("/auth/children", data);
-  },
-
-  async joinChild(data: AcceptInviteRequest): Promise<{ child: any }> {
-    return apiClient.post<{ child: any }>("/auth/join-child", data);
   },
 };

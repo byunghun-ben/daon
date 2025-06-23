@@ -38,6 +38,7 @@ export const CreateChildRequestSchema = z.object({
   photoUrl: z.url().optional(),
   birthWeight: z.number().positive().optional(),
   birthHeight: z.number().positive().optional(),
+  role: z.enum(["owner", "guardian", "viewer"]).default("owner"),
 });
 
 export const UpdateChildRequestSchema = CreateChildRequestSchema.partial();
@@ -45,6 +46,7 @@ export const UpdateChildRequestSchema = CreateChildRequestSchema.partial();
 // Join child request schema
 export const JoinChildRequestSchema = z.object({
   inviteCode: z.string().min(1),
+  role: z.enum(["guardian", "viewer"]).default("guardian"),
 });
 
 // Response schemas

@@ -7,8 +7,8 @@ import {
   ScrollView,
   Text,
   View,
+  TouchableOpacity,
 } from "react-native";
-import { authApi } from "../../shared/api/auth";
 import { childrenApi } from "../../shared/api/children";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
@@ -30,12 +30,16 @@ export default function ChildProfileScreen({
     name: "",
     birthDate: "",
     gender: "male",
+    role: "owner",
   });
   const [errors, setErrors] = useState<Partial<CreateChildRequest>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [child, setChild] = useState<Child | null>(null);
+  const [, setChild] = useState<Child | null>(null);
   const [showInviteOption, setShowInviteOption] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
+  const [selectedRole, setSelectedRole] = useState<"guardian" | "viewer">(
+    "guardian",
+  );
 
   const styles = useThemedStyles((theme) => ({
     container: {
@@ -119,6 +123,56 @@ export default function ChildProfileScreen({
       paddingHorizontal: theme.spacing.md,
       marginTop: -10,
     },
+    roleContainer: {
+      marginVertical: theme.spacing.lg,
+    },
+    roleLabel: {
+      fontSize: 16,
+      fontWeight: "600" as const,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.sm,
+    },
+    roleOptions: {
+      flexDirection: "row" as const,
+      gap: theme.spacing.sm,
+    },
+    roleOption: {
+      flex: 1,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 2,
+      alignItems: "center" as const,
+    },
+    roleOptionSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary + "10",
+    },
+    roleOptionUnselected: {
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+    },
+    roleOptionTitle: {
+      fontSize: 14,
+      fontWeight: "600" as const,
+      marginBottom: theme.spacing.xs,
+    },
+    roleOptionTitleSelected: {
+      color: theme.colors.primary,
+    },
+    roleOptionTitleUnselected: {
+      color: theme.colors.text.primary,
+    },
+    roleOptionDescription: {
+      fontSize: 12,
+      textAlign: "center" as const,
+      lineHeight: 16,
+    },
+    roleOptionDescriptionSelected: {
+      color: theme.colors.primary,
+    },
+    roleOptionDescriptionUnselected: {
+      color: theme.colors.text.secondary,
+    },
   }));
 
   useEffect(() => {
@@ -138,6 +192,7 @@ export default function ChildProfileScreen({
         name: response.child.name,
         birthDate: response.child.birthDate,
         gender: response.child.gender,
+        role: "owner", // 기존 아이를 편집할 때는 role을 유지
       });
     } catch (error: any) {
       Alert.alert("오류", "아이 정보를 불러오는데 실패했습니다.");
@@ -165,7 +220,7 @@ export default function ChildProfileScreen({
         const birthDate = new Date(formData.birthDate);
         const now = new Date();
         const maxFutureDate = new Date();
-        maxFutureDate.setMonth(now.getMonth() + 10); // Allow up to 10 months in the future for pregnancy
+        maxFutureDate.setMonth(now.getMonth() + 12); // Allow up to 12 months in the future for pregnancy
 
         if (isNaN(birthDate.getTime())) {
           newErrors.birthDate = "올바른 날짜를 입력해주세요";
@@ -190,10 +245,12 @@ export default function ChildProfileScreen({
           { text: "확인", onPress: () => navigation.goBack() },
         ]);
       } else {
-        // Use auth API for 2-step registration to properly complete registration
-        const response = isFirstChild
-          ? await authApi.createChild(formData)
-          : await childrenApi.createChild(formData);
+        // Create child profile
+        const childData = {
+          ...formData,
+          role: "owner" as const, // 아이를 생성하는 사용자는 owner가 됨
+        };
+        await childrenApi.createChild(childData);
 
         Alert.alert("성공", "아이 프로필이 생성되었습니다!", [
           { text: "확인", onPress: () => navigation.navigate("MainTabs") },
@@ -202,7 +259,7 @@ export default function ChildProfileScreen({
     } catch (error: any) {
       Alert.alert(
         "오류",
-        error.message || "아이 프로필 저장 중 오류가 발생했습니다."
+        error.message || "아이 프로필 저장 중 오류가 발생했습니다.",
       );
     } finally {
       setIsLoading(false);
@@ -217,8 +274,12 @@ export default function ChildProfileScreen({
 
     setIsLoading(true);
     try {
-      const response = await authApi.joinChild({ inviteCode });
-      Alert.alert("성공", `${response.child.name}의 보호자로 등록되었습니다!`, [
+      const { child } = await childrenApi.joinChild({
+        inviteCode: inviteCode.trim(),
+        role: selectedRole,
+      });
+      const roleText = selectedRole === "guardian" ? "보호자" : "관람자";
+      Alert.alert("성공", `${child.name}의 ${roleText}로 등록되었습니다!`, [
         { text: "확인", onPress: () => navigation.navigate("MainTabs") },
       ]);
     } catch (error: any) {
@@ -256,7 +317,7 @@ export default function ChildProfileScreen({
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -268,15 +329,15 @@ export default function ChildProfileScreen({
             {isEditing
               ? "아이 정보 수정"
               : isFirstChild
-              ? "아이 프로필 만들기"
-              : "새 아이 프로필"}
+                ? "아이 프로필 만들기"
+                : "새 아이 프로필"}
           </Text>
           <Text style={styles.subtitle}>
             {isEditing
               ? "아이의 정보를 수정해주세요"
               : isFirstChild
-              ? "회원가입을 완료하려면 아이 프로필을 만들거나 기존 아이에 참여하세요"
-              : "소중한 아이의 정보를 입력해주세요"}
+                ? "회원가입을 완료하려면 아이 프로필을 만들거나 기존 아이에 참여하세요"
+                : "소중한 아이의 정보를 입력해주세요"}
           </Text>
         </View>
 
@@ -293,12 +354,14 @@ export default function ChildProfileScreen({
                 variant={!showInviteOption ? "primary" : "outline"}
                 buttonStyle={styles.optionButton}
                 onPress={() => setShowInviteOption(false)}
+                loading={isLoading}
               />
               <Button
                 title="초대 코드로 참여"
                 variant={showInviteOption ? "primary" : "outline"}
                 buttonStyle={styles.optionButton}
                 onPress={() => setShowInviteOption(true)}
+                loading={isLoading}
               />
             </View>
           </View>
@@ -313,11 +376,82 @@ export default function ChildProfileScreen({
               placeholder="파트너가 보낸 초대 코드를 입력하세요"
               autoCapitalize="characters"
             />
+
+            <View style={styles.roleContainer}>
+              <Text style={styles.roleLabel}>참여 역할 선택</Text>
+              <View style={styles.roleOptions}>
+                <TouchableOpacity
+                  style={[
+                    styles.roleOption,
+                    selectedRole === "guardian"
+                      ? styles.roleOptionSelected
+                      : styles.roleOptionUnselected,
+                  ]}
+                  onPress={() => setSelectedRole("guardian")}
+                  disabled={isLoading}
+                >
+                  <Text
+                    style={[
+                      styles.roleOptionTitle,
+                      selectedRole === "guardian"
+                        ? styles.roleOptionTitleSelected
+                        : styles.roleOptionTitleUnselected,
+                    ]}
+                  >
+                    보호자
+                  </Text>
+                  <Text
+                    style={[
+                      styles.roleOptionDescription,
+                      selectedRole === "guardian"
+                        ? styles.roleOptionDescriptionSelected
+                        : styles.roleOptionDescriptionUnselected,
+                    ]}
+                  >
+                    활동 기록 작성,{"\n"}수정, 삭제 가능
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.roleOption,
+                    selectedRole === "viewer"
+                      ? styles.roleOptionSelected
+                      : styles.roleOptionUnselected,
+                  ]}
+                  onPress={() => setSelectedRole("viewer")}
+                  disabled={isLoading}
+                >
+                  <Text
+                    style={[
+                      styles.roleOptionTitle,
+                      selectedRole === "viewer"
+                        ? styles.roleOptionTitleSelected
+                        : styles.roleOptionTitleUnselected,
+                    ]}
+                  >
+                    관람자
+                  </Text>
+                  <Text
+                    style={[
+                      styles.roleOptionDescription,
+                      selectedRole === "viewer"
+                        ? styles.roleOptionDescriptionSelected
+                        : styles.roleOptionDescriptionUnselected,
+                    ]}
+                  >
+                    기록 조회만{"\n"}가능
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <View style={styles.buttonContainer}>
               <Button
-                title={isLoading ? "참여 중..." : "아이에게 참여하기"}
+                title="아이에게 참여하기"
                 onPress={handleJoinChild}
-                disabled={isLoading}
+                loading={isLoading}
+                disabled={isLoading || !inviteCode.trim()}
               />
             </View>
           </Card>
@@ -366,6 +500,7 @@ export default function ChildProfileScreen({
                         gender: "male",
                       })
                     }
+                    loading={isLoading}
                   />
                   <Button
                     title="여아"
@@ -380,21 +515,16 @@ export default function ChildProfileScreen({
                         gender: "female",
                       })
                     }
+                    loading={isLoading}
                   />
                 </View>
               </View>
 
               <View style={styles.buttonContainer}>
                 <Button
-                  title={
-                    isLoading
-                      ? "저장 중..."
-                      : isEditing
-                      ? "정보 업데이트"
-                      : "프로필 생성"
-                  }
+                  title={isEditing ? "정보 업데이트" : "프로필 생성"}
                   onPress={handleSave}
-                  disabled={isLoading}
+                  loading={isLoading}
                 />
 
                 {isEditing && (
@@ -403,7 +533,7 @@ export default function ChildProfileScreen({
                     variant="outline"
                     buttonStyle={styles.deleteButton}
                     onPress={handleDelete}
-                    disabled={isLoading}
+                    loading={isLoading}
                   />
                 )}
               </View>

@@ -1,6 +1,5 @@
 import {
   CreateChildRequestSchema,
-  JoinChildRequestSchema,
   SignInRequestSchema,
   SignUpRequestSchema,
   UpdateUserProfileRequestSchema,
@@ -368,112 +367,6 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
     }
 
     logger.error("Create child error:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-/**
- * Join an existing child using invite code (Step 2B of registration)
- */
-export const joinChild = createAuthenticatedHandler(async (req, res) => {
-  try {
-    const validatedData = JoinChildRequestSchema.parse(req.body);
-    const { inviteCode } = validatedData;
-
-    // Find the child by invite code
-    const { data: child, error: childError } = await supabaseAdmin
-      .from("children")
-      .select("*")
-      .eq("invite_code", inviteCode)
-      .single();
-
-    if (childError || !child) {
-      logger.warn("Invalid invite code", {
-        userId: req.user.id,
-        inviteCode: inviteCode,
-        error: childError,
-      });
-      res.status(404).json({ error: "Invalid invite code" });
-      return;
-    }
-
-    // Check if user is already connected to this child
-    const { data: existingConnection } = await supabaseAdmin
-      .from("child_guardians")
-      .select("id")
-      .eq("child_id", child.id)
-      .eq("user_id", req.user.id)
-      .single();
-
-    if (existingConnection) {
-      res
-        .status(400)
-        .json({ error: "You are already connected to this child" });
-      return;
-    }
-
-    // Create guardian relationship
-    const { error: guardianError } = await supabaseAdmin
-      .from("child_guardians")
-      .insert({
-        child_id: child.id,
-        user_id: req.user.id,
-        role: "guardian",
-        accepted_at: new Date().toISOString(),
-      });
-
-    if (guardianError) {
-      logger.error("Failed to create guardian relationship", {
-        userId: req.user.id,
-        childId: child.id,
-        error: guardianError,
-      });
-      res.status(500).json({ error: "Failed to join child" });
-      return;
-    }
-
-    // Update user registration status to completed
-    const { error: statusError } = await supabaseAdmin
-      .from("users")
-      .update({ registration_status: "completed" } as TablesUpdate<"users">)
-      .eq("id", req.user.id);
-
-    if (statusError) {
-      logger.error("Failed to update registration status", {
-        userId: req.user.id,
-        error: statusError,
-      });
-    }
-
-    logger.info("User joined child successfully", {
-      userId: req.user.id,
-      childId: child.id,
-      inviteCode: inviteCode,
-    });
-
-    // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)
-    const apiChild = dbToApi({
-      id: child.id,
-      name: child.name,
-      birth_date: child.birth_date,
-      gender: child.gender,
-      photo_url: child.photo_url,
-    });
-
-    res.json({
-      message: "Successfully joined child",
-      child: apiChild,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: "Validation failed",
-        details: error.issues,
-      });
-      return;
-    }
-
-    logger.error("Join child error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

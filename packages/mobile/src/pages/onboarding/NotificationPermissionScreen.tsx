@@ -1,6 +1,6 @@
 import React from "react";
 import { Alert, Platform, Text, View } from "react-native";
-import { requestNotifications } from "react-native-permissions";
+import { requestNotifications, openSettings } from "react-native-permissions";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 
@@ -24,9 +24,19 @@ export const NotificationPermissionScreen = ({
             "알림 권한",
             "알림을 받으려면 설정에서 권한을 허용해주세요.",
             [
-              { text: "나중에", onPress: onComplete },
-              { text: "설정으로 이동", onPress: () => {} }, // TODO: 설정 앱으로 이동
-            ]
+              {
+                text: "나중에",
+                style: "cancel",
+                onPress: () => onComplete(),
+              },
+              {
+                text: "설정으로 이동",
+                onPress: async () => {
+                  await openSettings("notifications");
+                  onComplete();
+                },
+              },
+            ],
           );
         }
       } else {

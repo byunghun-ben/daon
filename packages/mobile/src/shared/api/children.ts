@@ -1,9 +1,9 @@
 import {
-  AcceptInviteRequest,
   ChildrenResponse,
   ChildResponse,
   CreateChildRequest,
   UpdateChildRequest,
+  JoinChildRequest,
 } from "@daon/shared";
 import { apiClient } from "./client";
 
@@ -23,7 +23,7 @@ export const childrenApi = {
 
   async updateChild(
     id: string,
-    data: UpdateChildRequest
+    data: UpdateChildRequest,
   ): Promise<ChildResponse> {
     return apiClient.put<ChildResponse>(`/children/${id}`, data);
   },
@@ -32,7 +32,7 @@ export const childrenApi = {
     return apiClient.delete(`/children/${id}`);
   },
 
-  async joinChild(data: AcceptInviteRequest): Promise<ChildResponse> {
+  async joinChild(data: JoinChildRequest): Promise<ChildResponse> {
     return apiClient.post<ChildResponse>("/children/join", data);
   },
 };

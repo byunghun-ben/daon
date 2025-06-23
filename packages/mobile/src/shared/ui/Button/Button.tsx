@@ -5,6 +5,8 @@ import {
   TouchableOpacityProps,
   TextStyle,
   ViewStyle,
+  ActivityIndicator,
+  View,
 } from "react-native";
 import { useThemedStyles } from "../../lib/hooks/useTheme";
 import { BUTTON_HEIGHT } from "../../config/theme";
@@ -15,6 +17,7 @@ interface ButtonProps extends TouchableOpacityProps {
   size?: "small" | "medium" | "large";
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
+  loading?: boolean;
 }
 
 export default function Button({
@@ -23,6 +26,8 @@ export default function Button({
   size = "medium",
   buttonStyle,
   textStyle,
+  loading = false,
+  disabled,
   ...props
 }: ButtonProps) {
   const styles = useThemedStyles((theme) => ({
@@ -68,7 +73,20 @@ export default function Button({
     outlineText: {
       color: theme.colors.primary,
     },
+    disabled: {
+      opacity: 0.6,
+    },
+    loadingContainer: {
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+    },
+    loadingText: {
+      marginLeft: theme.spacing.sm,
+    },
   }));
+
+  const isDisabled = disabled || loading;
 
   return (
     <TouchableOpacity
@@ -76,14 +94,34 @@ export default function Button({
         styles.button,
         styles[variant],
         styles[size],
+        isDisabled && styles.disabled,
         buttonStyle,
       ]}
+      disabled={isDisabled}
       {...props}
     >
-      <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
-        {title}
-      </Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="small"
+            color={variant === "outline" ? "#007AFF" : "#FFFFFF"}
+          />
+          <Text
+            style={[
+              styles.text,
+              styles[`${variant}Text`],
+              styles.loadingText,
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
+      ) : (
+        <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
-

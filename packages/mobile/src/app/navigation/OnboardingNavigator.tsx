@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {
   NotificationPermissionScreen,
   ChildOnboardingScreen,
+  JoinChildScreen,
 } from "../../pages/onboarding";
 import { ChildProfileScreen } from "../../pages/children";
 import { useOnboarding } from "../../shared/lib/hooks/useOnboarding";
@@ -51,12 +52,18 @@ export const OnboardingNavigator = ({
     return "NotificationPermission"; // fallback
   };
 
-  const handleNotificationPermissionComplete = async () => {
+  const handleNotificationPermissionComplete = async (navigation: any) => {
     await refreshNotificationPermission();
+
+    console.log(
+      "[OnboardingNavigator] handleNotificationPermissionComplete",
+      needsChildRegistration,
+    );
 
     // 알림 권한 완료 후 아이 등록이 필요한지 확인
     if (needsChildRegistration) {
-      // 아이 등록 화면으로 이동 (자동으로 스택에서 처리됨)
+      // 아이 등록 화면으로 이동
+      navigation.navigate("ChildOnboarding");
     } else {
       onComplete();
     }
@@ -80,7 +87,9 @@ export const OnboardingNavigator = ({
         {(props) => (
           <NotificationPermissionScreen
             {...props}
-            onComplete={handleNotificationPermissionComplete}
+            onComplete={() =>
+              handleNotificationPermissionComplete(props.navigation)
+            }
           />
         )}
       </Stack.Screen>
@@ -94,15 +103,12 @@ export const OnboardingNavigator = ({
         )}
       </Stack.Screen>
 
-      <Stack.Screen 
-        name="ChildProfile"
-        options={{ title: "아이 프로필" }}
-      >
-        {(props) => (
-          <ChildProfileScreen
-            {...props}
-          />
-        )}
+      <Stack.Screen name="JoinChild" options={{ headerShown: false }}>
+        {(props) => <JoinChildScreen {...props} />}
+      </Stack.Screen>
+
+      <Stack.Screen name="ChildProfile" options={{ title: "아이 프로필" }}>
+        {(props) => <ChildProfileScreen {...props} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

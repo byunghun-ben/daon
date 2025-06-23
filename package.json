@@ -10,7 +10,8 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "pre-commit": "pnpm type-check && pnpm lint"
   },
   "keywords": [
     "baby",
@@ -34,8 +35,6 @@
   },
   "lint-staged": {
     "packages/**/*.{ts,tsx}": [
-      "pnpm type-check",
-      "pnpm lint --fix",
       "prettier --write"
     ],
     "packages/**/*.{js,jsx,json,md}": [

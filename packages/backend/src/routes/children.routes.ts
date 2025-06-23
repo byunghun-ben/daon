@@ -5,6 +5,7 @@ import {
   getChild,
   updateChild,
   deleteChild,
+  joinChild,
 } from "../controllers/children.controller";
 import { authenticateToken } from "../middleware/auth";
 
@@ -19,5 +20,8 @@ router.get("/", getChildren);
 router.get("/:id", getChild);
 router.put("/:id", updateChild);
 router.delete("/:id", deleteChild);
+
+// Join existing child by invite code
+router.post("/join", joinChild);
 
 export default router;

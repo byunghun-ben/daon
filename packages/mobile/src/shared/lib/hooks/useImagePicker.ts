@@ -5,18 +5,17 @@ import {
   launchCamera,
   launchImageLibrary,
   MediaType,
+  CameraOptions,
+  ImageLibraryOptions,
 } from "react-native-image-picker";
 import {
   requestCameraPermissionForPhoto,
   requestPhotoLibraryPermissionForSelection,
 } from "../permissions";
 
-export interface ImagePickerOptions {
-  mediaType?: MediaType;
-  quality?: number;
-  maxWidth?: number;
-  maxHeight?: number;
-  includeBase64?: boolean;
+export interface ImagePickerOptions
+  extends Partial<CameraOptions & ImageLibraryOptions> {
+  // 필요한 경우 추가 옵션을 여기에 정의
 }
 
 export interface SelectedImage {
@@ -38,7 +37,7 @@ export interface UseImagePickerReturn {
   clearImages: () => void;
 }
 
-const defaultOptions: ImagePickerOptions = {
+const defaultOptions: CameraOptions & ImageLibraryOptions = {
   mediaType: "photo",
   quality: 0.8,
   maxWidth: 1024,
@@ -50,11 +49,16 @@ const defaultOptions: ImagePickerOptions = {
  * 이미지 선택을 위한 훅
  * 카메라 촬영과 갤러리 선택 기능을 제공하며, 권한 요청도 자동으로 처리
  */
-export const useImagePicker = (options: ImagePickerOptions = {}): UseImagePickerReturn => {
+export const useImagePicker = (
+  options: ImagePickerOptions = {},
+): UseImagePickerReturn => {
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const pickerOptions = { ...defaultOptions, ...options };
+  const pickerOptions = {
+    ...defaultOptions,
+    ...options,
+  };
 
   /**
    * 카메라에서 사진 촬영
@@ -104,24 +108,20 @@ export const useImagePicker = (options: ImagePickerOptions = {}): UseImagePicker
    * 이미지 선택 방법을 묻는 알림 표시
    */
   const showImagePicker = (): void => {
-    Alert.alert(
-      "사진 선택",
-      "사진을 어떻게 추가하시겠습니까?",
-      [
-        {
-          text: "취소",
-          style: "cancel",
-        },
-        {
-          text: "카메라",
-          onPress: pickFromCamera,
-        },
-        {
-          text: "갤러리",
-          onPress: pickFromGallery,
-        },
-      ]
-    );
+    Alert.alert("사진 선택", "사진을 어떻게 추가하시겠습니까?", [
+      {
+        text: "취소",
+        style: "cancel",
+      },
+      {
+        text: "카메라",
+        onPress: pickFromCamera,
+      },
+      {
+        text: "갤러리",
+        onPress: pickFromGallery,
+      },
+    ]);
   };
 
   /**

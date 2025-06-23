@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import z from "zod/v4";
 import { Alert, View } from "react-native";
-import { Button, Input } from "../../shared/ui";
+import z from "zod/v4";
+import { useAuth } from "../../app/navigation/AppNavigator";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useAuth } from "../../app/navigation/AppNavigator";
+import { Button, Input } from "../../shared/ui";
 
 const SignUpFormSchema = z
   .object({
@@ -21,6 +21,7 @@ const SignUpFormSchema = z
       .min(6, "비밀번호는 6자 이상이어야 합니다")
       .min(1, "비밀번호를 입력해주세요"),
     name: z.string().min(1, "이름을 입력해주세요"),
+    phone: z.string().min(1, "전화번호를 입력해주세요"),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     path: ["passwordConfirm"],
@@ -33,9 +34,14 @@ interface SignUpFormProps {
   navigation: any;
 }
 
+const normalizePhoneNumber = (value: string) => {
+  // 숫자만 추출 (하이픈 등 특수문자 제거)
+  return value.replace(/\D/g, "");
+};
+
 export const SignUpForm = ({ navigation }: SignUpFormProps) => {
   const { signIn } = useAuth();
-  
+
   const form = useForm<SignUpFormSchemaType>({
     resolver: zodResolver(SignUpFormSchema),
     defaultValues: {
@@ -43,6 +49,7 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
       password: "",
       passwordConfirm: "",
       name: "",
+      phone: "",
     },
   });
 
@@ -53,14 +60,17 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
       if (success) {
         // AuthContext 상태 업데이트
         await signIn();
-        
+
         Alert.alert(
           "회원가입 성공",
           `환영합니다, ${data.user.name}님! 이제 아이의 첫 프로필을 만들어보세요.`,
-          [{ 
-            text: "확인", 
-            onPress: () => navigation.navigate("ChildProfile", { isFirstChild: true })
-          }]
+          [
+            {
+              text: "확인",
+              onPress: () =>
+                navigation.navigate("ChildProfile", { isFirstChild: true }),
+            },
+          ]
         );
       } else {
         Alert.alert("회원가입 실패", error);
@@ -80,26 +90,15 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
     form: {
       marginBottom: theme.spacing.xl,
     },
+    divider: {
+      height: 1,
+      backgroundColor: theme.colors.border,
+      marginVertical: theme.spacing.md,
+    },
   }));
 
   return (
     <View style={styles.form}>
-      <Controller
-        control={form.control}
-        name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="이름"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={form.formState.errors.name?.message}
-            autoComplete="name"
-            autoCapitalize="words"
-          />
-        )}
-      />
-
       <Controller
         control={form.control}
         name="email"
@@ -113,6 +112,7 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            placeholder="이메일을 입력해주세요"
           />
         )}
       />
@@ -129,6 +129,7 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
             error={form.formState.errors.password?.message}
             secureTextEntry
             autoComplete="password-new"
+            placeholder="비밀번호를 입력해주세요"
           />
         )}
       />
@@ -145,6 +146,47 @@ export const SignUpForm = ({ navigation }: SignUpFormProps) => {
             error={form.formState.errors.passwordConfirm?.message}
             secureTextEntry
             autoComplete="password-new"
+            placeholder="비밀번호를 다시 입력해주세요"
+          />
+        )}
+      />
+
+      {/* Divider */}
+      <View style={styles.divider} />
+
+      <Controller
+        control={form.control}
+        name="name"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label="이름"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={form.formState.errors.name?.message}
+            autoComplete="name"
+            autoCapitalize="words"
+            placeholder="이름을 입력해주세요"
+          />
+        )}
+      />
+
+      <Controller
+        control={form.control}
+        name="phone"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label="전화번호"
+            value={value}
+            onChangeText={(text) => {
+              const normalized = normalizePhoneNumber(text);
+              onChange(normalized);
+            }}
+            onBlur={onBlur}
+            error={form.formState.errors.phone?.message}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            placeholder="01012345678"
           />
         )}
       />

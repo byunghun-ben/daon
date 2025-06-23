@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -44,8 +50,8 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 interface AuthContextType {
   isAuthenticated: boolean | null;
   isLoading: boolean;
-  signIn: () => void;
-  signOut: () => void;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -196,6 +202,15 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const initializeSync = () => {
+      const syncManager = SyncManager.getInstance();
+
+      // Add network status listener
+      syncManager.addSyncListener((isOnline) => {
+        console.log("Network status changed:", isOnline ? "Online" : "Offline");
+      });
+    };
+
     checkAuthStatus();
     initializeSync();
   }, []);
@@ -212,29 +227,20 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signIn = async () => {
+  const signIn = useCallback(async () => {
     // 토큰 재확인 후 상태 업데이트
     const token = await authUtils.getStoredToken();
     setIsAuthenticated(!!token);
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await authUtils.clearTokens();
       setIsAuthenticated(false);
     } catch (error) {
       console.error("Failed to sign out:", error);
     }
-  };
-
-  const initializeSync = () => {
-    const syncManager = SyncManager.getInstance();
-
-    // Add network status listener
-    syncManager.addSyncListener((isOnline) => {
-      console.log("Network status changed:", isOnline ? "Online" : "Offline");
-    });
-  };
+  }, []);
 
   const value: AuthContextType = {
     isAuthenticated,

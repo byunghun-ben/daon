@@ -22,7 +22,7 @@ import { logger } from "../utils/logger";
 export async function signUp(req: Request, res: Response): Promise<void> {
   try {
     const validatedData = SignUpRequestSchema.parse(req.body);
-    const { email, password, name } = validatedData;
+    const { email, password, name, phone } = validatedData;
 
     // Create user in Supabase Auth
     const { data, error } = await supabase.auth.signUp({
@@ -47,6 +47,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
       email: data.user.email!,
       name,
       registration_status: "incomplete",
+      phone,
     });
 
     if (profileError) {
@@ -68,6 +69,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
         email: data.user.email,
         name,
         registration_status: "incomplete",
+        phone,
       },
       session: data.session,
     });

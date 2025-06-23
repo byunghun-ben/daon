@@ -28,6 +28,7 @@ export const SignUpRequestSchema = z.object({
   email: z.email(),
   password: z.string().min(6).max(100),
   name: z.string().min(1).max(100),
+  phone: z.string().min(1).max(100),
 });
 
 export const SignInRequestSchema = z.object({

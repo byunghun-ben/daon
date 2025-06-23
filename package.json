@@ -9,7 +9,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "prepare": "husky"
   },
   "keywords": [
     "baby",
@@ -25,8 +26,20 @@
     "@typescript-eslint/parser": "^8.34.1",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.5.3",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "packages/**/*.{ts,tsx}": [
+      "pnpm type-check",
+      "pnpm lint --fix",
+      "prettier --write"
+    ],
+    "packages/**/*.{js,jsx,json,md}": [
+      "prettier --write"
+    ]
   }
 }

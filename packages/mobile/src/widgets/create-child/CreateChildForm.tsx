@@ -10,6 +10,7 @@ import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { ChildFormData, ChildFormSchema } from "../../shared/types";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
+import ImagePicker from "../../shared/ui/ImagePicker";
 import Input from "../../shared/ui/Input";
 
 interface CreateChildFormProps {
@@ -201,13 +202,12 @@ export const CreateChildForm = ({
             control={control}
             name="photoUrl"
             render={({ field: { value, onChange } }) => (
-              <Input
-                label="사진"
-                value={value ?? ""}
-                onChangeText={onChange}
+              <ImagePicker
+                label="아이 사진"
+                value={value}
+                onImageSelected={onChange}
                 error={errors.photoUrl?.message}
-                placeholder="사진 URL"
-                keyboardType="url"
+                placeholder="아이의 사진을 선택해주세요"
               />
             )}
           />

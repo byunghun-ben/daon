@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
-import Card from "../../shared/ui/Card";
 import { type CreateActivityRequest } from "@daon/shared";
-import { useChildren } from "../../shared/api/hooks/useChildren";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   useActivity,
   useCreateActivity,
-  useUpdateActivity,
   useDeleteActivity,
+  useUpdateActivity,
 } from "../../shared/api/hooks/useActivities";
+import { useChildren } from "../../shared/api/hooks/useChildren";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { RecordActivityScreenProps } from "../../shared/types/navigation";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import Input from "../../shared/ui/Input";
 
 const ACTIVITY_TYPES = [
   { key: "feeding", label: "수유", icon: "🍼" },
@@ -44,7 +44,7 @@ export default function RecordActivityScreen({
   // React Query hooks
   const { data: childrenData, isLoading: childrenLoading } = useChildren();
   const { data: activityData, isLoading: activityLoading } = useActivity(
-    activityId || ""
+    activityId || "",
   );
   const createActivityMutation = useCreateActivity();
   const updateActivityMutation = useUpdateActivity();
@@ -55,7 +55,7 @@ export default function RecordActivityScreen({
 
   // Local state
   const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || ""
+    initialChildId || "",
   );
   const [activityType, setActivityType] = useState<string>(initialType || "");
   const [formData, setFormData] = useState({
@@ -195,10 +195,6 @@ export default function RecordActivityScreen({
 
   const formatDateTime = (date: Date): string => {
     return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
-  };
-
-  const parseDateTime = (dateTimeString: string): Date => {
-    return new Date(dateTimeString);
   };
 
   const validateForm = (): boolean => {
@@ -522,8 +518,8 @@ export default function RecordActivityScreen({
             isLoading
               ? "저장 중..."
               : isEditing
-              ? "활동 업데이트"
-              : "활동 기록 저장"
+                ? "활동 업데이트"
+                : "활동 기록 저장"
           }
           onPress={handleSave}
           disabled={isLoading}

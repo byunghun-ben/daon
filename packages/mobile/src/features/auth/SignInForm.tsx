@@ -2,10 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
 import z from "zod/v4";
+import { useAuth } from "../../app/navigation/AppNavigator";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button, Input } from "../../shared/ui";
-import { useAuth } from "../../app/navigation/AppNavigator";
 
 const SignInFormSchema = z.object({
   email: z
@@ -23,7 +23,7 @@ interface SignInFormProps {
   navigation: any;
 }
 
-export const SignInForm = ({ navigation }: SignInFormProps) => {
+export const SignInForm = ({ navigation: _ }: SignInFormProps) => {
   const { signIn } = useAuth();
 
   const form = useForm<SignInFormSchemaType>({

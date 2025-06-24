@@ -1,8 +1,12 @@
-import { GrowthChartData, GrowthFilters, GrowthRecordApi } from "@daon/shared";
+import {
+  GrowthChartData,
+  GrowthFilters,
+  GrowthRecordApi,
+  type ChildApi as Child,
+} from "@daon/shared";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
-  Dimensions,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -11,15 +15,12 @@ import {
   View,
 } from "react-native";
 import { childrenApi } from "../../shared/api/children";
-import { type ChildApi as Child } from "@daon/shared";
+import { growthApi } from "../../shared/api/growth";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { GrowthChartScreenProps } from "../../shared/types/navigation";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { growthApi } from "../../shared/api/growth";
-import { GrowthChartScreenProps } from "../../shared/types/navigation";
-
-const { width: screenWidth } = Dimensions.get("window");
 
 export default function GrowthChartScreen({
   navigation,
@@ -29,10 +30,10 @@ export default function GrowthChartScreen({
 
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || ""
+    initialChildId || "",
   );
   const [growthRecords, setGrowthRecords] = useState<GrowthRecordApi[]>([]);
-  const [chartData, setChartData] = useState<GrowthChartData | null>(null);
+  const [, setChartData] = useState<GrowthChartData | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<
     "height" | "weight" | "head"
   >("height");

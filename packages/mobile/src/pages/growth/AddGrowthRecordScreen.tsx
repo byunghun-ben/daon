@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
-import Card from "../../shared/ui/Card";
-import { growthApi } from "../../shared/api/growth";
-import { childrenApi } from "../../shared/api/children";
 import {
   CreateGrowthRecordRequest,
   type ChildApi as Child,
   type GrowthRecordApi as GrowthRecord,
 } from "@daon/shared";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { childrenApi } from "../../shared/api/children";
+import { growthApi } from "../../shared/api/growth";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { AddGrowthRecordScreenProps } from "../../shared/types/navigation";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import Input from "../../shared/ui/Input";
 
 export default function AddGrowthRecordScreen({
   navigation,
@@ -33,7 +33,7 @@ export default function AddGrowthRecordScreen({
 
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || ""
+    initialChildId || "",
   );
   const [formData, setFormData] = useState<CreateGrowthRecordRequest>({
     childId: "",
@@ -43,7 +43,7 @@ export default function AddGrowthRecordScreen({
     headCircumference: undefined,
     notes: "",
   });
-  const [record, setRecord] = useState<GrowthRecord | null>(null);
+  const [, setRecord] = useState<GrowthRecord | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -247,7 +247,7 @@ export default function AddGrowthRecordScreen({
     } catch (error: any) {
       Alert.alert(
         "오류",
-        error.message || "성장 기록 저장 중 오류가 발생했습니다."
+        error.message || "성장 기록 저장 중 오류가 발생했습니다.",
       );
     } finally {
       setIsLoading(false);

@@ -1,6 +1,6 @@
 import React from "react";
 import { Alert, Platform, Text, View } from "react-native";
-import { requestNotifications, openSettings } from "react-native-permissions";
+import { openSettings, requestNotifications } from "react-native-permissions";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 
@@ -10,7 +10,6 @@ interface NotificationPermissionScreenProps {
 }
 
 export const NotificationPermissionScreen = ({
-  navigation,
   onComplete,
 }: NotificationPermissionScreenProps) => {
   const handleRequestPermission = async () => {

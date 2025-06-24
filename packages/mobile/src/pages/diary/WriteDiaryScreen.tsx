@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import Button from "../../shared/ui/Button";
-import Input from "../../shared/ui/Input";
-import Card from "../../shared/ui/Card";
-import { diaryApi } from "../../shared/api/diary";
-import { childrenApi } from "../../shared/api/children";
 import {
   CreateDiaryEntryRequest,
   type ChildApi as Child,
   type DiaryEntryApi as DiaryEntry,
 } from "@daon/shared";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { childrenApi } from "../../shared/api/children";
+import { diaryApi } from "../../shared/api/diary";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { WriteDiaryScreenProps } from "../../shared/types/navigation";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import Input from "../../shared/ui/Input";
 
 export default function WriteDiaryScreen({
   navigation,
@@ -34,7 +34,7 @@ export default function WriteDiaryScreen({
 
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || ""
+    initialChildId || "",
   );
   const [formData, setFormData] = useState<CreateDiaryEntryRequest>({
     childId: "",
@@ -44,7 +44,7 @@ export default function WriteDiaryScreen({
     videos: [],
     milestones: [],
   });
-  const [diary, setDiary] = useState<DiaryEntry | null>(null);
+  const [, setDiary] = useState<DiaryEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -372,7 +372,7 @@ export default function WriteDiaryScreen({
                 <Text style={styles.sectionTitle}>
                   사진 ({formData.photos.length})
                 </Text>
-                {formData.photos.map((photo, index) => (
+                {formData.photos.map((_, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
                       📷 사진 {index + 1}
@@ -394,7 +394,7 @@ export default function WriteDiaryScreen({
                 <Text style={styles.sectionTitle}>
                   동영상 ({formData.videos.length})
                 </Text>
-                {formData.videos.map((video, index) => (
+                {formData.videos.map((_, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
                       🎥 동영상 {index + 1}

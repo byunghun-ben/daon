@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 
@@ -10,7 +10,6 @@ interface ChildOnboardingScreenProps {
 
 export const ChildOnboardingScreen = ({
   navigation,
-  onComplete,
 }: ChildOnboardingScreenProps) => {
   const handleStartRegistration = () => {
     navigation.navigate("CreateChild");

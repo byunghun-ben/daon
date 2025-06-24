@@ -1,12 +1,13 @@
 import z from "zod/v4";
+import { GENDERS, GUARDIAN_ROLES } from "../constants";
 
 // Base child schema with database fields (실제 DB 구조에 맞춤)
 export const ChildDbSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1).max(255),
   birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // DATE 타입
-  gender: z.enum(["male", "female"]), // NOT NULL, 'other' 제거
-  photo_url: z.string().url().nullable(),
+  gender: z.enum(Object.values(GENDERS)).nullable(),
+  photo_url: z.url().nullable(),
   birth_weight: z.number().positive().nullable(), // DECIMAL(5,2), kg 단위
   birth_height: z.number().positive().nullable(), // DECIMAL(5,2), cm 단위
   owner_id: z.uuid(), // 소유자 ID (NOT NULL)
@@ -20,8 +21,8 @@ export const ChildApiSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1).max(255),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female"]),
-  photoUrl: z.string().url().nullable(),
+  gender: z.enum(Object.values(GENDERS)).nullable(),
+  photoUrl: z.url().nullable(),
   birthWeight: z.number().positive().nullable(),
   birthHeight: z.number().positive().nullable(),
   ownerId: z.uuid(),
@@ -34,19 +35,22 @@ export const ChildApiSchema = z.object({
 export const CreateChildRequestSchema = z.object({
   name: z.string().min(1).max(100),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female"]),
-  photoUrl: z.url().optional(),
-  birthWeight: z.number().positive().optional(),
-  birthHeight: z.number().positive().optional(),
-  role: z.enum(["owner", "guardian", "viewer"]).default("owner"),
+  gender: z.enum(Object.values(GENDERS)).nullable(),
+  photoUrl: z.url().nullable().optional(),
+  birthWeight: z.number().positive().nullable().optional(),
+  birthHeight: z.number().positive().nullable().optional(),
+  role: z.enum(Object.values(GUARDIAN_ROLES)).default(GUARDIAN_ROLES.OWNER),
 });
 
 export const UpdateChildRequestSchema = CreateChildRequestSchema.partial();
 
 // Join child request schema
+const GUARDIAN_ROLES_WITHOUT_OWNER = Object.values(GUARDIAN_ROLES).filter(
+  (role) => role !== "owner",
+);
 export const JoinChildRequestSchema = z.object({
   inviteCode: z.string().min(1),
-  role: z.enum(["guardian", "viewer"]).default("guardian"),
+  role: z.enum(GUARDIAN_ROLES_WITHOUT_OWNER).default(GUARDIAN_ROLES.GUARDIAN),
 });
 
 // Response schemas

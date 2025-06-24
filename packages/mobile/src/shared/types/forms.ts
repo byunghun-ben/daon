@@ -48,34 +48,6 @@ export const DiaryFormSchema = z.object({
 
 export type DiaryFormData = z.infer<typeof DiaryFormSchema>;
 
-// Child Profile Form Schema
-export const ChildFormSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1, "아이의 이름을 입력해주세요")
-      .min(2, "이름은 2자 이상 입력해주세요")
-      .max(100, "이름은 100자 이하로 입력해주세요"),
-    birthDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional(),
-    expectedDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional(),
-    gender: z.enum(["male", "female"]).optional(),
-    photoUrl: z.string().url().optional(),
-    birthWeight: z.number().positive("출생 체중은 양수여야 합니다").optional(),
-    birthHeight: z.number().positive("출생 신장은 양수여야 합니다").optional(),
-  })
-  .refine((data) => data.birthDate || data.expectedDate, {
-    message: "출생일 또는 출산예정일 중 하나는 필수입니다",
-    path: ["birthDate"],
-  });
-
-export type ChildFormData = z.infer<typeof ChildFormSchema>;
-
 // Join Child Form Schema
 export const JoinChildFormSchema = z.object({
   inviteCode: z

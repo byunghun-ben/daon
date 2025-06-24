@@ -1,12 +1,13 @@
-import { type CreateChildRequest } from "@daon/shared";
+import { GENDERS, GUARDIAN_ROLES, type CreateChildRequest } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 import { useChildrenQuery, useCreateChild } from "../../shared/api/children";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { ChildFormData, ChildFormSchema } from "../../shared/types/forms";
+import { ChildFormData, ChildFormSchema } from "../../shared/types";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import Input from "../../shared/ui/Input";
@@ -42,8 +43,11 @@ export const CreateChildForm = ({
     resolver: zodResolver(ChildFormSchema),
     defaultValues: {
       name: "",
-      birthDate: "",
-      gender: "male",
+      birthDate: format(new Date(), "yyyy-MM-dd"),
+      gender: null,
+      photoUrl: null,
+      birthWeight: null,
+      birthHeight: null,
     },
   });
 
@@ -95,10 +99,8 @@ export const CreateChildForm = ({
 
   const onSubmit = async (data: ChildFormData) => {
     const childData: CreateChildRequest = {
-      name: data.name,
-      birthDate: data.birthDate || data.expectedDate || "",
-      gender: data.gender || "male",
-      role: "owner",
+      ...data,
+      role: GUARDIAN_ROLES.OWNER,
     };
 
     createChildMutation.mutate(childData, {
@@ -176,22 +178,67 @@ export const CreateChildForm = ({
                 <View style={styles.genderButtons}>
                   <Button
                     title="남아"
-                    variant={value === "male" ? "primary" : "outline"}
+                    variant={value === GENDERS.MALE ? "primary" : "outline"}
                     size="small"
                     buttonStyle={styles.genderButton}
-                    onPress={() => onChange("male")}
+                    onPress={() => onChange(GENDERS.MALE)}
                     loading={isLoading}
                   />
                   <Button
                     title="여아"
-                    variant={value === "female" ? "primary" : "outline"}
+                    variant={value === GENDERS.FEMALE ? "primary" : "outline"}
                     size="small"
                     buttonStyle={styles.genderButton}
-                    onPress={() => onChange("female")}
+                    onPress={() => onChange(GENDERS.FEMALE)}
                     loading={isLoading}
                   />
                 </View>
               </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="photoUrl"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="사진"
+                value={value ?? ""}
+                onChangeText={onChange}
+                error={errors.photoUrl?.message}
+                placeholder="사진 URL"
+                keyboardType="url"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="birthWeight"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="첫 몸무게 (kg)"
+                value={value?.toString() ?? ""}
+                onChangeText={onChange}
+                error={errors.birthWeight?.message}
+                placeholder="예: 3.2"
+                keyboardType="numeric"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="birthHeight"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="첫 키 (cm)"
+                value={value?.toString() ?? ""}
+                onChangeText={onChange}
+                error={errors.birthHeight?.message}
+                placeholder="예: 50.5"
+                keyboardType="numeric"
+              />
             )}
           />
 

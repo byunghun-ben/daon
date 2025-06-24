@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import {
-  NotificationPermissionScreen,
-  ChildOnboardingScreen,
-} from "../../pages/onboarding";
+import React, { useEffect } from "react";
 import { CreateChildScreen } from "../../pages/children";
+import {
+  ChildOnboardingScreen,
+  NotificationPermissionScreen,
+} from "../../pages/onboarding";
 import { useOnboarding } from "../../shared/lib/hooks/useOnboarding";
 import { useOnboardingStore } from "../../shared/store";
-import { useAuth } from "./AppNavigator";
 import type { OnboardingStackParamList } from "../../shared/types/navigation";
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -27,6 +26,7 @@ export const OnboardingNavigator = ({
   } = useOnboarding();
 
   const setOnComplete = useOnboardingStore((state) => state.setOnComplete);
+  const complete = useOnboardingStore((state) => state.complete);
 
   // 컴포넌트 마운트 시 onComplete 콜백을 스토어에 저장
   useEffect(() => {
@@ -44,10 +44,6 @@ export const OnboardingNavigator = ({
     isLoading,
     onComplete,
   ]);
-
-  if (isLoading) {
-    return null; // 또는 로딩 스크린
-  }
 
   const getInitialRouteName = () => {
     if (needsNotificationPermission) {
@@ -76,11 +72,13 @@ export const OnboardingNavigator = ({
     }
   };
 
-  const complete = useOnboardingStore((state) => state.complete);
-
   const handleChildOnboardingComplete = () => {
     complete();
   };
+
+  if (isLoading) {
+    return null; // 또는 로딩 스크린
+  }
 
   return (
     <Stack.Navigator

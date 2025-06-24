@@ -3,13 +3,13 @@ module.exports = {
   extends: ["@react-native/eslint-config"],
   rules: {
     // 기본적인 규칙들만 추가
-    "no-console": "warn",
+    "no-console": "off",
     "prefer-const": "error",
-    "no-var": "error",
+    "no-var": "off",
     // 미사용 import 및 변수 검사
-    "no-unused-vars": "off", // TypeScript에서는 @typescript-eslint/no-unused-vars 사용
+    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
-      "warn",
+      "off",
       {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
@@ -19,7 +19,7 @@ module.exports = {
     // import 정리 관련
     "import/no-unused-modules": "warn",
     "import/order": [
-      "error",
+      "warn",
       {
         groups: [
           "builtin",

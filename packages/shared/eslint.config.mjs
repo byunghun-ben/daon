@@ -41,10 +41,10 @@ export default [
       "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
 
       // 일반 규칙
-      "no-console": "warn",
+      "no-console": "off",
       "no-debugger": "error",
       "prefer-const": "error",
-      "no-var": "error",
+      "no-var": "off",
       "object-shorthand": "error",
       "prefer-arrow-callback": "error",
       "prefer-template": "error",

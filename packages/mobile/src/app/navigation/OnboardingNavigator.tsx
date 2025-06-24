@@ -3,7 +3,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {
   NotificationPermissionScreen,
   ChildOnboardingScreen,
-  JoinChildScreen,
 } from "../../pages/onboarding";
 import { CreateChildScreen } from "../../pages/children";
 import { useOnboarding } from "../../shared/lib/hooks/useOnboarding";
@@ -113,11 +112,7 @@ export const OnboardingNavigator = ({
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="JoinChild" options={{ headerShown: false }}>
-        {(props) => <JoinChildScreen {...props} />}
-      </Stack.Screen>
-
-      <Stack.Screen name="CreateChild" options={{ title: "아이 추가" }}>
+      <Stack.Screen name="CreateChild" options={{ title: "아이 등록" }}>
         {(props) => <CreateChildScreen {...props} />}
       </Stack.Screen>
     </Stack.Navigator>

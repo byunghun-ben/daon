@@ -1,96 +1,56 @@
 import React, { useState } from "react";
-import { Alert, Text, View, TouchableOpacity } from "react-native";
-import { childrenApi } from "../../shared/api/children";
+import { Alert, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { useJoinChild } from "../../shared/api/children";
+import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { Button, Card, Input } from "../../shared/ui";
-import type { OnboardingJoinChildScreenProps } from "../../shared/types/navigation";
-import { useOnboardingStore } from "../../shared/store";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import Input from "../../shared/ui/Input";
 
 type Role = "guardian" | "viewer";
 
-export const JoinChildScreen = ({
-  navigation,
-  route,
-}: OnboardingJoinChildScreenProps) => {
+interface JoinChildFormProps {
+  onSuccess?: (childData: any) => void;
+  onError?: (error: any) => void;
+  loading?: boolean;
+  title?: string;
+  subtitle?: string;
+}
+
+export const JoinChildForm = ({
+  onSuccess,
+  onError,
+  loading: externalLoading = false,
+  title = "기존 아이 참여하기",
+  subtitle = "다른 보호자로부터 받은 초대 코드를 입력해주세요",
+}: JoinChildFormProps) => {
   const [inviteCode, setInviteCode] = useState("");
   const [selectedRole, setSelectedRole] = useState<Role>("guardian");
-  const [isLoading, setIsLoading] = useState(false);
-  const completeOnboarding = useOnboardingStore((state) => state.complete);
+  const joinChildMutation = useJoinChild();
 
-  const handleJoinChild = async () => {
-    if (!inviteCode.trim()) {
-      Alert.alert("알림", "초대 코드를 입력해주세요.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const joinData = {
-        inviteCode: inviteCode.trim(),
-        role: selectedRole,
-      };
-      const response = await childrenApi.joinChild(joinData);
-
-      Alert.alert(
-        "성공",
-        `${response.child.name}의 ${
-          selectedRole === "guardian" ? "보호자" : "관람자"
-        }로 등록되었습니다!`,
-        [
-          {
-            text: "확인",
-            onPress: () => {
-              completeOnboarding();
-            },
-          },
-        ],
-      );
-    } catch (error: any) {
-      console.error("초대 코드 처리 오류:", error);
-      Alert.alert(
-        "오류",
-        error.message || "초대 코드가 올바르지 않습니다. 다시 확인해주세요.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleBack = () => {
-    navigation.goBack();
-  };
+  const isLoading = externalLoading || joinChildMutation.isPending;
 
   const styles = useThemedStyles((theme) => ({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
-      padding: theme.spacing.lg,
     },
     content: {
-      flex: 1,
-      justifyContent: "center" as const,
+      padding: SCREEN_PADDING,
     },
     header: {
       alignItems: "center" as const,
-      marginBottom: theme.spacing.xl,
-    },
-    icon: {
-      fontSize: 72,
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.spacing.xxl,
     },
     title: {
-      fontSize: 24,
-      fontWeight: "bold" as const,
+      fontSize: theme.typography.title.fontSize,
+      fontWeight: theme.typography.title.fontWeight,
       color: theme.colors.text.primary,
-      marginBottom: theme.spacing.md,
-      textAlign: "center" as const,
+      marginBottom: theme.spacing.sm,
     },
-    description: {
-      fontSize: 16,
+    subtitle: {
+      fontSize: theme.typography.subtitle.fontSize,
       color: theme.colors.text.secondary,
       textAlign: "center" as const,
-      lineHeight: 24,
-      marginBottom: theme.spacing.xl,
     },
     form: {
       marginBottom: theme.spacing.xl,
@@ -106,9 +66,6 @@ export const JoinChildScreen = ({
       color: theme.colors.text.secondary,
       marginTop: theme.spacing.sm,
       lineHeight: 20,
-    },
-    buttonContainer: {
-      gap: theme.spacing.md,
     },
     roleContainer: {
       marginBottom: theme.spacing.lg,
@@ -160,19 +117,55 @@ export const JoinChildScreen = ({
     roleOptionDescriptionUnselected: {
       color: theme.colors.text.secondary,
     },
+    buttonContainer: {
+      marginTop: theme.spacing.xl,
+    },
   }));
+
+  const handleJoinChild = async () => {
+    if (!inviteCode.trim()) {
+      Alert.alert("알림", "초대 코드를 입력해주세요.");
+      return;
+    }
+
+    const joinData = {
+      inviteCode: inviteCode.trim(),
+      role: selectedRole,
+    };
+
+    joinChildMutation.mutate(joinData, {
+      onSuccess: (response) => {
+        if (onSuccess) {
+          onSuccess(response);
+        } else {
+          Alert.alert(
+            "성공",
+            `${response.child.name}의 ${
+              selectedRole === "guardian" ? "보호자" : "관람자"
+            }로 등록되었습니다!`,
+          );
+        }
+      },
+      onError: (error: any) => {
+        if (onError) {
+          onError(error);
+        } else {
+          Alert.alert(
+            "오류",
+            error.message ||
+              "초대 코드가 올바르지 않습니다. 다시 확인해주세요.",
+          );
+        }
+      },
+    });
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.icon}>👶</Text>
-          <Text style={styles.title}>기존 아이 참여하기</Text>
-          <Text style={styles.description}>
-            다른 보호자로부터 받은{"\n"}
-            초대 코드를 입력해주세요.{"\n\n"}
-            아이의 육아 기록을 함께 관리할 수 있어요.
-          </Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
 
         <Card style={styles.form}>
@@ -268,14 +261,8 @@ export const JoinChildScreen = ({
             loading={isLoading}
             disabled={!inviteCode.trim()}
           />
-          <Button
-            title="이전으로"
-            variant="secondary"
-            onPress={handleBack}
-            disabled={isLoading}
-          />
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };

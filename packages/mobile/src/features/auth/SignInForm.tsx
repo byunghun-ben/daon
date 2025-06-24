@@ -41,20 +41,9 @@ export const SignInForm = ({ navigation }: SignInFormProps) => {
       if (success) {
         // AuthContext 상태 업데이트
         await signIn();
-        
-        // 아이 설정이 필요한 경우 자동으로 아이 프로필 화면으로 이동
-        if (data.needs_child_setup) {
-          Alert.alert(
-            "환영합니다!",
-            `${data.user.name}님, 이제 아이의 첫 프로필을 만들어보세요.`,
-            [{ 
-              text: "확인", 
-              onPress: () => navigation.navigate("ChildProfile", { isFirstChild: true })
-            }]
-          );
-        } else {
-          console.log("로그인 성공:", data.user.name);
-        }
+
+        // 로그인 성공 - 온보딩 시스템이 자동으로 필요한 단계를 처리함
+        console.log("로그인 성공:", data.user.name);
       } else {
         Alert.alert("로그인 실패", error);
       }

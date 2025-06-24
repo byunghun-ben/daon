@@ -12,12 +12,8 @@ export const ChildOnboardingScreen = ({
   navigation,
   onComplete,
 }: ChildOnboardingScreenProps) => {
-  const handleCreateChild = () => {
+  const handleStartRegistration = () => {
     navigation.navigate("CreateChild");
-  };
-
-  const handleJoinExistingChild = () => {
-    navigation.navigate("JoinChild");
   };
 
   const styles = useThemedStyles((theme) => ({
@@ -66,12 +62,7 @@ export const ChildOnboardingScreen = ({
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="새 아이 등록하기" onPress={handleCreateChild} />
-        <Button
-          title="기존 아이 참여하기"
-          variant="secondary"
-          onPress={handleJoinExistingChild}
-        />
+        <Button title="시작하기" onPress={handleStartRegistration} />
       </View>
     </View>
   );

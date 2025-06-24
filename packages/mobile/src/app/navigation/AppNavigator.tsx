@@ -21,9 +21,6 @@ import type {
 // Auth Screens
 import { SignInScreen, SignUpScreen } from "../../pages/auth";
 
-// Children Screens
-import { CreateChildScreen } from "../../pages/children";
-
 // Main Screens
 import { HomeScreen } from "../../pages/home";
 import {
@@ -44,7 +41,11 @@ import {
 import { SettingsScreen } from "../../pages/settings";
 
 // Children Screens
-import { ChildProfileScreen, ChildrenListScreen } from "../../pages/children";
+import {
+  AddChildScreen,
+  ChildProfileScreen,
+  ChildrenListScreen,
+} from "../../pages/children";
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 const AppStack = createStackNavigator<AppStackParamList>();
@@ -160,7 +161,7 @@ function AppNavigator() {
       />
       <AppStack.Screen
         name="CreateChild"
-        component={CreateChildScreen}
+        component={AddChildScreen}
         options={{ title: "아이 추가" }}
       />
       <AppStack.Screen

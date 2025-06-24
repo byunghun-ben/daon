@@ -22,16 +22,13 @@ export type OnboardingStackParamList = {
   NotificationPermission: undefined;
   ChildOnboarding: undefined;
   CreateChild: undefined;
-  JoinChild: undefined;
 };
 
 export type AppStackParamList = {
   MainTabs: undefined;
   // Children Management
   ChildrenList: undefined;
-  CreateChild: {
-    onComplete?: () => void;
-  };
+  CreateChild: undefined;
   ChildProfile: {
     childId?: string;
     isEditing?: boolean;
@@ -125,7 +122,6 @@ export type OnboardingChildOnboardingScreenProps =
   OnboardingScreenProps<"ChildOnboarding">;
 export type OnboardingCreateChildScreenProps =
   OnboardingScreenProps<"CreateChild">;
-export type OnboardingJoinChildScreenProps = OnboardingScreenProps<"JoinChild">;
 
 export type ChildrenListScreenProps = AppScreenProps<"ChildrenList">;
 export type CreateChildScreenProps = AppScreenProps<"CreateChild">;

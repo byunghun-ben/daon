@@ -1,0 +1,12 @@
+# Build script 보안 설정
+# 신뢰할 수 있는 패키지들만 build script 실행 허용
+enable-pre-post-scripts=false
+
+# Supabase 같은 신뢰할 수 있는 패키지는 허용
+# (approve-builds 명령으로 이미 승인됨)
+
+# Hoisting 설정 (React Native 호환성)
+shamefully-hoist=true
+
+# Node modules 링킹 방식
+node-linker=isolated 

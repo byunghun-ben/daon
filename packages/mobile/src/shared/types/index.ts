@@ -2,4 +2,6 @@
 export * from "@daon/shared";
 
 // Export mobile-specific types
+export * from "./auth.forms";
+export * from "./forms";
 export * from "./navigation";

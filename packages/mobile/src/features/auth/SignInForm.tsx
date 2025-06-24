@@ -1,23 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import z from "zod/v4";
 import { useAuth } from "../../app/navigation/AppNavigator";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SignInFormSchema, SignInFormSchemaType } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
-
-const SignInFormSchema = z.object({
-  email: z
-    .email("올바른 이메일 형식을 입력해주세요")
-    .min(1, "이메일을 입력해주세요"),
-  password: z
-    .string()
-    .min(6, "비밀번호는 6자 이상이어야 합니다")
-    .min(1, "비밀번호를 입력해주세요"),
-});
-
-type SignInFormSchemaType = z.infer<typeof SignInFormSchema>;
 
 interface SignInFormProps {
   navigation: any;

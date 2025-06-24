@@ -1,43 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import z from "zod/v4";
 import { useAuth } from "../../app/navigation/AppNavigator";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SignUpFormSchema, SignUpFormSchemaType } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
-
-const SignUpFormSchema = z
-  .object({
-    email: z
-      .email("올바른 이메일 형식을 입력해주세요")
-      .min(1, "이메일을 입력해주세요"),
-    password: z
-      .string()
-      .min(6, "비밀번호는 6자 이상이어야 합니다")
-      .min(1, "비밀번호를 입력해주세요"),
-    passwordConfirm: z
-      .string()
-      .min(6, "비밀번호는 6자 이상이어야 합니다")
-      .min(1, "비밀번호를 입력해주세요"),
-    name: z.string().min(1, "이름을 입력해주세요"),
-    phone: z.string().min(1, "전화번호를 입력해주세요"),
-  })
-  .refine((data) => data.password === data.passwordConfirm, {
-    path: ["passwordConfirm"],
-    message: "비밀번호가 일치하지 않습니다.",
-  });
-
-type SignUpFormSchemaType = z.infer<typeof SignUpFormSchema>;
-
-interface SignUpFormProps {}
 
 const normalizePhoneNumber = (value: string) => {
   // 숫자만 추출 (하이픈 등 특수문자 제거)
   return value.replace(/\D/g, "");
 };
 
-export const SignUpForm = ({}: SignUpFormProps) => {
+export const SignUpForm = () => {
   const { signIn } = useAuth();
 
   const form = useForm<SignUpFormSchemaType>({
@@ -67,7 +42,7 @@ export const SignUpForm = ({}: SignUpFormProps) => {
               text: "확인",
               // 온보딩 플로우는 AppNavigator에서 자동으로 처리됨
             },
-          ]
+          ],
         );
       } else {
         Alert.alert("회원가입 실패", error);
@@ -78,7 +53,7 @@ export const SignUpForm = ({}: SignUpFormProps) => {
         "회원가입 실패",
         error instanceof Error
           ? error.message
-          : "회원가입 중 오류가 발생했습니다."
+          : "회원가입 중 오류가 발생했습니다.",
       );
     }
   };

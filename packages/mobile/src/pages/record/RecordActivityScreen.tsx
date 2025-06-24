@@ -1,5 +1,7 @@
 import { type CreateActivityRequest } from "@daon/shared";
-import React, { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   Alert,
   SafeAreaView,
@@ -17,6 +19,7 @@ import {
 import { useChildren } from "../../shared/api/hooks/useChildren";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { ActivityFormData, ActivityFormSchema } from "../../shared/types/forms";
 import { RecordActivityScreenProps } from "../../shared/types/navigation";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
@@ -53,18 +56,33 @@ export default function RecordActivityScreen({
   const children = childrenData?.children || [];
   const activity = activityData?.activity || null;
 
-  // Local state
-  const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || "",
-  );
-  const [activityType, setActivityType] = useState<string>(initialType || "");
-  const [formData, setFormData] = useState({
-    started_at: new Date().toISOString(),
-    ended_at: "",
-    notes: "",
-    metadata: {} as Record<string, any>,
+  // React Hook Form
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<ActivityFormData>({
+    resolver: zodResolver(ActivityFormSchema),
+    defaultValues: {
+      childId: initialChildId || "",
+      activityType:
+        (initialType as
+          | "feeding"
+          | "diaper"
+          | "sleep"
+          | "tummy_time"
+          | "custom") || "feeding",
+      started_at: new Date().toISOString(),
+      ended_at: "",
+      notes: "",
+      metadata: {},
+    },
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const watchedChildId = useWatch({ control, name: "childId" });
+  const watchedActivityType = useWatch({ control, name: "activityType" });
 
   const isLoading =
     childrenLoading ||
@@ -175,65 +193,37 @@ export default function RecordActivityScreen({
   // Initialize form data when activity data is loaded (for editing)
   useEffect(() => {
     if (activity && isEditing) {
-      setSelectedChild(activity.childId);
-      setActivityType(activity.type);
-      setFormData({
+      reset({
+        childId: activity.childId,
+        activityType: activity.type,
         started_at: activity.timestamp,
-        ended_at: "", // ended_at은 더 이상 별도 필드가 아님
+        ended_at: "",
         notes: activity.notes || "",
-        metadata: activity.data || {},
+        metadata: {},
       });
     }
-  }, [activity, isEditing]);
+  }, [activity, isEditing, reset]);
 
   // Auto-select child if only one exists
   useEffect(() => {
-    if (!selectedChild && children.length === 1) {
-      setSelectedChild(children[0].id);
+    if (!watchedChildId && children.length === 1) {
+      setValue("childId", children[0].id);
     }
-  }, [children, selectedChild]);
+  }, [children, watchedChildId, setValue]);
 
   const formatDateTime = (date: Date): string => {
     return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!selectedChild) {
-      newErrors.child = "아이를 선택해주세요";
-    }
-
-    if (!activityType) {
-      newErrors.activityType = "활동 유형을 선택해주세요";
-    }
-
-    if (!formData.started_at) {
-      newErrors.started_at = "시작 시간을 입력해주세요";
-    }
-
-    if (
-      formData.ended_at &&
-      new Date(formData.ended_at) <= new Date(formData.started_at)
-    ) {
-      newErrors.ended_at = "종료 시간은 시작 시간보다 늦어야 합니다";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validateForm()) return;
-
+  const onSubmit = async (data: ActivityFormData) => {
     try {
       if (isEditing && activityId) {
         // Update existing activity
         const updateData = {
-          started_at: formData.started_at,
-          ended_at: formData.ended_at || undefined,
-          notes: formData.notes || undefined,
-          metadata: formData.metadata,
+          started_at: data.started_at,
+          ended_at: data.ended_at || undefined,
+          notes: data.notes || undefined,
+          metadata: data.metadata,
         };
 
         await updateActivityMutation.mutateAsync({
@@ -247,11 +237,11 @@ export default function RecordActivityScreen({
       } else {
         // Create new activity
         const activityData: CreateActivityRequest = {
-          childId: selectedChild,
-          type: activityType as any,
-          timestamp: formData.started_at,
-          data: formData.metadata,
-          notes: formData.notes || undefined,
+          childId: data.childId,
+          type: data.activityType as any,
+          timestamp: data.started_at,
+          data: data.metadata || {},
+          notes: data.notes || undefined,
         };
 
         await createActivityMutation.mutateAsync(activityData);
@@ -288,35 +278,35 @@ export default function RecordActivityScreen({
   };
 
   const renderMetadataInputs = () => {
-    switch (activityType) {
+    switch (watchedActivityType) {
       case "feeding":
         return (
           <View style={styles.metadataContainer}>
-            <Input
-              label="수유량 (ml)"
-              value={formData.metadata.amount?.toString() || ""}
-              onChangeText={(amount) =>
-                setFormData({
-                  ...formData,
-                  metadata: {
-                    ...formData.metadata,
-                    amount: amount ? parseInt(amount) : undefined,
-                  },
-                })
-              }
-              keyboardType="numeric"
-              placeholder="예: 120"
-            />
-            <Input
-              label="수유 종류"
-              value={formData.metadata.type || ""}
-              onChangeText={(type) =>
-                setFormData({
-                  ...formData,
-                  metadata: { ...formData.metadata, type },
-                })
-              }
-              placeholder="예: 모유, 분유, 이유식"
+            <Controller
+              control={control}
+              name="metadata"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <Input
+                    label="수유량 (ml)"
+                    value={value?.amount?.toString() || ""}
+                    onChangeText={(amount) =>
+                      onChange({
+                        ...value,
+                        amount: amount ? parseInt(amount) : undefined,
+                      })
+                    }
+                    keyboardType="numeric"
+                    placeholder="예: 120"
+                  />
+                  <Input
+                    label="수유 종류"
+                    value={value?.type || ""}
+                    onChangeText={(type) => onChange({ ...value, type })}
+                    placeholder="예: 모유, 분유, 이유식"
+                  />
+                </>
+              )}
             />
           </View>
         );
@@ -324,16 +314,17 @@ export default function RecordActivityScreen({
       case "diaper":
         return (
           <View style={styles.metadataContainer}>
-            <Input
-              label="기저귀 상태"
-              value={formData.metadata.type || ""}
-              onChangeText={(type) =>
-                setFormData({
-                  ...formData,
-                  metadata: { ...formData.metadata, type },
-                })
-              }
-              placeholder="예: 소변, 대변, 소변+대변"
+            <Controller
+              control={control}
+              name="metadata"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  label="기저귀 상태"
+                  value={value?.type || ""}
+                  onChangeText={(type) => onChange({ ...value, type })}
+                  placeholder="예: 소변, 대변, 소변+대변"
+                />
+              )}
             />
           </View>
         );
@@ -341,16 +332,17 @@ export default function RecordActivityScreen({
       case "sleep":
         return (
           <View style={styles.metadataContainer}>
-            <Input
-              label="수면 품질"
-              value={formData.metadata.quality || ""}
-              onChangeText={(quality) =>
-                setFormData({
-                  ...formData,
-                  metadata: { ...formData.metadata, quality },
-                })
-              }
-              placeholder="예: 좋음, 보통, 나쁨"
+            <Controller
+              control={control}
+              name="metadata"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  label="수면 품질"
+                  value={value?.quality || ""}
+                  onChangeText={(quality) => onChange({ ...value, quality })}
+                  placeholder="예: 좋음, 보통, 나쁨"
+                />
+              )}
             />
           </View>
         );
@@ -378,30 +370,35 @@ export default function RecordActivityScreen({
         {!isEditing && (
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>아이 선택</Text>
-            <View style={styles.childSelector}>
-              {children.map((child) => (
-                <TouchableOpacity
-                  key={child.id}
-                  style={[
-                    styles.childButton,
-                    selectedChild === child.id && styles.childButtonSelected,
-                  ]}
-                  onPress={() => setSelectedChild(child.id)}
-                >
-                  <Text
-                    style={[
-                      styles.childButtonText,
-                      selectedChild === child.id &&
-                        styles.childButtonTextSelected,
-                    ]}
-                  >
-                    {child.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {errors.child && (
-              <Text style={{ color: "red" }}>{errors.child}</Text>
+            <Controller
+              control={control}
+              name="childId"
+              render={({ field: { value, onChange } }) => (
+                <View style={styles.childSelector}>
+                  {children.map((child) => (
+                    <TouchableOpacity
+                      key={child.id}
+                      style={[
+                        styles.childButton,
+                        value === child.id && styles.childButtonSelected,
+                      ]}
+                      onPress={() => onChange(child.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.childButtonText,
+                          value === child.id && styles.childButtonTextSelected,
+                        ]}
+                      >
+                        {child.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            />
+            {errors.childId && (
+              <Text style={{ color: "red" }}>{errors.childId.message}</Text>
             )}
           </Card>
         )}
@@ -410,7 +407,7 @@ export default function RecordActivityScreen({
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>아이</Text>
             <Text style={{ fontSize: 16, color: "#666" }}>
-              {children.find((c) => c.id === selectedChild)?.name ||
+              {children.find((c) => c.id === watchedChildId)?.name ||
                 "로딩 중..."}
             </Text>
           </Card>
@@ -422,36 +419,46 @@ export default function RecordActivityScreen({
           {isEditing ? (
             <View style={{ alignItems: "center", padding: 16 }}>
               <Text style={styles.activityIcon}>
-                {ACTIVITY_TYPES.find((a) => a.key === activityType)?.icon ||
-                  "📝"}
+                {ACTIVITY_TYPES.find((a) => a.key === watchedActivityType)
+                  ?.icon || "📝"}
               </Text>
               <Text style={styles.activityLabel}>
-                {ACTIVITY_TYPES.find((a) => a.key === activityType)?.label ||
-                  activityType}
+                {ACTIVITY_TYPES.find((a) => a.key === watchedActivityType)
+                  ?.label || watchedActivityType}
               </Text>
             </View>
           ) : (
-            <>
-              <View style={styles.activityTypes}>
-                {ACTIVITY_TYPES.map((activity) => (
-                  <TouchableOpacity
-                    key={activity.key}
-                    style={[
-                      styles.activityButton,
-                      activityType === activity.key &&
-                        styles.activityButtonSelected,
-                    ]}
-                    onPress={() => setActivityType(activity.key)}
-                  >
-                    <Text style={styles.activityIcon}>{activity.icon}</Text>
-                    <Text style={styles.activityLabel}>{activity.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              {errors.activityType && (
-                <Text style={{ color: "red" }}>{errors.activityType}</Text>
+            <Controller
+              control={control}
+              name="activityType"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <View style={styles.activityTypes}>
+                    {ACTIVITY_TYPES.map((activity) => (
+                      <TouchableOpacity
+                        key={activity.key}
+                        style={[
+                          styles.activityButton,
+                          value === activity.key &&
+                            styles.activityButtonSelected,
+                        ]}
+                        onPress={() => onChange(activity.key)}
+                      >
+                        <Text style={styles.activityIcon}>{activity.icon}</Text>
+                        <Text style={styles.activityLabel}>
+                          {activity.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  {errors.activityType && (
+                    <Text style={{ color: "red" }}>
+                      {errors.activityType.message}
+                    </Text>
+                  )}
+                </>
               )}
-            </>
+            />
           )}
         </Card>
 
@@ -459,40 +466,42 @@ export default function RecordActivityScreen({
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>시간</Text>
           <View style={styles.timeContainer}>
-            <Input
-              label="시작 시간"
-              value={formatDateTime(new Date(formData.started_at))}
-              onChangeText={(started_at) =>
-                setFormData({
-                  ...formData,
-                  started_at: new Date(started_at).toISOString(),
-                })
-              }
-              containerStyle={styles.timeInput}
-              error={errors.started_at}
+            <Controller
+              control={control}
+              name="started_at"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  label="시작 시간"
+                  value={formatDateTime(new Date(value))}
+                  onChangeText={(started_at) =>
+                    onChange(new Date(started_at).toISOString())
+                  }
+                  containerStyle={styles.timeInput}
+                  error={errors.started_at?.message}
+                />
+              )}
             />
 
-            <Input
-              label="종료 시간 (선택사항)"
-              value={
-                formData.ended_at
-                  ? formatDateTime(new Date(formData.ended_at))
-                  : ""
-              }
-              onChangeText={(ended_at) =>
-                setFormData({
-                  ...formData,
-                  ended_at: ended_at ? new Date(ended_at).toISOString() : "",
-                })
-              }
-              containerStyle={styles.timeInput}
-              error={errors.ended_at}
+            <Controller
+              control={control}
+              name="ended_at"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  label="종료 시간 (선택사항)"
+                  value={value ? formatDateTime(new Date(value)) : ""}
+                  onChangeText={(ended_at) =>
+                    onChange(ended_at ? new Date(ended_at).toISOString() : "")
+                  }
+                  containerStyle={styles.timeInput}
+                  error={errors.ended_at?.message}
+                />
+              )}
             />
           </View>
         </Card>
 
         {/* Activity-specific metadata */}
-        {activityType && (
+        {watchedActivityType && (
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>세부 정보</Text>
             {renderMetadataInputs()}
@@ -502,13 +511,19 @@ export default function RecordActivityScreen({
         {/* Notes */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>메모</Text>
-          <Input
-            label="추가 메모 (선택사항)"
-            value={formData.notes}
-            onChangeText={(notes) => setFormData({ ...formData, notes })}
-            multiline
-            numberOfLines={3}
-            placeholder="특이사항이나 추가 정보를 입력하세요"
+          <Controller
+            control={control}
+            name="notes"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="추가 메모 (선택사항)"
+                value={value || ""}
+                onChangeText={onChange}
+                multiline
+                numberOfLines={3}
+                placeholder="특이사항이나 추가 정보를 입력하세요"
+              />
+            )}
           />
         </Card>
 
@@ -521,7 +536,7 @@ export default function RecordActivityScreen({
                 ? "활동 업데이트"
                 : "활동 기록 저장"
           }
-          onPress={handleSave}
+          onPress={handleSubmit(onSubmit)}
           disabled={isLoading}
         />
 

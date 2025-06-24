@@ -1,8 +1,14 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { useJoinChild } from "../../shared/api/children";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import {
+  JoinChildFormData,
+  JoinChildFormSchema,
+} from "../../shared/types/forms";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import Input from "../../shared/ui/Input";
@@ -24,9 +30,20 @@ export const JoinChildForm = ({
   title = "기존 아이 참여하기",
   subtitle = "다른 보호자로부터 받은 초대 코드를 입력해주세요",
 }: JoinChildFormProps) => {
-  const [inviteCode, setInviteCode] = useState("");
   const [selectedRole, setSelectedRole] = useState<Role>("guardian");
   const joinChildMutation = useJoinChild();
+
+  // React Hook Form
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<JoinChildFormData>({
+    resolver: zodResolver(JoinChildFormSchema),
+    defaultValues: {
+      inviteCode: "",
+    },
+  });
 
   const isLoading = externalLoading || joinChildMutation.isPending;
 
@@ -122,14 +139,9 @@ export const JoinChildForm = ({
     },
   }));
 
-  const handleJoinChild = async () => {
-    if (!inviteCode.trim()) {
-      Alert.alert("알림", "초대 코드를 입력해주세요.");
-      return;
-    }
-
+  const onSubmit = async (data: JoinChildFormData) => {
     const joinData = {
-      inviteCode: inviteCode.trim(),
+      inviteCode: data.inviteCode.trim(),
       role: selectedRole,
     };
 
@@ -170,14 +182,21 @@ export const JoinChildForm = ({
 
         <Card style={styles.form}>
           <Text style={styles.inputLabel}>초대 코드</Text>
-          <Input
-            value={inviteCode}
-            onChangeText={setInviteCode}
-            placeholder="초대 코드를 입력하세요"
-            autoCapitalize="characters"
-            autoCorrect={false}
-            returnKeyType="done"
-            onSubmitEditing={handleJoinChild}
+          <Controller
+            control={control}
+            name="inviteCode"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                error={errors.inviteCode?.message}
+                placeholder="초대 코드를 입력하세요"
+                autoCapitalize="characters"
+                autoCorrect={false}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit(onSubmit)}
+              />
+            )}
           />
           <Text style={styles.inputHelper}>
             초대 코드는 대소문자를 구분하지 않습니다.{"\n"}
@@ -257,9 +276,8 @@ export const JoinChildForm = ({
         <View style={styles.buttonContainer}>
           <Button
             title="참여하기"
-            onPress={handleJoinChild}
+            onPress={handleSubmit(onSubmit)}
             loading={isLoading}
-            disabled={!inviteCode.trim()}
           />
         </View>
       </ScrollView>

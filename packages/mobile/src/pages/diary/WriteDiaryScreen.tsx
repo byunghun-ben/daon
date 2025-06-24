@@ -3,7 +3,9 @@ import {
   type ChildApi as Child,
   type DiaryEntryApi as DiaryEntry,
 } from "@daon/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
   SafeAreaView,
@@ -17,6 +19,7 @@ import { childrenApi } from "../../shared/api/children";
 import { diaryApi } from "../../shared/api/diary";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { DiaryFormData, DiaryFormSchema } from "../../shared/types/forms";
 import { WriteDiaryScreenProps } from "../../shared/types/navigation";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
@@ -33,20 +36,32 @@ export default function WriteDiaryScreen({
   } = route?.params || {};
 
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || "",
-  );
-  const [formData, setFormData] = useState<CreateDiaryEntryRequest>({
-    childId: "",
-    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
-    content: "",
-    photos: [],
-    videos: [],
-    milestones: [],
-  });
   const [, setDiary] = useState<DiaryEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // React Hook Form
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<DiaryFormData>({
+    resolver: zodResolver(DiaryFormSchema),
+    defaultValues: {
+      childId: initialChildId || "",
+      date: new Date().toISOString().split("T")[0],
+      content: "",
+      photos: [],
+      videos: [],
+      milestones: [],
+    },
+  });
+
+  const watchedChildId = watch("childId");
+  const watchedPhotos = watch("photos");
+  const watchedVideos = watch("videos");
 
   const styles = useThemedStyles((theme) => ({
     container: {
@@ -171,10 +186,9 @@ export default function WriteDiaryScreen({
       setChildren(response.children);
 
       // If no child is selected and there's only one child, select it automatically
-      if (!selectedChild && response.children.length === 1) {
+      if (!watchedChildId && response.children.length === 1) {
         const childId = response.children[0].id;
-        setSelectedChild(childId);
-        setFormData((prev) => ({ ...prev, childId }));
+        setValue("childId", childId);
       }
     } catch (error: any) {
       Alert.alert("오류", "아이 목록을 불러오는데 실패했습니다.");
@@ -188,7 +202,7 @@ export default function WriteDiaryScreen({
     try {
       const response = await diaryApi.getDiaryEntry(diaryId);
       setDiary(response.diaryEntry);
-      setFormData({
+      reset({
         childId: response.diaryEntry.childId,
         date: response.diaryEntry.date,
         content: response.diaryEntry.content,
@@ -199,7 +213,6 @@ export default function WriteDiaryScreen({
           childId: response.diaryEntry.childId,
         })),
       });
-      setSelectedChild(response.diaryEntry.childId);
     } catch (error: any) {
       Alert.alert("오류", "일기를 불러오는데 실패했습니다.");
     } finally {
@@ -207,35 +220,16 @@ export default function WriteDiaryScreen({
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!selectedChild) {
-      newErrors.child = "아이를 선택해주세요";
-    }
-
-    if (!formData.date) {
-      newErrors.date = "날짜를 선택해주세요";
-    }
-
-    if (!formData.content.trim()) {
-      newErrors.content = "일기 내용을 입력해주세요";
-    } else if (formData.content.trim().length < 10) {
-      newErrors.content = "일기 내용을 10자 이상 입력해주세요";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validateForm()) return;
-
+  const onSubmit = async (data: DiaryFormData) => {
     setIsLoading(true);
     try {
-      const diaryData = {
-        ...formData,
-        childId: selectedChild,
+      const diaryData: CreateDiaryEntryRequest = {
+        childId: data.childId,
+        date: data.date,
+        content: data.content,
+        photos: data.photos || [],
+        videos: data.videos || [],
+        milestones: data.milestones || [],
       };
 
       if (isEditing && diaryId) {
@@ -267,10 +261,11 @@ export default function WriteDiaryScreen({
   };
 
   const removeMedia = (type: "photos" | "videos", index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      [type]: prev[type]?.filter((_, i) => i !== index) || [],
-    }));
+    if (type === "photos") {
+      setValue("photos", watchedPhotos?.filter((_, i) => i !== index) || []);
+    } else {
+      setValue("videos", watchedVideos?.filter((_, i) => i !== index) || []);
+    }
   };
 
   return (
@@ -290,61 +285,81 @@ export default function WriteDiaryScreen({
         {/* Child Selection */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>아이 선택</Text>
-          <View style={styles.childSelector}>
-            {children.map((child) => (
-              <TouchableOpacity
-                key={child.id}
-                style={[
-                  styles.childButton,
-                  selectedChild === child.id && styles.childButtonSelected,
-                ]}
-                onPress={() => {
-                  setSelectedChild(child.id);
-                  setFormData((prev) => ({ ...prev, childId: child.id }));
-                }}
-              >
-                <Text
-                  style={[
-                    styles.childButtonText,
-                    selectedChild === child.id &&
-                      styles.childButtonTextSelected,
-                  ]}
-                >
-                  {child.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {errors.child && <Text style={styles.error}>{errors.child}</Text>}
+          <Controller
+            control={control}
+            name="childId"
+            render={({ field: { value, onChange } }) => (
+              <View style={styles.childSelector}>
+                {children.map((child) => (
+                  <TouchableOpacity
+                    key={child.id}
+                    style={[
+                      styles.childButton,
+                      value === child.id && styles.childButtonSelected,
+                    ]}
+                    onPress={() => onChange(child.id)}
+                  >
+                    <Text
+                      style={[
+                        styles.childButtonText,
+                        value === child.id && styles.childButtonTextSelected,
+                      ]}
+                    >
+                      {child.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          />
+          {errors.childId && (
+            <Text style={styles.error}>{errors.childId.message}</Text>
+          )}
         </Card>
 
         {/* Date Selection */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>날짜</Text>
-          <Input
-            value={formData.date}
-            onChangeText={(date) => setFormData({ ...formData, date })}
-            error={errors.date}
-            placeholder="YYYY-MM-DD"
+          <Controller
+            control={control}
+            name="date"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                error={errors.date?.message}
+                placeholder="YYYY-MM-DD"
+              />
+            )}
           />
         </Card>
 
         {/* Content */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>일기 내용</Text>
-          <TextInput
-            style={[
-              styles.contentInput,
-              errors.content && styles.contentInputError,
-            ]}
-            value={formData.content}
-            onChangeText={(content) => setFormData({ ...formData, content })}
-            placeholder="오늘은 어떤 특별한 일이 있었나요? 아이의 귀여운 모습이나 새로운 변화를 자유롭게 적어보세요."
-            multiline
-            numberOfLines={10}
-            textAlignVertical="top"
+          <Controller
+            control={control}
+            name="content"
+            render={({ field: { value, onChange } }) => (
+              <>
+                <TextInput
+                  style={[
+                    styles.contentInput,
+                    errors.content && styles.contentInputError,
+                  ]}
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="오늘은 어떤 특별한 일이 있었나요? 아이의 귀여운 모습이나 새로운 변화를 자유롭게 적어보세요."
+                  multiline
+                  numberOfLines={10}
+                  textAlignVertical="top"
+                />
+                {errors.content && (
+                  <Text style={styles.error}>{errors.content.message}</Text>
+                )}
+              </>
+            )}
           />
-          {errors.content && <Text style={styles.error}>{errors.content}</Text>}
         </Card>
 
         {/* Media */}
@@ -367,12 +382,12 @@ export default function WriteDiaryScreen({
             />
 
             {/* Photos List */}
-            {formData.photos && formData.photos.length > 0 && (
+            {watchedPhotos && watchedPhotos.length > 0 && (
               <View style={styles.mediaList}>
                 <Text style={styles.sectionTitle}>
-                  사진 ({formData.photos.length})
+                  사진 ({watchedPhotos.length})
                 </Text>
-                {formData.photos.map((_, index) => (
+                {watchedPhotos.map((_, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
                       📷 사진 {index + 1}
@@ -389,12 +404,12 @@ export default function WriteDiaryScreen({
             )}
 
             {/* Videos List */}
-            {formData.videos && formData.videos.length > 0 && (
+            {watchedVideos && watchedVideos.length > 0 && (
               <View style={styles.mediaList}>
                 <Text style={styles.sectionTitle}>
-                  동영상 ({formData.videos.length})
+                  동영상 ({watchedVideos.length})
                 </Text>
-                {formData.videos.map((_, index) => (
+                {watchedVideos.map((_, index) => (
                   <View key={index} style={styles.mediaItem}>
                     <Text style={styles.mediaText} numberOfLines={1}>
                       🎥 동영상 {index + 1}
@@ -417,7 +432,7 @@ export default function WriteDiaryScreen({
           title={
             isLoading ? "저장 중..." : isEditing ? "일기 수정" : "일기 저장"
           }
-          onPress={handleSave}
+          onPress={handleSubmit(onSubmit)}
           disabled={isLoading}
         />
       </ScrollView>

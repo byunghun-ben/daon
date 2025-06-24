@@ -1,9 +1,12 @@
 import { type CreateChildRequest } from "@daon/shared";
-import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 import { useChildrenQuery, useCreateChild } from "../../shared/api/children";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { ChildFormData, ChildFormSchema } from "../../shared/types/forms";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import Input from "../../shared/ui/Input";
@@ -30,13 +33,19 @@ export const CreateChildForm = ({
   // 첫 번째 아이인지 확인
   const isFirstChild = childrenData?.children.length === 0;
 
-  const [formData, setFormData] = useState<CreateChildRequest>({
-    name: "",
-    birthDate: "",
-    gender: "male",
-    role: "owner",
+  // React Hook Form
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ChildFormData>({
+    resolver: zodResolver(ChildFormSchema),
+    defaultValues: {
+      name: "",
+      birthDate: "",
+      gender: "male",
+    },
   });
-  const [errors, setErrors] = useState<Partial<CreateChildRequest>>({});
 
   const isLoading = externalLoading || createChildMutation.isPending;
 
@@ -84,44 +93,11 @@ export const CreateChildForm = ({
     },
   }));
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<CreateChildRequest> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "아이 이름을 입력해주세요";
-    } else if (formData.name.trim().length < 1) {
-      newErrors.name = "이름을 입력해주세요";
-    }
-
-    if (!formData.birthDate.trim()) {
-      newErrors.birthDate = "생년월일을 입력해주세요";
-    } else {
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(formData.birthDate)) {
-        newErrors.birthDate = "YYYY-MM-DD 형식으로 입력해주세요";
-      } else {
-        const birthDate = new Date(formData.birthDate);
-        const now = new Date();
-        const maxFutureDate = new Date();
-        maxFutureDate.setMonth(now.getMonth() + 12); // Allow up to 12 months in the future for pregnancy
-
-        if (isNaN(birthDate.getTime())) {
-          newErrors.birthDate = "올바른 날짜를 입력해주세요";
-        } else if (birthDate > maxFutureDate) {
-          newErrors.birthDate = "출산예정일이 너무 멀리 설정되었습니다";
-        }
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleCreate = async () => {
-    if (!validateForm()) return;
-
+  const onSubmit = async (data: ChildFormData) => {
     const childData: CreateChildRequest = {
-      ...formData,
+      name: data.name,
+      birthDate: data.birthDate || data.expectedDate || "",
+      gender: data.gender || "male",
       role: "owner",
     };
 
@@ -160,63 +136,69 @@ export const CreateChildForm = ({
         </View>
 
         <Card>
-          <Input
-            label="아이 이름"
-            value={formData.name}
-            onChangeText={(name) => setFormData({ ...formData, name })}
-            error={errors.name}
-            placeholder="예: 다온이"
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="아이 이름"
+                value={value}
+                onChangeText={onChange}
+                error={errors.name?.message}
+                placeholder="예: 다온이"
+              />
+            )}
           />
 
-          <Input
-            label="생년월일 (또는 출산예정일)"
-            value={formData.birthDate}
-            onChangeText={(birthDate) =>
-              setFormData({ ...formData, birthDate })
-            }
-            error={errors.birthDate}
-            placeholder="YYYY-MM-DD"
-            keyboardType={
-              Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"
-            }
+          <Controller
+            control={control}
+            name="birthDate"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                label="생년월일 (또는 출산예정일)"
+                value={value || ""}
+                onChangeText={onChange}
+                error={errors.birthDate?.message}
+                placeholder="YYYY-MM-DD"
+                keyboardType={
+                  Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"
+                }
+              />
+            )}
           />
 
-          <View style={styles.genderContainer}>
-            <Text style={styles.genderLabel}>성별 (선택사항)</Text>
-            <View style={styles.genderButtons}>
-              <Button
-                title="남아"
-                variant={formData.gender === "male" ? "primary" : "outline"}
-                size="small"
-                buttonStyle={styles.genderButton}
-                onPress={() =>
-                  setFormData({
-                    ...formData,
-                    gender: "male",
-                  })
-                }
-                loading={isLoading}
-              />
-              <Button
-                title="여아"
-                variant={formData.gender === "female" ? "primary" : "outline"}
-                size="small"
-                buttonStyle={styles.genderButton}
-                onPress={() =>
-                  setFormData({
-                    ...formData,
-                    gender: "female",
-                  })
-                }
-                loading={isLoading}
-              />
-            </View>
-          </View>
+          <Controller
+            control={control}
+            name="gender"
+            render={({ field: { value, onChange } }) => (
+              <View style={styles.genderContainer}>
+                <Text style={styles.genderLabel}>성별 (선택사항)</Text>
+                <View style={styles.genderButtons}>
+                  <Button
+                    title="남아"
+                    variant={value === "male" ? "primary" : "outline"}
+                    size="small"
+                    buttonStyle={styles.genderButton}
+                    onPress={() => onChange("male")}
+                    loading={isLoading}
+                  />
+                  <Button
+                    title="여아"
+                    variant={value === "female" ? "primary" : "outline"}
+                    size="small"
+                    buttonStyle={styles.genderButton}
+                    onPress={() => onChange("female")}
+                    loading={isLoading}
+                  />
+                </View>
+              </View>
+            )}
+          />
 
           <View style={styles.buttonContainer}>
             <Button
               title="프로필 생성"
-              onPress={handleCreate}
+              onPress={handleSubmit(onSubmit)}
               loading={isLoading}
             />
           </View>

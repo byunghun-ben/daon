@@ -110,24 +110,36 @@ export const useImageUpload = (
     });
   };
 
-  const uploadToSupabase = async (imageUri: string): Promise<string | null> => {
+  const uploadToR2 = async (
+    imageUri: string,
+    fileName: string,
+    fileType: string,
+    fileSize?: number,
+  ): Promise<string | null> => {
     try {
-      // TODO: Supabase Storage 업로드 구현
-      // 현재는 임시로 로컬 URI 반환
-      console.log("Uploading image to Supabase:", imageUri);
+      const { uploadFile } = await import("../../api/upload");
 
-      // 실제 구현에서는 다음과 같이 진행:
-      // 1. FormData 생성
-      // 2. Supabase Storage API 호출
-      // 3. 업로드된 파일의 public URL 반환
+      // 파일 크기가 없으면 추정값 사용
+      const size = fileSize || 1024 * 1024; // 1MB로 추정
 
-      // 임시 구현: 진행률 시뮬레이션
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      const result = await uploadFile(
+        {
+          uri: imageUri,
+          type: fileType,
+          name: fileName,
+          size,
+        },
+        "profile", // 기본적으로 프로필 카테고리 사용
+        (progress) => {
+          setUploadProgress(progress);
+        },
+      );
+
+      if (result.success && result.publicUrl) {
+        return result.publicUrl;
+      } else {
+        throw new Error(result.error || "업로드에 실패했습니다");
       }
-
-      return imageUri; // 임시로 로컬 URI 반환
     } catch (error) {
       console.error("Upload failed:", error);
       throw new Error("이미지 업로드에 실패했습니다.");
@@ -156,8 +168,17 @@ export const useImageUpload = (
         throw new Error("선택된 이미지가 없습니다.");
       }
 
-      // Supabase에 업로드
-      const uploadedUrl = await uploadToSupabase(asset.uri);
+      // R2에 업로드
+      const fileName = asset.fileName || `image_${Date.now()}.jpg`;
+      const fileType = asset.type || "image/jpeg";
+      const fileSize = asset.fileSize;
+
+      const uploadedUrl = await uploadToR2(
+        asset.uri,
+        fileName,
+        fileType,
+        fileSize,
+      );
       return uploadedUrl;
     } catch (error) {
       console.error("Image upload error:", error);

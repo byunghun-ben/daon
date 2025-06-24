@@ -1,10 +1,11 @@
 import { Router } from "express";
+import activitiesRoutes from "./activities.routes";
 import authRoutes from "./auth.routes";
 import childrenRoutes from "./children.routes";
-import guardiansRoutes from "./guardians.routes";
-import activitiesRoutes from "./activities.routes";
-import growthRoutes from "./growth.routes";
 import diaryRoutes from "./diary.routes";
+import growthRoutes from "./growth.routes";
+import guardiansRoutes from "./guardians.routes";
+import uploadRoutes from "./upload.routes";
 
 const router: Router = Router();
 
@@ -29,11 +30,16 @@ router.get("/", (req, res) => {
         "DELETE /children/:id": "Delete child profile (requires auth)",
       },
       guardians: {
-        "POST /guardians/children/:child_id/invite": "Invite guardian (requires auth)",
-        "GET /guardians/children/:child_id/guardians": "Get child guardians (requires auth)",
-        "DELETE /guardians/children/:child_id/guardians/:guardian_id": "Remove guardian (requires auth)",
-        "POST /guardians/accept-invitation": "Accept guardian invitation (requires auth)",
-        "GET /guardians/pending-invitations": "Get pending invitations (requires auth)",
+        "POST /guardians/children/:child_id/invite":
+          "Invite guardian (requires auth)",
+        "GET /guardians/children/:child_id/guardians":
+          "Get child guardians (requires auth)",
+        "DELETE /guardians/children/:child_id/guardians/:guardian_id":
+          "Remove guardian (requires auth)",
+        "POST /guardians/accept-invitation":
+          "Accept guardian invitation (requires auth)",
+        "GET /guardians/pending-invitations":
+          "Get pending invitations (requires auth)",
       },
       activities: {
         "POST /activities": "Create activity record (requires auth)",
@@ -41,7 +47,8 @@ router.get("/", (req, res) => {
         "GET /activities/:id": "Get specific activity (requires auth)",
         "PUT /activities/:id": "Update activity record (requires auth)",
         "DELETE /activities/:id": "Delete activity record (requires auth)",
-        "GET /activities/summary/:child_id": "Get activity summary for child (requires auth)",
+        "GET /activities/summary/:child_id":
+          "Get activity summary for child (requires auth)",
       },
       growth: {
         "POST /growth": "Create growth record (requires auth)",
@@ -49,7 +56,8 @@ router.get("/", (req, res) => {
         "GET /growth/:id": "Get specific growth record (requires auth)",
         "PUT /growth/:id": "Update growth record (requires auth)",
         "DELETE /growth/:id": "Delete growth record (requires auth)",
-        "GET /growth/chart/:child_id": "Get growth chart data for child (requires auth)",
+        "GET /growth/chart/:child_id":
+          "Get growth chart data for child (requires auth)",
       },
       diary: {
         "POST /diary": "Create diary entry (requires auth)",
@@ -58,6 +66,12 @@ router.get("/", (req, res) => {
         "PUT /diary/:id": "Update diary entry (requires auth)",
         "DELETE /diary/:id": "Delete diary entry (requires auth)",
         "POST /diary/milestones": "Add milestone (requires auth)",
+      },
+      upload: {
+        "POST /upload/presigned-url":
+          "Generate presigned URL for file upload (requires auth)",
+        "POST /upload/confirm":
+          "Confirm file upload completion (requires auth)",
       },
     },
   });
@@ -70,5 +84,6 @@ router.use("/guardians", guardiansRoutes);
 router.use("/activities", activitiesRoutes);
 router.use("/growth", growthRoutes);
 router.use("/diary", diaryRoutes);
+router.use("/upload", uploadRoutes);
 
 export default router;

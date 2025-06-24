@@ -91,10 +91,14 @@ temp/
 *.sqlite
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
+
+# VSCode - track shared settings but ignore personal ones
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.code-workspace
 
 # OS
 .DS_Store

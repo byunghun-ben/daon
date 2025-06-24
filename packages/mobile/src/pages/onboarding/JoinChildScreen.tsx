@@ -4,6 +4,7 @@ import { childrenApi } from "../../shared/api/children";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button, Card, Input } from "../../shared/ui";
 import type { OnboardingJoinChildScreenProps } from "../../shared/types/navigation";
+import { useOnboardingStore } from "../../shared/store";
 
 type Role = "guardian" | "viewer";
 
@@ -14,7 +15,7 @@ export const JoinChildScreen = ({
   const [inviteCode, setInviteCode] = useState("");
   const [selectedRole, setSelectedRole] = useState<Role>("guardian");
   const [isLoading, setIsLoading] = useState(false);
-  const { onComplete } = route.params || {};
+  const completeOnboarding = useOnboardingStore((state) => state.complete);
 
   const handleJoinChild = async () => {
     if (!inviteCode.trim()) {
@@ -32,16 +33,14 @@ export const JoinChildScreen = ({
 
       Alert.alert(
         "성공",
-        `${response.child.name}의 ${selectedRole === "guardian" ? "보호자" : "관람자"}로 등록되었습니다!`,
+        `${response.child.name}의 ${
+          selectedRole === "guardian" ? "보호자" : "관람자"
+        }로 등록되었습니다!`,
         [
           {
             text: "확인",
             onPress: () => {
-              if (onComplete) {
-                onComplete();
-              } else {
-                navigation.navigate("ChildOnboarding");
-              }
+              completeOnboarding();
             },
           },
         ],

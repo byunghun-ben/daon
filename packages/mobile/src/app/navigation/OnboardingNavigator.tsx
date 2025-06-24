@@ -5,8 +5,9 @@ import {
   ChildOnboardingScreen,
   JoinChildScreen,
 } from "../../pages/onboarding";
-import { ChildProfileScreen } from "../../pages/children";
+import { CreateChildScreen } from "../../pages/children";
 import { useOnboarding } from "../../shared/lib/hooks/useOnboarding";
+import { useOnboardingStore } from "../../shared/store";
 import { useAuth } from "./AppNavigator";
 import type { OnboardingStackParamList } from "../../shared/types/navigation";
 
@@ -25,6 +26,13 @@ export const OnboardingNavigator = ({
     isLoading,
     refreshNotificationPermission,
   } = useOnboarding();
+
+  const setOnComplete = useOnboardingStore((state) => state.setOnComplete);
+
+  // 컴포넌트 마운트 시 onComplete 콜백을 스토어에 저장
+  useEffect(() => {
+    setOnComplete(onComplete);
+  }, [onComplete, setOnComplete]);
 
   useEffect(() => {
     if (!isLoading && !needsNotificationPermission && !needsChildRegistration) {
@@ -69,8 +77,10 @@ export const OnboardingNavigator = ({
     }
   };
 
+  const complete = useOnboardingStore((state) => state.complete);
+
   const handleChildOnboardingComplete = () => {
-    onComplete();
+    complete();
   };
 
   return (
@@ -107,8 +117,8 @@ export const OnboardingNavigator = ({
         {(props) => <JoinChildScreen {...props} />}
       </Stack.Screen>
 
-      <Stack.Screen name="ChildProfile" options={{ title: "아이 프로필" }}>
-        {(props) => <ChildProfileScreen {...props} />}
+      <Stack.Screen name="CreateChild" options={{ title: "아이 추가" }}>
+        {(props) => <CreateChildScreen {...props} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

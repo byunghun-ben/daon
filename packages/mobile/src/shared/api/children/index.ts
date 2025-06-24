@@ -5,7 +5,7 @@ import {
   UpdateChildRequest,
   JoinChildRequest,
 } from "@daon/shared";
-import { apiClient } from "./client";
+import { apiClient } from "../client";
 
 // Children API functions
 export const childrenApi = {
@@ -36,3 +36,6 @@ export const childrenApi = {
     return apiClient.post<ChildResponse>("/children/join", data);
   },
 };
+
+// Re-export hooks
+export * from "./hooks";

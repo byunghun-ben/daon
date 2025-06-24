@@ -7,7 +7,6 @@ import type { CompositeNavigationProp } from "@react-navigation/native";
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
-  CreateChild: undefined;
   JoinChild: undefined;
 };
 
@@ -22,21 +21,17 @@ export type MainTabParamList = {
 export type OnboardingStackParamList = {
   NotificationPermission: undefined;
   ChildOnboarding: undefined;
-  ChildProfile: {
-    childId?: string;
-    isEditing?: boolean;
-    isFirstChild?: boolean;
-    onComplete?: () => void;
-  };
-  JoinChild: {
-    onComplete?: () => void;
-  };
+  CreateChild: undefined;
+  JoinChild: undefined;
 };
 
 export type AppStackParamList = {
   MainTabs: undefined;
   // Children Management
   ChildrenList: undefined;
+  CreateChild: {
+    onComplete?: () => void;
+  };
   ChildProfile: {
     childId?: string;
     isEditing?: boolean;
@@ -116,7 +111,6 @@ export type RootScreenProps<T extends keyof RootStackParamList> = {
 // 특정 스크린별 Props 타입 정의
 export type SignInScreenProps = AuthScreenProps<"SignIn">;
 export type SignUpScreenProps = AuthScreenProps<"SignUp">;
-export type CreateChildScreenProps = AuthScreenProps<"CreateChild">;
 export type JoinChildScreenProps = AuthScreenProps<"JoinChild">;
 
 export type HomeScreenProps = MainTabScreenProps<"Home">;
@@ -129,11 +123,12 @@ export type OnboardingNotificationPermissionScreenProps =
   OnboardingScreenProps<"NotificationPermission">;
 export type OnboardingChildOnboardingScreenProps =
   OnboardingScreenProps<"ChildOnboarding">;
-export type OnboardingChildProfileScreenProps =
-  OnboardingScreenProps<"ChildProfile">;
+export type OnboardingCreateChildScreenProps =
+  OnboardingScreenProps<"CreateChild">;
 export type OnboardingJoinChildScreenProps = OnboardingScreenProps<"JoinChild">;
 
 export type ChildrenListScreenProps = AppScreenProps<"ChildrenList">;
+export type CreateChildScreenProps = AppScreenProps<"CreateChild">;
 export type ChildProfileScreenProps = AppScreenProps<"ChildProfile">;
 export type RecordActivityScreenProps = AppScreenProps<"RecordActivity">;
 export type ActivityListScreenProps = AppScreenProps<"ActivityList">;

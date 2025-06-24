@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { checkNotifications } from "react-native-permissions";
-import { useQuery } from "@tanstack/react-query";
-import { childrenApi } from "../../api/children";
+import { useChildrenQuery } from "../../api/children";
 
 interface OnboardingState {
   needsNotificationPermission: boolean;
@@ -29,10 +28,7 @@ export const useOnboarding = () => {
   }, []);
 
   // 아이 목록 조회
-  const { data: children, isLoading: isChildrenLoading } = useQuery({
-    queryKey: ["children"],
-    queryFn: childrenApi.getChildren,
-  });
+  const { data: children, isLoading: isChildrenLoading } = useChildrenQuery();
 
   const onboardingState: OnboardingState = {
     needsNotificationPermission: !notificationPermissionGranted,

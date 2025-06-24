@@ -21,6 +21,9 @@ import type {
 // Auth Screens
 import { SignInScreen, SignUpScreen } from "../../pages/auth";
 
+// Children Screens
+import { CreateChildScreen } from "../../pages/children";
+
 // Main Screens
 import { HomeScreen } from "../../pages/home";
 import {
@@ -154,6 +157,11 @@ function AppNavigator() {
         name="ChildrenList"
         component={ChildrenListScreen}
         options={{ title: "아이 관리" }}
+      />
+      <AppStack.Screen
+        name="CreateChild"
+        component={CreateChildScreen}
+        options={{ title: "아이 추가" }}
       />
       <AppStack.Screen
         name="ChildProfile"

@@ -13,16 +13,11 @@ export const ChildOnboardingScreen = ({
   onComplete,
 }: ChildOnboardingScreenProps) => {
   const handleCreateChild = () => {
-    navigation.navigate("ChildProfile", { 
-      isFirstChild: true,
-      onComplete 
-    });
+    navigation.navigate("CreateChild");
   };
 
   const handleJoinExistingChild = () => {
-    navigation.navigate("JoinChild", { 
-      onComplete 
-    });
+    navigation.navigate("JoinChild");
   };
 
   const styles = useThemedStyles((theme) => ({
@@ -60,12 +55,8 @@ export const ChildOnboardingScreen = ({
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.icon}>
-          👶
-        </Text>
-        <Text style={styles.title}>
-          아이 등록하기
-        </Text>
+        <Text style={styles.icon}>👶</Text>
+        <Text style={styles.title}>아이 등록하기</Text>
         <Text style={styles.description}>
           다온에서 아이의 소중한 순간들을{"\n"}
           기록해보세요.{"\n\n"}
@@ -75,10 +66,7 @@ export const ChildOnboardingScreen = ({
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title="새 아이 등록하기"
-          onPress={handleCreateChild}
-        />
+        <Button title="새 아이 등록하기" onPress={handleCreateChild} />
         <Button
           title="기존 아이 참여하기"
           variant="secondary"

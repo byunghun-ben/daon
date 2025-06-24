@@ -119,11 +119,35 @@ android/app/src/main/java/com/yourprojectname/MainApplication.java
 
 # iOS
 ios/build/
-ios/*.xcodeproj/xcuserdata/
-ios/*.xcworkspace/xcuserdata/
+ios/DerivedData/
 ios/Pods/
 ios/.xcode.env
-ios/DerivedData/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcworkspace/xcuserdata/
+
+# Xcode User Settings (개인 설정 파일들)
+*.xcuserstate
+*.xcuserdatad/
+**/xcuserdata/
+**/UserInterfaceState.xcuserstate
+
+# Xcode Build Files
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcworkspace/
+!ios/*.xcodeproj/project.pbxproj
+!ios/*.xcworkspace/contents.xcworkspacedata
+
+# Xcode Workspace Settings
+ios/*.xcodeproj/project.xcworkspace/xcshareddata/
+ios/*.xcworkspace/xcshareddata/
+
+# iOS Frameworks
+ios/Frameworks/
+
+# iOS Archive
+ios/*.ipa
+ios/*.app
+ios/*.dSYM/
 
 # Metro Bundler
 .expo/

@@ -125,6 +125,8 @@ export class UploadController {
         userId,
         fileKey,
         publicUrl: result.publicUrl,
+        fileSize: result.fileInfo.size,
+        contentType: result.fileInfo.contentType,
       });
 
       res.status(200).json({

@@ -158,14 +158,14 @@ export const UpdateActivityRequestSchema = z.object({
   notes: z.string().nullable().optional(),
 });
 
-// Filter schemas
+// Filter schemas - for query parameters (all strings that need to be transformed)
 export const ActivityFiltersSchema = z.object({
   childId: z.uuid().optional(),
   type: ActivityTypeSchema.optional(),
   dateFrom: z.iso.datetime().optional(),
   dateTo: z.iso.datetime().optional(),
-  limit: z.number().positive().max(100).default(20),
-  offset: z.number().nonnegative().default(0),
+  limit: z.coerce.number().positive().max(100).default(20),
+  offset: z.coerce.number().nonnegative().default(0),
 });
 
 // Response schemas
@@ -220,4 +220,6 @@ export type UpdateActivityRequest = z.infer<typeof UpdateActivityRequestSchema>;
 export type ActivityFilters = z.infer<typeof ActivityFiltersSchema>;
 export type ActivityResponse = z.infer<typeof ActivityResponseSchema>;
 export type ActivitiesResponse = z.infer<typeof ActivitiesResponseSchema>;
-export type ActivitySummaryResponse = z.infer<typeof ActivitySummaryResponseSchema>;
+export type ActivitySummaryResponse = z.infer<
+  typeof ActivitySummaryResponseSchema
+>;

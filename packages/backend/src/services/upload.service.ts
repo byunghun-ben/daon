@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import crypto from "crypto";
 
@@ -23,6 +27,20 @@ interface PresignedUrlResponse {
   fileKey: string;
   publicUrl: string;
   expiresIn: number;
+}
+
+interface FileInfo {
+  size: number;
+  contentType: string;
+  lastModified: Date;
+  etag: string;
+  metadata: Record<string, string>;
+}
+
+interface ConfirmUploadResponse {
+  success: boolean;
+  publicUrl: string;
+  fileInfo: FileInfo;
 }
 
 export class UploadService {
@@ -156,18 +174,52 @@ export class UploadService {
 
   async confirmUpload(
     fileKey: string,
-    userId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
-  ): Promise<{ success: boolean; publicUrl: string }> {
-    // TODO: 실제 파일 업로드 확인 로직 구현
-    // 1. S3에서 파일 존재 확인
-    // 2. 데이터베이스에 파일 정보 저장
-    // 3. 필요시 이미지 썸네일 생성
+    userId: string,
+  ): Promise<ConfirmUploadResponse> {
+    try {
+      // 1. S3에서 파일 존재 확인
+      const headCommand = new HeadObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileKey,
+      });
 
-    const publicUrl = `${this.publicBaseUrl}/${fileKey}`;
+      const headResult = await this.s3Client.send(headCommand);
 
-    return {
-      success: true,
-      publicUrl,
-    };
+      // 2. 메타데이터에서 userId 검증
+      const metadataUserId = headResult.Metadata?.userid;
+      if (metadataUserId !== userId) {
+        throw new Error("파일 소유자가 일치하지 않습니다.");
+      }
+
+      // 3. 파일 정보 수집
+      const fileInfo = {
+        size: headResult.ContentLength || 0,
+        contentType: headResult.ContentType || "",
+        lastModified: headResult.LastModified || new Date(),
+        etag: headResult.ETag || "",
+        metadata: headResult.Metadata || {},
+      };
+
+      const publicUrl = `${this.publicBaseUrl}/${fileKey}`;
+
+      return {
+        success: true,
+        publicUrl,
+        fileInfo,
+      };
+    } catch (error) {
+      console.error("Failed to confirm upload:", error);
+
+      if (error instanceof Error) {
+        if (error.name === "NotFound") {
+          throw new Error("업로드된 파일을 찾을 수 없습니다.");
+        }
+        if (error.message.includes("파일 소유자가 일치하지 않습니다")) {
+          throw error;
+        }
+      }
+
+      throw new Error("파일 업로드 확인에 실패했습니다.");
+    }
   }
 }

@@ -19,7 +19,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     credentials: true,
-  })
+  }),
 );
 
 // Body parsing middleware
@@ -57,13 +57,18 @@ app.get("/", (req, res) => {
 import apiRoutes from "./routes";
 app.use("/api/v1", apiRoutes);
 
+// Extended Error interface with status property
+interface HttpError extends Error {
+  status?: number;
+}
+
 // Global error handler
 app.use(
   (
-    err: any,
+    err: HttpError,
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     logger.error("Unhandled error:", err);
 
@@ -78,7 +83,7 @@ app.use(
           : err.message,
       ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
     });
-  }
+  },
 );
 
 // 404 handler

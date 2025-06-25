@@ -1,54 +1,56 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  RefreshControl,
-  TouchableOpacity,
   Alert,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import Card from "../../shared/ui/Card";
-import Button from "../../shared/ui/Button";
-import { useChildren } from "../../shared/api/hooks/useChildren";
 import {
-  useTodayActivities,
   useRecentActivities,
+  useTodayActivities,
 } from "../../shared/api/hooks/useActivities";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { HomeScreenProps } from "../../shared/types/navigation";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import {
+  ChildSelector,
+  QuickActions,
+  TodaySummary,
+  RecentActivities,
+} from "../../widgets";
+import type { ActivityApi } from "@daon/shared";
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-
-  // API 호출
+  // Active child 관리
   const {
-    data: childrenData,
-    isLoading: childrenLoading,
-    error: childrenError,
-    refetch: refetchChildren,
-  } = useChildren();
-
-  const children = childrenData?.children || [];
-  const currentChildId = selectedChildId || children[0]?.id;
+    activeChildId,
+    activeChild,
+    isLoading: isLoadingActiveChild,
+    error: activeChildError,
+    refetchChildren,
+  } = useActiveChild();
 
   const {
     data: todayData,
     isLoading: todayLoading,
     refetch: refetchToday,
-  } = useTodayActivities(currentChildId || "");
+  } = useTodayActivities(activeChildId);
 
   const {
     data: recentData,
     isLoading: recentLoading,
     refetch: refetchRecent,
-  } = useRecentActivities(currentChildId || "", 5);
+  } = useRecentActivities(activeChildId, 5);
 
   const todayActivities = todayData?.activities || [];
   const recentActivities = recentData?.activities || [];
 
-  const isLoading = childrenLoading || todayLoading || recentLoading;
+  const isLoading = isLoadingActiveChild || todayLoading || recentLoading;
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(async () => {
@@ -62,42 +64,31 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     }
   }, [refetchChildren, refetchToday, refetchRecent]);
 
-  // 오늘 활동 요약 계산
-  const getTodaySummary = () => {
-    const summary = {
-      feeding: 0,
-      diaper: 0,
-      sleep: 0,
-      tummy_time: 0,
-    };
+  // 핸들러 함수들
 
-    todayActivities.forEach((activity) => {
-      if (activity.type in summary) {
-        summary[activity.type as keyof typeof summary]++;
-      }
-    });
-
-    return summary;
-  };
-
-  const summary = getTodaySummary();
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
+  const handleActivityPress = (activity: ActivityApi) => {
+    if (!activeChildId) return;
+    navigation.navigate("RecordActivity", {
+      activityType: activity.type,
+      activityId: activity.id,
+      childId: activeChildId,
+      isEditing: true,
     });
   };
 
-  const formatActivityType = (type: string) => {
-    const typeMap = {
-      feeding: "수유",
-      diaper: "기저귀",
-      sleep: "수면",
-      tummy_time: "배밀이",
-      custom: "사용자 정의",
-    };
-    return typeMap[type as keyof typeof typeMap] || type;
+  const handleViewAllActivities = () => {
+    if (!activeChildId) return;
+    navigation.navigate("ActivityList", {
+      childId: activeChildId,
+    });
+  };
+
+  const handleFirstActivityPress = () => {
+    if (!activeChildId) return;
+    navigation.navigate("RecordActivity", {
+      activityType: "feeding",
+      childId: activeChildId,
+    });
   };
 
   const styles = useThemedStyles((theme) => ({
@@ -215,7 +206,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     },
   }));
 
-  if (childrenError) {
+  if (activeChildError) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.emptyContainer}>
@@ -238,6 +229,30 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     );
   }
 
+  // 활성화된 아이가 없는 경우 (엣지케이스)
+  if (!activeChildId || !activeChild) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>다온</Text>
+          <Text style={styles.subtitle}>아이를 추가해주세요</Text>
+        </View>
+        <View style={styles.content}>
+          <Card>
+            <Text style={styles.emptyText}>
+              아직 등록된 아이가 없습니다.{"\n"}
+              아이를 먼저 등록해주세요.
+            </Text>
+            <Button
+              title="아이 등록하기"
+              onPress={() => navigation.navigate("ChildrenList")}
+            />
+          </Card>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -247,172 +262,49 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         }
       >
         <View style={styles.header}>
-          <Text style={styles.title}>다온</Text>
-          <Text style={styles.subtitle}>
-            {children.length > 0 ? "오늘의 활동" : "아이를 추가해주세요"}
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>다온</Text>
+              <Text style={styles.subtitle}>오늘의 활동</Text>
+            </View>
+            {/* Child Selector in Header */}
+            <ChildSelector
+              onChildChange={() => {
+                // 아이가 변경되면 데이터 새로고침
+                refetchToday();
+                refetchRecent();
+              }}
+            />
+          </View>
         </View>
 
         <View style={styles.content}>
-          {/* Child Selector */}
-          {children.length > 1 && (
-            <View style={styles.childSelector}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {children.map((child) => (
-                  <Button
-                    key={child.id}
-                    title={child.name}
-                    variant={
-                      currentChildId === child.id ? "primary" : "outline"
-                    }
-                    size="small"
-                    onPress={() => setSelectedChildId(child.id)}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-          )}
+          {/* Quick Actions */}
+          <QuickActions
+            activeChildId={activeChildId}
+            onActivityComplete={() => {
+              // Refresh data when activity is completed
+              refetchToday();
+              refetchRecent();
+            }}
+          />
 
-          {children.length === 0 ? (
-            <Card>
-              <Text style={styles.emptyText}>
-                아직 등록된 아이가 없습니다.{"\n"}
-                아이를 먼저 등록해주세요.
-              </Text>
-              <Button
-                title="아이 등록하기"
-                onPress={() => navigation.navigate("ChildrenList")}
-              />
-            </Card>
-          ) : (
-            <>
-              {/* Quick Actions */}
-              <View style={styles.quickActions}>
-                <Button
-                  title="수유 기록"
-                  size="small"
-                  buttonStyle={styles.actionButton}
-                  onPress={() =>
-                    navigation.navigate("RecordActivity", {
-                      activityType: "feeding",
-                      childId: currentChildId,
-                    })
-                  }
-                />
-                <Button
-                  title="기저귀 교체"
-                  size="small"
-                  variant="secondary"
-                  buttonStyle={styles.actionButton}
-                  onPress={() =>
-                    navigation.navigate("RecordActivity", {
-                      activityType: "diaper",
-                      childId: currentChildId,
-                    })
-                  }
-                />
-                <Button
-                  title="수면 기록"
-                  size="small"
-                  variant="outline"
-                  buttonStyle={styles.actionButton}
-                  onPress={() =>
-                    navigation.navigate("RecordActivity", {
-                      activityType: "sleep",
-                      childId: currentChildId,
-                    })
-                  }
-                />
-              </View>
+          {/* Today Summary */}
+          <TodaySummary todayActivities={todayActivities} />
 
-              {/* Today Summary */}
-              <Card style={{ marginBottom: styles.content.padding }}>
-                <Text style={styles.cardTitle}>오늘 요약</Text>
-                <View style={styles.summaryGrid}>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryValue}>{summary.feeding}</Text>
-                    <Text style={styles.summaryLabel}>수유</Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryValue}>{summary.diaper}</Text>
-                    <Text style={styles.summaryLabel}>기저귀</Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryValue}>{summary.sleep}</Text>
-                    <Text style={styles.summaryLabel}>수면</Text>
-                  </View>
-                  <View style={styles.summaryItem}>
-                    <Text style={styles.summaryValue}>
-                      {summary.tummy_time}
-                    </Text>
-                    <Text style={styles.summaryLabel}>배밀이</Text>
-                  </View>
-                </View>
-              </Card>
-
-              {/* Recent Activities */}
-              <Card>
-                <Text style={styles.sectionTitle}>최근 활동</Text>
-                {recentActivities.length === 0 ? (
-                  <>
-                    <Text style={styles.emptyText}>
-                      아직 기록된 활동이 없습니다.
-                    </Text>
-                    <Button
-                      title="첫 활동 기록하기"
-                      variant="outline"
-                      onPress={() =>
-                        navigation.navigate("RecordActivity", {
-                          activityType: "feeding",
-                          childId: currentChildId,
-                        })
-                      }
-                    />
-                  </>
-                ) : (
-                  <>
-                    {recentActivities.map((activity) => (
-                      <TouchableOpacity
-                        key={activity.id}
-                        style={styles.activityItem}
-                        onPress={() =>
-                          navigation.navigate("RecordActivity", {
-                            activityType: activity.type,
-                            activityId: activity.id,
-                            childId: currentChildId,
-                            isEditing: true,
-                          })
-                        }
-                      >
-                        <View style={styles.activityHeader}>
-                          <Text style={styles.activityType}>
-                            {formatActivityType(activity.type)}
-                          </Text>
-                          <Text style={styles.activityTime}>
-                            {formatTime(activity.timestamp)}
-                          </Text>
-                        </View>
-                        {activity.notes && (
-                          <Text style={styles.activityNotes} numberOfLines={2}>
-                            {activity.notes}
-                          </Text>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                    <Button
-                      title="모든 활동 보기"
-                      variant="outline"
-                      onPress={() =>
-                        navigation.navigate("ActivityList", {
-                          childId: currentChildId,
-                        })
-                      }
-                    />
-                  </>
-                )}
-              </Card>
-            </>
-          )}
+          {/* Recent Activities */}
+          <RecentActivities
+            activities={recentActivities}
+            onActivityPress={handleActivityPress}
+            onViewAllPress={handleViewAllActivities}
+            onFirstActivityPress={handleFirstActivityPress}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

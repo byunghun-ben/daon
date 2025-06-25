@@ -86,7 +86,7 @@ export function useDeleteActivity() {
 }
 
 // Today's activities helper
-export function useTodayActivities(childId: string) {
+export function useTodayActivities(childId: string | null) {
   const today = new Date();
   const startOfDay = new Date(
     today.getFullYear(),
@@ -104,10 +104,13 @@ export function useTodayActivities(childId: string) {
 
   return useQuery({
     queryKey: [
-      ...ACTIVITIES_KEYS.list({ childId, limit: 20, offset: 0 }),
+      ...ACTIVITIES_KEYS.list({ childId: childId || "", limit: 20, offset: 0 }),
       "today",
     ],
     queryFn: async () => {
+      if (!childId) {
+        return { activities: [], total: 0 };
+      }
       const response = await activitiesApi.getActivities({
         childId,
         dateFrom: startOfDay.toISOString(),
@@ -122,18 +125,22 @@ export function useTodayActivities(childId: string) {
 }
 
 // Recent activities helper
-export function useRecentActivities(childId: string, limit = 10) {
+export function useRecentActivities(childId: string | null, limit = 10) {
   return useQuery({
     queryKey: [
-      ...ACTIVITIES_KEYS.list({ childId, limit, offset: 0 }),
+      ...ACTIVITIES_KEYS.list({ childId: childId || "", limit, offset: 0 }),
       "recent",
     ],
-    queryFn: () =>
-      activitiesApi.getActivities({
+    queryFn: () => {
+      if (!childId) {
+        return { activities: [], total: 0 };
+      }
+      return activitiesApi.getActivities({
         childId,
         limit,
         offset: 0,
-      }),
+      });
+    },
     enabled: !!childId,
   });
 }

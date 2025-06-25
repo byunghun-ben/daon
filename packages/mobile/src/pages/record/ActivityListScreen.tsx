@@ -10,7 +10,8 @@ import {
   View,
 } from "react-native";
 import { useActivities } from "../../shared/api/hooks/useActivities";
-import { useChildren } from "../../shared/api/hooks/useChildren";
+import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { ChildSelector } from "../../widgets";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
@@ -45,26 +46,38 @@ export default function ActivityListScreen({
   navigation,
   route,
 }: ActivityListScreenProps) {
-  const { childId: initialChildId } = route?.params || {};
+  const { childId: routeChildId } = route?.params || {};
 
-  // React Query hooks
+  // Active Child 관리
   const {
-    data: childrenData,
-    isLoading: childrenLoading,
-    refetch: refetchChildren,
-  } = useChildren();
-  const children = childrenData?.children || [];
+    activeChildId,
+    availableChildren,
+    isLoading: isLoadingActiveChild,
+    switchChild,
+    refetchChildren,
+  } = useActiveChild();
 
-  const [selectedChild, setSelectedChild] = useState<string>(
-    initialChildId || ""
-  );
-  const currentChildId = selectedChild || children[0]?.id;
+  // 라우트에서 전달된 childId가 있으면 해당 아이로 전환
+  React.useEffect(() => {
+    if (routeChildId && routeChildId !== activeChildId) {
+      switchChild(routeChildId);
+    }
+  }, [routeChildId, activeChildId, switchChild]);
+
+  const currentChildId = activeChildId;
 
   const [filters, setFilters] = useState<ActivityFilters>({
     childId: currentChildId || "",
     limit: 50,
     offset: 0,
   });
+
+  // activeChildId가 변경되면 필터 업데이트
+  React.useEffect(() => {
+    if (currentChildId) {
+      setFilters((prev) => ({ ...prev, childId: currentChildId }));
+    }
+  }, [currentChildId]);
 
   const {
     data: activitiesData,
@@ -73,7 +86,7 @@ export default function ActivityListScreen({
   } = useActivities(filters);
 
   const activities = activitiesData?.activities || [];
-  const isLoading = childrenLoading || activitiesLoading;
+  const isLoading = isLoadingActiveChild || activitiesLoading;
   const [refreshing, setRefreshing] = useState(false);
 
   const styles = useThemedStyles((theme) => ({
@@ -197,23 +210,6 @@ export default function ActivityListScreen({
     },
   }));
 
-  // Auto-select first child if none selected
-  React.useEffect(() => {
-    if (!selectedChild && children.length > 0) {
-      setSelectedChild(children[0].id);
-    }
-  }, [children, selectedChild]);
-
-  // Update filters when child selection changes
-  React.useEffect(() => {
-    if (currentChildId) {
-      setFilters((prev) => ({
-        ...prev,
-        childId: currentChildId,
-      }));
-    }
-  }, [currentChildId]);
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -241,7 +237,7 @@ export default function ActivityListScreen({
     const start = new Date(startedAt);
     const end = new Date(endedAt);
     const diffMinutes = Math.floor(
-      (end.getTime() - start.getTime()) / (1000 * 60)
+      (end.getTime() - start.getTime()) / (1000 * 60),
     );
 
     if (diffMinutes < 60) {
@@ -267,7 +263,7 @@ export default function ActivityListScreen({
         label: "소요시간",
         value: formatDuration(
           activity.timestamp,
-          activity.data.endedAt as string
+          activity.data.endedAt as string,
         ),
       });
     }
@@ -371,35 +367,28 @@ export default function ActivityListScreen({
         }
       >
         <View style={styles.header}>
-          <Text style={styles.title}>활동 기록</Text>
-          <Text style={styles.subtitle}>아이의 일상 활동을 확인하세요</Text>
-        </View>
-
-        {/* Child Selection */}
-        {children.length > 1 && (
-          <View style={styles.childSelector}>
-            {children.map((child) => (
-              <TouchableOpacity
-                key={child.id}
-                style={[
-                  styles.childButton,
-                  currentChildId === child.id && styles.childButtonSelected,
-                ]}
-                onPress={() => setSelectedChild(child.id)}
-              >
-                <Text
-                  style={[
-                    styles.childButtonText,
-                    currentChildId === child.id &&
-                      styles.childButtonTextSelected,
-                  ]}
-                >
-                  {child.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>활동 기록</Text>
+              <Text style={styles.subtitle}>아이의 일상 활동을 확인하세요</Text>
+            </View>
+            {availableChildren.length > 0 && (
+              <ChildSelector
+                onChildChange={() => {
+                  // 아이가 변경되면 활동 목록 새로고침
+                  refetchActivities();
+                }}
+              />
+            )}
           </View>
-        )}
+        </View>
 
         {/* Activities List */}
         {isLoading ? (

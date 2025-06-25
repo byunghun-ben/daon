@@ -79,21 +79,28 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
   const panResponder = useRef(
     PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dy) > 5;
+        // 세로 스크롤이 가로 스크롤보다 크고, 아래로 드래그할 때만 응답
+        return (
+          Math.abs(gestureState.dy) > Math.abs(gestureState.dx) &&
+          gestureState.dy > 10
+        );
       },
       onPanResponderGrant: () => {
         // 제스처 시작 시 현재 애니메이션 중지
         translateY.stopAnimation();
+        keyboardHeight.stopAnimation();
       },
       onPanResponderMove: (_, gestureState) => {
+        // 아래로 드래그할 때만 응답
         if (gestureState.dy > 0) {
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
         const shouldClose =
-          gestureState.dy > height * 0.25 || gestureState.vy > 0.8;
+          gestureState.dy > height * 0.2 || gestureState.vy > 1.2;
 
         if (shouldClose) {
           closeBottomSheet();
@@ -164,7 +171,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         Animated.timing(keyboardHeight, {
           toValue: event.endCoordinates.height,
           duration: event.duration,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }).start();
       },
     );
@@ -175,7 +182,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         Animated.timing(keyboardHeight, {
           toValue: 0,
           duration: event.duration,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }).start();
       },
     );
@@ -212,8 +219,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           style={[
             styles.container,
             {
-              transform: [{ translateY }],
-              marginBottom: keyboardHeight,
+              transform: [
+                {
+                  translateY: Animated.add(
+                    translateY,
+                    Animated.multiply(keyboardHeight, -1),
+                  ),
+                },
+              ],
             },
           ]}
           {...panResponder.panHandlers}

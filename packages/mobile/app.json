@@ -1,4 +1,30 @@
 {
-  "name": "DaonMobile",
-  "displayName": "DaonMobile"
+  "expo": {
+    "name": "다온",
+    "slug": "daon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bridgestudio.daon"
+    },
+    "android": {
+      "package": "com.bridgestudio.daon"
+    },
+    "plugins": [
+      [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3b5d113a-32c3-4cad-a067-35a244be5e92"
+      }
+    }
+  }
 }

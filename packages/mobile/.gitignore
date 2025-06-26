@@ -170,3 +170,7 @@ ios/*.dSYM/
 *.iml
 .DS_Store
 Thumbs.db
+# Expo
+.expo
+dist/
+web-build/

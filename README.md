@@ -321,6 +321,32 @@ pnpm test
 pnpm build
 ```
 
+### EAS 배포 명령어
+
+```bash
+# 모바일 디렉토리로 이동
+cd packages/mobile
+
+# 개발 빌드 (내부 테스트용)
+pnpm build:development
+
+# 프리뷰 빌드 (베타 테스트용)
+pnpm build:preview
+
+# 프로덕션 빌드 (배포용)
+pnpm build:production
+
+# 모든 플랫폼 프로덕션 빌드
+pnpm build:all
+
+# OTA 업데이트 배포
+pnpm update
+
+# 앱스토어 제출
+pnpm submit:ios      # App Store
+pnpm submit:android  # Google Play
+```
+
 ### 핵심 기술 스택
 
 #### 프론트엔드 (모바일)
@@ -341,6 +367,12 @@ pnpm build
 - **pnpm** + **Turborepo** - 모노레포 관리
 - **ESLint + Prettier** - 코드 품질
 - **Jest** - 테스트 프레임워크
+
+#### 배포 및 CI/CD
+- **EAS (Expo Application Services)** - 클라우드 빌드 및 배포
+- **EAS Build** - iOS/Android 자동 빌드
+- **EAS Update** - OTA(Over-The-Air) 업데이트
+- **EAS Submit** - 앱스토어 자동 제출
 
 ## 📱 플랫폼 지원
 

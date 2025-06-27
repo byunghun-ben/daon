@@ -3,4 +3,4 @@ packages:
   - packages/*
 onlyBuiltDependencies:
   - supabase
-# nodeLinker: hoisted
+nodeLinker: hoisted

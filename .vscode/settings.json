@@ -13,5 +13,6 @@
   "eslint.workingDirectories": ["packages/mobile", "packages/backend"],
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "postman.settings.dotenv-detection-notification-visibility": false
+  "postman.settings.dotenv-detection-notification-visibility": false,
+  "java.compile.nullAnalysis.mode": "automatic"
 }

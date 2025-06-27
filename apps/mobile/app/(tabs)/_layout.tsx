@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import React from "react";
+import { Tabs, router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -7,9 +7,56 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { childrenApi } from "@/shared/api/children";
+import { useAuthStore } from "@/shared/store";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isAuthenticated, user } = useAuthStore();
+  const [hasChildren, setHasChildren] = useState<boolean | null>(null);
+
+  // Check authentication and children
+  useEffect(() => {
+    const checkChildrenStatus = async () => {
+      console.log("[TabLayout] checkChildrenStatus", isAuthenticated, user);
+      if (!isAuthenticated) {
+        router.replace("/(auth)/sign-in");
+        return;
+      }
+
+      if (!user) {
+        return;
+      }
+
+      try {
+        const response = await childrenApi.getChildren();
+        const childrenCount = response.children?.length || 0;
+
+        setHasChildren(childrenCount > 0);
+
+        if (childrenCount === 0) {
+          router.replace("/(onboarding)/child-setup");
+        }
+      } catch (error) {
+        console.warn("[TabLayout] Failed to fetch children:", error);
+        // If can't fetch children, assume none and redirect to onboarding
+        setHasChildren(false);
+        router.replace("/(onboarding)/child-setup");
+      }
+    };
+
+    checkChildrenStatus();
+  }, [isAuthenticated, user]);
+
+  // Don't render tabs if not authenticated or no children
+  if (!isAuthenticated || !user || hasChildren === false) {
+    return null;
+  }
+
+  // Show loading while checking children status
+  if (hasChildren === null) {
+    return null;
+  }
 
   return (
     <Tabs

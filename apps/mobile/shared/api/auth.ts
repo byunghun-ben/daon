@@ -1,10 +1,10 @@
-import { apiClient, ApiError, authUtils } from "./client";
 import {
-  SignUpRequest,
-  SignInRequest,
   AuthResponse,
+  SignInRequest,
+  SignUpRequest,
   UserApi,
 } from "@daon/shared";
+import { apiClient, ApiError, authUtils } from "./client";
 
 type SignInSuccessResponse = {
   success: true;
@@ -50,6 +50,7 @@ export const authApi = {
         data: response,
       };
     } catch (error: unknown) {
+      console.log("[authApi] signUp error", error);
       return {
         success: false,
         error: "회원가입 중 오류가 발생했습니다.",

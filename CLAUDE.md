@@ -5,10 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 다온(Daon) is a Korean parenting app for recording children's activities, growth, and development. It's a pnpm monorepo with:
-- **New Expo mobile app** (`apps/mobile`) - Currently in development
-- **Legacy React Native app** (`packages/mobile`) - Previous FSD implementation
-- **Node.js backend** (`apps/backend`) 
-- **Shared TypeScript libraries** (`packages/shared`)
+- **Expo mobile app** (`apps/mobile`) - Main mobile application with Expo Router
+- **Node.js backend** (`apps/backend`) - Express.js API server with Supabase
+- **Shared TypeScript libraries** (`packages/shared`) - Zod schemas and shared types
 
 ## Essential Development Commands
 
@@ -33,9 +32,7 @@ pnpm lint
 pnpm type-check
 ```
 
-### Mobile App Commands
-
-#### New Expo App (from apps/mobile)
+### Mobile App Commands (from apps/mobile)
 ```bash
 # Start Expo development server
 pnpm start
@@ -45,39 +42,35 @@ pnpm android            # Android
 pnpm ios               # iOS
 pnpm web               # Web browser
 
-# EAS Build commands
+# Build and deployment commands
+pnpm prebuild          # Generate native code
 pnpm build:development  # Development build
 pnpm build:preview     # Preview build for testing
 pnpm build:production  # Production build
+pnpm build:all         # Build for all platforms
 pnpm update           # Deploy OTA update
 pnpm submit:ios       # Submit to App Store
 pnpm submit:android   # Submit to Google Play
 ```
 
-#### Legacy React Native App (from packages/mobile)
-```bash
-# Start Metro bundler
-pnpm dev
-
-# Run on platforms
-pnpm ios               # iOS simulator
-pnpm android          # Android emulator
-pnpm pod-install      # Install iOS dependencies
-```
-
 ### Backend Commands (from apps/backend)
 ```bash
-# Start development server
+# Start development server with hot reload
 pnpm dev
 
-# Generate Supabase types
-pnpm db:types
+# Build and production
+pnpm build             # Compile TypeScript
+pnpm start             # Run production build
 
-# Database management
-pnpm db:push            # Push schema changes
-pnpm db:pull            # Pull schema changes
-pnpm supabase:start     # Start local Supabase
-pnpm supabase:reset     # Reset local database
+# Database and Supabase management
+pnpm db:types          # Generate TypeScript types from Supabase schema
+pnpm db:push           # Push schema changes
+pnpm db:pull           # Pull schema changes
+pnpm db:diff           # Show schema differences
+pnpm supabase:start    # Start local Supabase instance
+pnpm supabase:stop     # Stop local Supabase
+pnpm supabase:reset    # Reset local database
+pnpm supabase:seed     # Seed database with sample data
 ```
 
 ### Shared Package Commands (from packages/shared)
@@ -92,58 +85,38 @@ pnpm dev
 ## Architecture & Code Organization
 
 ### Monorepo Structure
-- **apps/mobile**: New Expo app with Expo Router (현재 개발 중)
-- **apps/backend**: Node.js Express API server
-- **packages/mobile**: Legacy React Native app with FSD architecture (레거시)
+- **apps/mobile**: Expo app with Expo Router v5 and FSD-inspired architecture
+- **apps/backend**: Node.js Express API server with Supabase integration
 - **packages/shared**: Zod schemas and shared TypeScript types
 - Uses **pnpm workspaces** with **Turborepo** for build orchestration
 
-### Mobile App Architectures
+### Mobile App Architecture (apps/mobile)
 
-#### New Expo App (apps/mobile)
-Uses **Expo Router v5** with file-based routing:
-- `app/(tabs)/` - Tab-based navigation screens
-- `components/` - Reusable UI components
-- `constants/` - App constants and themes
-- `hooks/` - Custom React hooks
-- Expo SDK 53 with React Native New Architecture enabled
+The mobile app uses **Expo Router v5** with file-based routing combined with **Feature-Sliced Design (FSD)** principles:
 
-#### Legacy React Native App (packages/mobile)
-Follows **Feature-Sliced Design (FSD)** with these layers:
+**File-based Routing** (`app/`):
+- `app/(tabs)/` - Main tab navigation (index, record, diary, growth, settings)
+- `app/(auth)/` - Authentication screens (sign-in, sign-up)
+- `app/(onboarding)/` - Onboarding flow (child-setup, permissions)
+- `app/children/` - Child management screens
+- `app/record/` - Activity recording screens
+- Other feature-specific routes
 
-**App Layer** (`src/app/`): Navigation configuration and app-level setup
-- Main navigation with authentication context
-- Onboarding flow navigation
+**FSD-Inspired Organization**:
+- **Features** (`features/`): Business logic components (auth forms, etc.)
+- **Widgets** (`widgets/`): Complex UI compositions (ChildSelector, QuickActions, etc.)
+- **Entities** (`entities/`): Domain models (activity, child, diary-entry, growth-record)
+- **Shared** (`shared/`): Reusable resources
 
-**Pages Layer** (`src/pages/`): Screen components organized by domain
-- `auth/`: Sign in/up screens
-- `children/`: Child management screens
-- `home/`: Dashboard screen
-- `record/`: Activity recording screens
-- `diary/`: Diary writing and viewing
-- `growth/`: Growth tracking screens
-- `settings/`: App settings
-
-**Widgets Layer** (`src/widgets/`): Complex UI compositions
-- `ChildSelector/`: Child selection component
-- `create-child/`: Child registration widgets
-- `home/`: Home dashboard widgets (QuickActions, RecentActivities, TodaySummary)
-- `quick-record/`: Quick activity recording widget
-
-**Features Layer** (`src/features/`): Business logic features
-- Currently only `auth/` is implemented with SignInForm/SignUpForm
-- Other directories (record-activity, track-growth, write-diary) need implementation
-
-**Entities Layer** (`src/entities/`): Domain models and business logic
-- Currently empty - needs implementation for activity, child, diary-entry, growth-record
-
-**Shared Layer** (`src/shared/`): Reusable resources
+**Shared Resources** (`shared/`):
 - `api/`: HTTP client, API hooks, TanStack Query configuration
 - `ui/`: Design system components (Button, Card, Input, etc.)
-- `store/`: Zustand stores for global state
-- `hooks/`: Shared React hooks
-- `lib/`: Utilities and helper functions
-- `types/`: TypeScript type definitions
+- `store/`: Zustand stores for global state management
+- `hooks/`: Custom React hooks
+- `lib/`: Utilities, permissions, storage, sync managers
+- `types/`: TypeScript type definitions and form schemas
+- `config/`: Theme and app configuration
+- `constants/`: App constants and query keys
 
 ### Key Technical Patterns
 
@@ -153,7 +126,7 @@ Follows **Feature-Sliced Design (FSD)** with these layers:
 - Automatic cache invalidation after mutations
 
 **HTTP Client**: Axios with interceptors for authentication
-- Base client in `shared/api/client.ts`
+- Base client in `apps/mobile/shared/api/client.ts`
 - Automatic token injection and refresh
 - Request/response error handling
 
@@ -167,14 +140,14 @@ Follows **Feature-Sliced Design (FSD)** with these layers:
 - Zod resolvers for validation
 
 **Authentication**: JWT-based with Supabase Auth
-- Authentication context in app layer
+- Authentication context and protected routing with Expo Router
 - Token management with automatic refresh
-- Protected route handling
+- Onboarding flow for new users
 
 **UI Components**: Custom design system with theming
-- Theme configuration in `shared/config/`
-- Reusable components in `shared/ui/`
-- Consistent styling patterns
+- Theme configuration in `apps/mobile/shared/config/`
+- Reusable components in `apps/mobile/shared/ui/`
+- Consistent styling patterns with React Native StyleSheet
 
 ## Development Guidelines
 
@@ -189,14 +162,16 @@ Follows **Feature-Sliced Design (FSD)** with these layers:
 - Never use `any` or type assertions (`as`)
 
 ### API Integration
-- Create API hooks in `shared/api/hooks/`
+- Create API hooks in `apps/mobile/shared/api/hooks/`
 - Use TanStack Query for all server state
 - Follow established patterns for mutations and cache invalidation
+- API services organized by domain (activities, auth, children, etc.)
 
 ### Component Development
 - Follow FSD layer rules: higher layers can import from lower layers only
-- Place components in appropriate FSD layers based on their scope
-- Use design system components from `shared/ui/`
+- Place components in appropriate layers (features, widgets, shared/ui)
+- Use design system components from `apps/mobile/shared/ui/`
+- Leverage Expo Router for navigation and file-based routing
 
 ### Database
 - **Supabase** is the primary database (PostgreSQL + real-time features)
@@ -204,11 +179,11 @@ Follows **Feature-Sliced Design (FSD)** with these layers:
 - Test with local Supabase instance using `pnpm supabase:start`
 
 ### Mobile Deployment
-- **New Expo App**: Use **EAS (Expo Application Services)** for building and deployment
-- **EAS Build** profiles: development, preview, production
+- Use **EAS (Expo Application Services)** for building and deployment
+- **EAS Build** profiles: development, preview, production, all platforms
 - **OTA updates** available for JavaScript-only changes
 - **Web support** via Metro bundler for cross-platform development
-- **Legacy App**: Requires manual build process with React Native CLI
+- **Prebuild** workflow for customizing native code when needed
 
 ### Documentation
 - Update **README.md** and **PROJECT_SPEC.md** after completing work
@@ -219,16 +194,20 @@ Follows **Feature-Sliced Design (FSD)** with these layers:
 ### Monorepo Setup
 - Project uses `node-linker=hoisted` in `.pnpmrc` for React Native compatibility
 - Run `pnpm install` from root to ensure proper workspace linking
+- Turborepo orchestrates builds with proper dependency management
 
-### Metro Bundler
+### Metro Bundler and Expo
 - Metro is configured for monorepo with workspace root watching
-- Clear Metro cache if experiencing module resolution issues
+- Clear Metro cache with `expo start --clear` if experiencing module resolution issues
+- Web support available for cross-platform development and testing
 
 ### EAS Build Issues
 - `gradle-wrapper.jar` is git-tracked (excluded from `.gitignore` blanket `*.jar` rule)
-- Gradle version is locked to 7.4 for EAS compatibility
+- Gradle version is locked for EAS compatibility
 - Use `--clear-cache` flag if builds fail unexpectedly
+- Prebuild generates native code when needed
 
 ### Type Checking
 - Run `pnpm type-check` before committing
 - Shared package must be built before mobile/backend can type-check successfully
+- Use `pnpm build` in packages/shared after schema changes

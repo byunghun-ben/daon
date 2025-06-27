@@ -1,18 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import { useAuth } from "../../app/navigation/AppNavigator";
+import { useRouter } from "expo-router";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SignInFormSchema, SignInFormSchemaType } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
 
-interface SignInFormProps {
-  navigation: any;
-}
-
-export const SignInForm = ({ navigation: _ }: SignInFormProps) => {
-  const { signIn } = useAuth();
+export const SignInForm = () => {
+  const router = useRouter();
 
   const form = useForm<SignInFormSchemaType>({
     resolver: zodResolver(SignInFormSchema),
@@ -27,11 +23,9 @@ export const SignInForm = ({ navigation: _ }: SignInFormProps) => {
       const { success, data, error } = await authApi.signIn(form.getValues());
 
       if (success) {
-        // AuthContext 상태 업데이트
-        await signIn();
-
-        // 로그인 성공 - 온보딩 시스템이 자동으로 필요한 단계를 처리함
+        // 로그인 성공 - 메인 화면으로 이동
         console.log("로그인 성공:", data.user.name);
+        router.replace("/(tabs)");
       } else {
         Alert.alert("로그인 실패", error);
       }

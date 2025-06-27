@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import { useAuth } from "../../app/navigation/AppNavigator";
 import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SignUpFormSchema, SignUpFormSchemaType } from "../../shared/types";
@@ -13,7 +13,7 @@ const normalizePhoneNumber = (value: string) => {
 };
 
 export const SignUpForm = () => {
-  const { signIn } = useAuth();
+  const router = useRouter();
 
   const form = useForm<SignUpFormSchemaType>({
     resolver: zodResolver(SignUpFormSchema),
@@ -31,16 +31,15 @@ export const SignUpForm = () => {
       const { success, data, error } = await authApi.signUp(form.getValues());
 
       if (success) {
-        // AuthContext 상태 업데이트 (온보딩 플로우가 시작됨)
-        await signIn();
-
         Alert.alert(
           "회원가입 성공",
-          `환영합니다, ${data.user.name}님! 이제 앱 설정을 완료해보세요.`,
+          `환영합니다, ${data.user.name}님! 다온을 시작해보세요.`,
           [
             {
               text: "확인",
-              // 온보딩 플로우는 AppNavigator에서 자동으로 처리됨
+              onPress: () => {
+                router.replace("/(onboarding)/child-setup");
+              },
             },
           ],
         );

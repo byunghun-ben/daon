@@ -1,0 +1,267 @@
+import React, { useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  RefreshControl,
+  Alert,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { SCREEN_PADDING } from "../../shared/config/theme";
+import Button from "../../shared/ui/Button";
+import Card from "../../shared/ui/Card";
+import { type ActivityApi as Activity } from "@daon/shared";
+import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useRecentActivities } from "../../shared/api/hooks/useActivities";
+
+export default function RecordScreen() {
+  const router = useRouter();
+  const { activeChild } = useActiveChild();
+  
+  const {
+    data: recentActivities = [],
+    isLoading,
+    refetch,
+  } = useRecentActivities(activeChild?.id || null);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } catch (error) {
+      Alert.alert("오류", "데이터를 새로고침하는 중 오류가 발생했습니다.");
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
+
+  const handleNewRecord = () => {
+    router.push("/record/new");
+  };
+
+  const handleActivityPress = (activity: Activity) => {
+    router.push(`/record/${activity.id}`);
+  };
+
+  const styles = useThemedStyles((theme) => ({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      padding: SCREEN_PADDING,
+      paddingBottom: theme.spacing.md,
+    },
+    title: {
+      fontSize: theme.typography.title.fontSize,
+      fontWeight: theme.typography.title.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.sm,
+    },
+    subtitle: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    content: {
+      flex: 1,
+      padding: SCREEN_PADDING,
+    },
+    quickActions: {
+      marginBottom: theme.spacing.xl,
+    },
+    activityGrid: {
+      flexDirection: "row" as const,
+      flexWrap: "wrap" as const,
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.xl,
+    },
+    activityButton: {
+      flex: 1,
+      minWidth: "45%" as const,
+      padding: theme.spacing.lg,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.md,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    activityButtonText: {
+      fontSize: theme.typography.button.fontSize,
+      fontWeight: theme.typography.button.fontWeight,
+      color: theme.colors.text.primary,
+      marginTop: theme.spacing.sm,
+    },
+    activitiesSection: {
+      flex: 1,
+    },
+    sectionTitle: {
+      fontSize: theme.typography.subtitle.fontSize,
+      fontWeight: theme.typography.subtitle.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    activityItem: {
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+    },
+    activityHeader: {
+      flexDirection: "row" as const,
+      justifyContent: "space-between" as const,
+      alignItems: "center" as const,
+      marginBottom: theme.spacing.xs,
+    },
+    activityType: {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: "600" as const,
+      color: theme.colors.text.primary,
+    },
+    activityTime: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    activityDetails: {
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    emptyState: {
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      padding: theme.spacing.xxl,
+    },
+    emptyText: {
+      fontSize: theme.typography.body1.fontSize,
+      color: theme.colors.text.secondary,
+      textAlign: "center" as const,
+      marginBottom: theme.spacing.lg,
+    },
+  }));
+
+  const activityTypes = [
+    { key: "feeding", label: "수유", icon: "🍼" },
+    { key: "diaper", label: "기저귀", icon: "👶" },
+    { key: "sleep", label: "수면", icon: "😴" },
+    { key: "tummy_time", label: "배밀이", icon: "🤸‍♀️" },
+  ];
+
+  const getActivityLabel = (type: string) => {
+    const activity = activityTypes.find(a => a.key === type);
+    return activity ? `${activity.icon} ${activity.label}` : type;
+  };
+
+  const formatTime = (date: string) => {
+    return new Date(date).toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (!activeChild) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>활동 기록</Text>
+          <Text style={styles.subtitle}>
+            아이를 먼저 등록해주세요
+          </Text>
+        </View>
+        <View style={styles.content}>
+          <Card>
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>
+                등록된 아이가 없습니다.{"\n"}
+                먼저 아이를 등록해주세요.
+              </Text>
+              <Button
+                title="아이 등록하기"
+                onPress={() => router.push("/children/create")}
+                variant="primary"
+              />
+            </View>
+          </Card>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>활동 기록</Text>
+        <Text style={styles.subtitle}>
+          {activeChild.name}의 일상을 기록해보세요
+        </Text>
+      </View>
+
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 빠른 기록 */}
+        <View style={styles.quickActions}>
+          <Text style={styles.sectionTitle}>빠른 기록</Text>
+          <View style={styles.activityGrid}>
+            {activityTypes.map((activity) => (
+              <TouchableOpacity
+                key={activity.key}
+                style={styles.activityButton}
+                onPress={() => router.push(`/record/new?type=${activity.key}`)}
+              >
+                <Text style={{ fontSize: 24 }}>{activity.icon}</Text>
+                <Text style={styles.activityButtonText}>{activity.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* 최근 활동 */}
+        <View style={styles.activitiesSection}>
+          <Text style={styles.sectionTitle}>최근 활동</Text>
+          {Array.isArray(recentActivities) && recentActivities.length === 0 ? (
+            <Card>
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  아직 기록된 활동이 없습니다.{"\n"}
+                  첫 번째 활동을 기록해보세요!
+                </Text>
+                <Button
+                  title="활동 기록하기"
+                  onPress={handleNewRecord}
+                  variant="primary"
+                />
+              </View>
+            </Card>
+          ) : Array.isArray(recentActivities) ? (
+            recentActivities.map((activity: Activity) => (
+              <Card key={activity.id} style={styles.activityItem}>
+                <TouchableOpacity onPress={() => handleActivityPress(activity)}>
+                  <View style={styles.activityHeader}>
+                    <Text style={styles.activityType}>
+                      {getActivityLabel(activity.type)}
+                    </Text>
+                    <Text style={styles.activityTime}>
+                      {formatTime(activity.timestamp)}
+                    </Text>
+                  </View>
+                  {activity.notes && (
+                    <Text style={styles.activityDetails} numberOfLines={2}>
+                      {activity.notes}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </Card>
+            ))
+          ) : null}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

@@ -38,10 +38,12 @@ export interface Theme {
     subtitle: {
       fontSize: number;
       fontWeight: "normal";
+      lineHeight?: number;
     };
     body1: {
       fontSize: number;
       fontWeight: "normal";
+      lineHeight?: number;
     };
     body2: {
       fontSize: number;
@@ -50,6 +52,10 @@ export interface Theme {
     caption: {
       fontSize: number;
       fontWeight: "normal";
+    };
+    button: {
+      fontSize: number;
+      fontWeight: "bold";
     };
   };
   shadows: {
@@ -116,10 +122,12 @@ export const theme: Theme = {
     subtitle: {
       fontSize: 16,
       fontWeight: "normal" as const,
+      lineHeight: 20,
     },
     body1: {
       fontSize: 16,
       fontWeight: "normal" as const,
+      lineHeight: 22,
     },
     body2: {
       fontSize: 14,
@@ -128,6 +136,10 @@ export const theme: Theme = {
     caption: {
       fontSize: 12,
       fontWeight: "normal" as const,
+    },
+    button: {
+      fontSize: 16,
+      fontWeight: "bold" as const,
     },
   },
   shadows: {

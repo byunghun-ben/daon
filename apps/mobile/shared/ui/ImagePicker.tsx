@@ -25,9 +25,9 @@ const ImagePicker = ({
   placeholder = "사진을 선택해주세요",
 }: ImagePickerProps) => {
   const { uploadImage, isUploading, uploadProgress } = useImageUpload({
-    maxWidth: 800,
-    maxHeight: 800,
     quality: 0.8,
+    allowsEditing: true,
+    aspect: [1, 1],
   });
 
   const styles = useThemedStyles((theme) => ({

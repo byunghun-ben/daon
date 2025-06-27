@@ -10,7 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bridgestudio.daon"
+      "bundleIdentifier": "com.bridgestudio.daon",
+      "infoPlist": {
+        "NSCameraUsageDescription": "이 앱은 아이의 사진을 찍어 일기에 추가하기 위해 카메라 접근 권한이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "이 앱은 아이의 사진을 선택해 일기에 추가하기 위해 사진 라이브러리 접근 권한이 필요합니다."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +22,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.bridgestudio.daon"
+      "package": "com.bridgestudio.daon",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +44,22 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "이 앱은 아이의 사진을 선택해 일기에 추가하기 위해 사진 라이브러리 접근 권한이 필요합니다.",
+          "cameraPermission": "이 앱은 아이의 사진을 찍어 일기에 추가하기 위해 카메라 접근 권한이 필요합니다."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
         }
       ]
     ],

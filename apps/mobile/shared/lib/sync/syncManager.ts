@@ -1,5 +1,9 @@
-import NetInfo from "@react-native-community/netinfo";
-import { OfflineStorage, OFFLINE_STORAGE_KEYS, type OfflineItem } from "../storage/offlineStorage";
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
+import {
+  OfflineStorage,
+  OFFLINE_STORAGE_KEYS,
+  type OfflineItem,
+} from "../storage/offlineStorage";
 import { activitiesApi } from "../../api/activities";
 import { diaryApi } from "../../api/diary";
 import { growthApi } from "../../api/growth";
@@ -24,20 +28,20 @@ export class SyncManager {
 
   // Initialize network connectivity listener
   private initNetworkListener(): void {
-    NetInfo.addEventListener(state => {
+    NetInfo.addEventListener((state: NetInfoState) => {
       if (state.isConnected && !this.isSyncing) {
         this.syncPendingOperations();
       }
-      
+
       // Notify listeners about network status
-      this.syncListeners.forEach(listener => listener(!!state.isConnected));
+      this.syncListeners.forEach((listener) => listener(!!state.isConnected));
     });
   }
 
   // Add sync status listener
   addSyncListener(listener: (isOnline: boolean) => void): () => void {
     this.syncListeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.syncListeners.indexOf(listener);
@@ -57,10 +61,10 @@ export class SyncManager {
   async saveForOfflineSync<T>(
     key: string,
     data: T,
-    action: "create" | "update" | "delete"
+    action: "create" | "update" | "delete",
   ): Promise<void> {
     await OfflineStorage.savePendingOperation(key, { data, action });
-    
+
     // Try to sync immediately if online
     if (await this.isOnline()) {
       this.syncPendingOperations();
@@ -79,10 +83,10 @@ export class SyncManager {
       await this.syncPendingActivities();
       await this.syncPendingDiaryEntries();
       await this.syncPendingGrowthRecords();
-      
+
       // Update last sync time
       await OfflineStorage.setLastSyncTime(Date.now());
-      
+
       console.log("Sync completed successfully");
     } catch (error) {
       console.error("Sync failed:", error);
@@ -94,7 +98,7 @@ export class SyncManager {
   // Sync pending activity operations
   private async syncPendingActivities(): Promise<void> {
     const operations = await OfflineStorage.getPendingOperations(
-      OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES
+      OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES,
     );
 
     for (const operation of operations) {
@@ -102,20 +106,20 @@ export class SyncManager {
         await this.syncActivityOperation(operation);
         await OfflineStorage.removePendingOperation(
           OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES,
-          operation.id
+          operation.id,
         );
       } catch (error) {
         console.error("Failed to sync activity operation:", error);
         await OfflineStorage.incrementRetryCount(
           OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES,
-          operation.id
+          operation.id,
         );
-        
+
         // Remove operation if too many retries
         if (operation.retryCount >= 3) {
           await OfflineStorage.removePendingOperation(
             OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES,
-            operation.id
+            operation.id,
           );
         }
       }
@@ -125,7 +129,7 @@ export class SyncManager {
   // Sync pending diary operations
   private async syncPendingDiaryEntries(): Promise<void> {
     const operations = await OfflineStorage.getPendingOperations(
-      OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES
+      OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES,
     );
 
     for (const operation of operations) {
@@ -133,19 +137,19 @@ export class SyncManager {
         await this.syncDiaryOperation(operation);
         await OfflineStorage.removePendingOperation(
           OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES,
-          operation.id
+          operation.id,
         );
       } catch (error) {
         console.error("Failed to sync diary operation:", error);
         await OfflineStorage.incrementRetryCount(
           OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES,
-          operation.id
+          operation.id,
         );
-        
+
         if (operation.retryCount >= 3) {
           await OfflineStorage.removePendingOperation(
             OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES,
-            operation.id
+            operation.id,
           );
         }
       }
@@ -155,7 +159,7 @@ export class SyncManager {
   // Sync pending growth record operations
   private async syncPendingGrowthRecords(): Promise<void> {
     const operations = await OfflineStorage.getPendingOperations(
-      OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS
+      OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS,
     );
 
     for (const operation of operations) {
@@ -163,19 +167,19 @@ export class SyncManager {
         await this.syncGrowthOperation(operation);
         await OfflineStorage.removePendingOperation(
           OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS,
-          operation.id
+          operation.id,
         );
       } catch (error) {
         console.error("Failed to sync growth operation:", error);
         await OfflineStorage.incrementRetryCount(
           OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS,
-          operation.id
+          operation.id,
         );
-        
+
         if (operation.retryCount >= 3) {
           await OfflineStorage.removePendingOperation(
             OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS,
-            operation.id
+            operation.id,
           );
         }
       }
@@ -246,7 +250,7 @@ export class SyncManager {
       const childrenResponse = await childrenApi.getChildren();
       await OfflineStorage.cacheData(
         OFFLINE_STORAGE_KEYS.CACHED_CHILDREN,
-        childrenResponse.children
+        childrenResponse.children,
       );
 
       // Cache recent activities for each child
@@ -258,7 +262,7 @@ export class SyncManager {
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_ACTIVITIES}_${child.id}`,
-          activitiesResponse.activities
+          activitiesResponse.activities,
         );
 
         // Cache recent diary entries
@@ -269,7 +273,7 @@ export class SyncManager {
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_DIARY_ENTRIES}_${child.id}`,
-          diaryResponse.diaryEntries
+          diaryResponse.diaryEntries,
         );
 
         // Cache growth records
@@ -280,7 +284,7 @@ export class SyncManager {
         });
         await OfflineStorage.cacheData(
           `${OFFLINE_STORAGE_KEYS.CACHED_GROWTH_RECORDS}_${child.id}`,
-          growthResponse.growthRecords
+          growthResponse.growthRecords,
         );
       }
     } catch (error) {
@@ -291,9 +295,15 @@ export class SyncManager {
   // Get number of pending operations
   async getPendingOperationsCount(): Promise<number> {
     const [activities, diaryEntries, growthRecords] = await Promise.all([
-      OfflineStorage.getPendingOperations(OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES),
-      OfflineStorage.getPendingOperations(OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES),
-      OfflineStorage.getPendingOperations(OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS),
+      OfflineStorage.getPendingOperations(
+        OFFLINE_STORAGE_KEYS.PENDING_ACTIVITIES,
+      ),
+      OfflineStorage.getPendingOperations(
+        OFFLINE_STORAGE_KEYS.PENDING_DIARY_ENTRIES,
+      ),
+      OfflineStorage.getPendingOperations(
+        OFFLINE_STORAGE_KEYS.PENDING_GROWTH_RECORDS,
+      ),
     ]);
 
     return activities.length + diaryEntries.length + growthRecords.length;
@@ -304,7 +314,7 @@ export class SyncManager {
     if (!(await this.isOnline())) {
       throw new Error("No internet connection available");
     }
-    
+
     await this.syncPendingOperations();
     await this.cacheAppData();
   }

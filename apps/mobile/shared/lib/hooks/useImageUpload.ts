@@ -1,22 +1,15 @@
-import { useState } from "react";
-import { Alert, Platform } from "react-native";
+import { uploadFile } from "@/shared/api/upload";
 import {
-  CameraOptions,
-  ImageLibraryOptions,
-  ImagePickerResponse,
-  launchCamera,
-  launchImageLibrary,
-  MediaType,
-  PhotoQuality,
-} from "react-native-image-picker";
-import { PERMISSIONS, request, RESULTS } from "react-native-permissions";
-
-interface UseImageUploadOptions {
-  mediaType?: MediaType;
-  maxWidth?: number;
-  maxHeight?: number;
-  quality?: PhotoQuality;
-}
+  ImagePickerOptions,
+  ImagePickerResult,
+  launchCameraAsync,
+  launchImageLibraryAsync,
+  requestCameraPermissionsAsync,
+  requestMediaLibraryPermissionsAsync,
+} from "expo-image-picker";
+import { useState } from "react";
+import { Alert } from "react-native";
+// import { PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
 interface UseImageUploadReturn {
   uploadImage: () => Promise<string | null>;
@@ -25,45 +18,53 @@ interface UseImageUploadReturn {
 }
 
 export const useImageUpload = (
-  options: UseImageUploadOptions = {},
+  options: ImagePickerOptions = {},
 ): UseImageUploadReturn => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const defaultOptions: ImageLibraryOptions = {
-    mediaType: options.mediaType || "photo",
-    maxWidth: options.maxWidth || 800,
-    maxHeight: options.maxHeight || 800,
+  const defaultOptions: ImagePickerOptions = {
+    mediaTypes: options.mediaTypes || ["images"],
+    allowsEditing: options.allowsEditing || false,
+    aspect: options.aspect || [1, 1],
+    allowsMultipleSelection: options.allowsMultipleSelection || false,
     quality: options.quality || 0.8,
-    includeBase64: false,
   };
 
   const requestPermissions = async (): Promise<boolean> => {
     try {
-      const cameraPermission = Platform.select({
-        ios: PERMISSIONS.IOS.CAMERA,
-        android: PERMISSIONS.ANDROID.CAMERA,
-      });
+      const cameraPermission = await requestCameraPermissionsAsync();
 
-      const photoPermission = Platform.select({
-        ios: PERMISSIONS.IOS.PHOTO_LIBRARY,
-        android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
-      });
-
-      if (cameraPermission) {
-        const cameraResult = await request(cameraPermission);
-        if (cameraResult !== RESULTS.GRANTED) {
-          Alert.alert("권한 필요", "카메라 권한이 필요합니다.");
-          return false;
-        }
+      if (!cameraPermission.granted) {
+        Alert.alert(
+          "권한 필요",
+          "카메라 사용을 위해 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
+          [
+            { text: "취소", style: "cancel" },
+            {
+              text: "설정으로 이동",
+              onPress: () => requestCameraPermissionsAsync(),
+            },
+          ],
+        );
+        return false;
       }
 
-      if (photoPermission) {
-        const photoResult = await request(photoPermission);
-        if (photoResult !== RESULTS.GRANTED) {
-          Alert.alert("권한 필요", "사진 라이브러리 권한이 필요합니다.");
-          return false;
-        }
+      const photoPermission = await requestMediaLibraryPermissionsAsync();
+
+      if (!photoPermission.granted) {
+        Alert.alert(
+          "권한 필요",
+          "사진 라이브러리 접근을 위해 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
+          [
+            { text: "취소", style: "cancel" },
+            {
+              text: "설정으로 이동",
+              onPress: () => requestMediaLibraryPermissionsAsync(),
+            },
+          ],
+        );
+        return false;
       }
 
       return true;
@@ -73,7 +74,7 @@ export const useImageUpload = (
     }
   };
 
-  const showImagePicker = (): Promise<ImagePickerResponse | null> => {
+  const showImagePicker = (): Promise<ImagePickerResult | null> => {
     return new Promise((resolve) => {
       Alert.alert(
         "사진 선택",
@@ -87,7 +88,7 @@ export const useImageUpload = (
           {
             text: "갤러리에서 선택",
             onPress: () => {
-              launchImageLibrary(defaultOptions, (response) => {
+              launchImageLibraryAsync(defaultOptions).then((response) => {
                 resolve(response);
               });
             },
@@ -95,11 +96,11 @@ export const useImageUpload = (
           {
             text: "카메라로 촬영",
             onPress: () => {
-              const cameraOptions: CameraOptions = {
+              const cameraOptions: ImagePickerOptions = {
                 ...defaultOptions,
-                saveToPhotos: true,
+                selectionLimit: 1,
               };
-              launchCamera(cameraOptions, (response) => {
+              launchCameraAsync(cameraOptions).then((response) => {
                 resolve(response);
               });
             },
@@ -117,8 +118,6 @@ export const useImageUpload = (
     fileSize?: number,
   ): Promise<string | null> => {
     try {
-      const { uploadFile } = await import("../../api/upload");
-
       // 파일 크기가 없으면 추정값 사용
       const size = fileSize || 1024 * 1024; // 1MB로 추정
 
@@ -159,7 +158,7 @@ export const useImageUpload = (
 
       // 이미지 선택
       const response = await showImagePicker();
-      if (!response || response.didCancel || response.errorMessage) {
+      if (!response || response.canceled) {
         return null;
       }
 

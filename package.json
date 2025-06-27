@@ -34,10 +34,10 @@
     "typescript": "^5.8.3"
   },
   "lint-staged": {
-    "packages/**/*.{ts,tsx}": [
+    "{apps,packages}/**/*.{ts,tsx}": [
       "prettier --write"
     ],
-    "packages/**/*.{js,jsx,json,md}": [
+    "{apps,packages}/**/*.{js,jsx,json,md}": [
       "prettier --write"
     ]
   }

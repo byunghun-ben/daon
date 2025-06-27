@@ -29,9 +29,10 @@
 ```
 daon/
 ├── apps/
-│   ├── mobile/          # React Native 모바일 앱 (FSD 아키텍처)
+│   ├── mobile/          # 새로운 Expo 모바일 앱 (Expo Router)
 │   └── backend/         # Node.js API 서버
 ├── packages/
+│   ├── mobile/          # 기존 React Native 앱 (FSD 아키텍처) - 레거시
 │   ├── shared/          # 공유 타입 및 유틸리티 (Zod 스키마)
 │   └── web/             # 향후 웹 대시보드 (선택사항)
 ├── docs/                # 문서
@@ -72,6 +73,14 @@ packages/mobile/src/
 
 #### 프론트엔드 (모바일)
 
+**새로운 Expo 앱 (apps/mobile)**:
+- **프레임워크**: Expo SDK 53 + React Native 0.79
+- **라우팅**: Expo Router v5 (file-based routing)
+- **New Architecture**: React Native New Architecture 활성화
+- **빌드/배포**: EAS (Expo Application Services)
+- **웹 지원**: Metro 번들러를 통한 웹 빌드
+
+**기존 React Native 앱 (packages/mobile - 레거시)**:
 - **프레임워크**: React Native 0.80
 - **아키텍처**: Feature-Sliced Design (FSD)
 - **상태 관리**: Zustand / Tanstack Query
@@ -308,12 +317,22 @@ pnpm dev
 # 모든 서비스 시작
 pnpm dev
 
-# 모바일 앱 실행
-pnpm mobile:ios     # iOS 시뮬레이터
-pnpm mobile:android # Android 에뮬레이터
+# 새로운 Expo 앱 (apps/mobile)
+cd apps/mobile
+pnpm start          # Expo 개발 서버
+pnpm ios           # iOS
+pnpm android       # Android
+pnpm web           # 웹 브라우저
+
+# 기존 React Native 앱 (packages/mobile - 레거시)
+cd packages/mobile
+pnpm dev           # Metro 번들러
+pnpm ios           # iOS 시뮬레이터
+pnpm android       # Android 에뮬레이터
 
 # 백엔드 실행
-pnpm backend:dev
+cd apps/backend
+pnpm dev
 
 # 테스트 실행
 pnpm test

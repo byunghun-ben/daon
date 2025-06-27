@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-다온(Daon) is a Korean parenting app for recording children's activities, growth, and development. It's a pnpm monorepo with React Native mobile app, Node.js backend, and shared TypeScript libraries.
+다온(Daon) is a Korean parenting app for recording children's activities, growth, and development. It's a pnpm monorepo with:
+- **New Expo mobile app** (`apps/mobile`) - Currently in development
+- **Legacy React Native app** (`packages/mobile`) - Previous FSD implementation
+- **Node.js backend** (`apps/backend`) 
+- **Shared TypeScript libraries** (`packages/shared`)
 
 ## Essential Development Commands
 
@@ -29,27 +33,36 @@ pnpm lint
 pnpm type-check
 ```
 
-### Mobile App Commands (from packages/mobile)
+### Mobile App Commands
+
+#### New Expo App (from apps/mobile)
+```bash
+# Start Expo development server
+pnpm start
+
+# Run on specific platforms
+pnpm android            # Android
+pnpm ios               # iOS
+pnpm web               # Web browser
+
+# EAS Build commands
+pnpm build:development  # Development build
+pnpm build:preview     # Preview build for testing
+pnpm build:production  # Production build
+pnpm update           # Deploy OTA update
+pnpm submit:ios       # Submit to App Store
+pnpm submit:android   # Submit to Google Play
+```
+
+#### Legacy React Native App (from packages/mobile)
 ```bash
 # Start Metro bundler
 pnpm dev
 
-# Run on iOS simulator
-pnpm ios
-
-# Run on Android emulator
-pnpm android
-
-# Install iOS dependencies
-pnpm pod-install
-
-# EAS Build commands
-pnpm build:development    # Development build
-pnpm build:preview       # Preview build for testing
-pnpm build:production    # Production build
-pnpm update             # Deploy OTA update
-pnpm submit:ios         # Submit to App Store
-pnpm submit:android     # Submit to Google Play
+# Run on platforms
+pnpm ios               # iOS simulator
+pnpm android          # Android emulator
+pnpm pod-install      # Install iOS dependencies
 ```
 
 ### Backend Commands (from apps/backend)
@@ -79,13 +92,24 @@ pnpm dev
 ## Architecture & Code Organization
 
 ### Monorepo Structure
-- **apps/mobile**: React Native app using Feature-Sliced Design (FSD)
+- **apps/mobile**: New Expo app with Expo Router (현재 개발 중)
 - **apps/backend**: Node.js Express API server
+- **packages/mobile**: Legacy React Native app with FSD architecture (레거시)
 - **packages/shared**: Zod schemas and shared TypeScript types
 - Uses **pnpm workspaces** with **Turborepo** for build orchestration
 
-### Mobile App FSD Architecture
-The mobile app follows Feature-Sliced Design with these layers:
+### Mobile App Architectures
+
+#### New Expo App (apps/mobile)
+Uses **Expo Router v5** with file-based routing:
+- `app/(tabs)/` - Tab-based navigation screens
+- `components/` - Reusable UI components
+- `constants/` - App constants and themes
+- `hooks/` - Custom React hooks
+- Expo SDK 53 with React Native New Architecture enabled
+
+#### Legacy React Native App (packages/mobile)
+Follows **Feature-Sliced Design (FSD)** with these layers:
 
 **App Layer** (`src/app/`): Navigation configuration and app-level setup
 - Main navigation with authentication context
@@ -180,10 +204,11 @@ The mobile app follows Feature-Sliced Design with these layers:
 - Test with local Supabase instance using `pnpm supabase:start`
 
 ### Mobile Deployment
-- Use **EAS (Expo Application Services)** for building and deployment
-- Project is configured as bare React Native with Expo modules
-- Development builds for testing, production builds for app stores
-- OTA updates available for JavaScript-only changes
+- **New Expo App**: Use **EAS (Expo Application Services)** for building and deployment
+- **EAS Build** profiles: development, preview, production
+- **OTA updates** available for JavaScript-only changes
+- **Web support** via Metro bundler for cross-platform development
+- **Legacy App**: Requires manual build process with React Native CLI
 
 ### Documentation
 - Update **README.md** and **PROJECT_SPEC.md** after completing work

@@ -52,7 +52,7 @@ pnpm submit:ios         # Submit to App Store
 pnpm submit:android     # Submit to Google Play
 ```
 
-### Backend Commands (from packages/backend)
+### Backend Commands (from apps/backend)
 ```bash
 # Start development server
 pnpm dev
@@ -79,8 +79,8 @@ pnpm dev
 ## Architecture & Code Organization
 
 ### Monorepo Structure
-- **packages/mobile**: React Native app using Feature-Sliced Design (FSD)
-- **packages/backend**: Node.js Express API server
+- **apps/mobile**: React Native app using Feature-Sliced Design (FSD)
+- **apps/backend**: Node.js Express API server
 - **packages/shared**: Zod schemas and shared TypeScript types
 - Uses **pnpm workspaces** with **Turborepo** for build orchestration
 

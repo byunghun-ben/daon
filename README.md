@@ -28,9 +28,10 @@
 
 ```
 daon/
-├── packages/
+├── apps/
 │   ├── mobile/          # React Native 모바일 앱 (FSD 아키텍처)
-│   ├── backend/         # Node.js API 서버
+│   └── backend/         # Node.js API 서버
+├── packages/
 │   ├── shared/          # 공유 타입 및 유틸리티 (Zod 스키마)
 │   └── web/             # 향후 웹 대시보드 (선택사항)
 ├── docs/                # 문서

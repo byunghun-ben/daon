@@ -26,7 +26,7 @@
     "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": false,
     "paths": {
-      "@daon/shared": ["../shared/dist/index"]
+      "@daon/shared": ["../../packages/shared/dist/index"]
     }
   },
   "include": ["src/**/*"],

@@ -5,7 +5,7 @@ export default function AuthLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        presentation: "modal",
+        // presentation: "modal",
       }}
     >
       <Stack.Screen name="sign-in" />

@@ -3,3 +3,9 @@ packages:
   - packages/*
 onlyBuiltDependencies:
   - supabase
+publicHoistPattern:
+  - "*expo*"
+  - "*@expo/*"
+  - "*babel-preset-expo"
+  - "*react-native*"
+nodeLinker: hoisted

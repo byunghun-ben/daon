@@ -1,7 +1,9 @@
 import { ChatInput, ChatMessage } from "@/features/chat/components";
+import { useChatStream } from "@/shared/api/chat";
 import type { ChatMessage as ChatMessageType } from "@daon/shared";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import {
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -9,37 +11,60 @@ import {
   StyleSheet,
 } from "react-native";
 
+const INITIAL_MESSAGE: ChatMessageType = {
+  id: "initial",
+  role: "assistant",
+  content: "안녕하세요! 육아에 관한 질문이 있으시면 언제든 물어보세요.",
+  timestamp: new Date().toISOString(),
+};
+
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<ChatMessageType[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: "안녕하세요! 육아에 관한 질문이 있으시면 언제든 물어보세요.",
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  const flatListRef = useRef<FlatList>(null);
+  const {
+    messages,
+    isStreaming,
+    error,
+    sendMessage,
+    clearError,
+    cancelStream,
+  } = useChatStream([INITIAL_MESSAGE]);
 
-  const handleSendMessage = (content: string) => {
-    const newMessage: ChatMessageType = {
-      id: Date.now().toString(),
-      role: "user",
-      content,
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-
-    // TODO: AI 응답 로직 추가
-    setTimeout(() => {
-      const aiResponse: ChatMessageType = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "죄송합니다. 아직 AI 응답 기능이 구현되지 않았습니다.",
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
+  const handleSendMessage = async (content: string) => {
+    try {
+      await sendMessage(content);
+    } catch (err) {
+      Alert.alert(
+        "오류",
+        "메시지를 전송하는데 실패했습니다. 다시 시도해주세요.",
+        [{ text: "확인" }],
+      );
+    }
   };
+
+  // Show error alert if there's an error
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert("연결 오류", `AI 서비스에 연결할 수 없습니다.\n\n${error}`, [
+        { text: "다시 시도", onPress: clearError },
+        {
+          text: "취소",
+          onPress: () => {
+            clearError();
+            cancelStream();
+          },
+        },
+      ]);
+    }
+  }, [error, clearError, cancelStream]);
+
+  // Auto scroll to bottom when new messages are added
+  React.useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages.length]);
 
   const renderMessage = ({ item }: { item: ChatMessageType }) => (
     <ChatMessage message={item} />
@@ -53,18 +78,24 @@ export default function ChatScreen() {
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <FlatList
+          ref={flatListRef}
           data={messages}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
           style={styles.messagesList}
           contentContainerStyle={styles.messagesContent}
           showsVerticalScrollIndicator={false}
-          inverted={false}
           onContentSizeChange={() => {
-            // Auto scroll to bottom when new messages are added
+            flatListRef.current?.scrollToEnd({ animated: true });
           }}
         />
-        <ChatInput onSendMessage={handleSendMessage} />
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          disabled={isStreaming}
+          placeholder={
+            isStreaming ? "AI가 응답 중입니다..." : "메시지를 입력하세요..."
+          }
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

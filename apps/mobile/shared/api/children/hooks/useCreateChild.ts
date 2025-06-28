@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { childrenApi } from "../index";
-import { queryKeys } from "../../../constants";
 import type { CreateChildRequest } from "@daon/shared";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../../../constants";
+import { childrenApi } from "../api";
 
 export const useCreateChild = () => {
   const queryClient = useQueryClient();

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { childrenApi } from "../index";
 import { queryKeys } from "../../../constants";
+import { childrenApi } from "../api";
 
 export const useChildQuery = (id: string) => {
   return useQuery({

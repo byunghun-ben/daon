@@ -1,6 +1,7 @@
 import { Router } from "express";
 import activitiesRoutes from "./activities.routes";
 import authRoutes from "./auth.routes";
+import chatRoutes from "./chat.routes";
 import childrenRoutes from "./children.routes";
 import diaryRoutes from "./diary.routes";
 import growthRoutes from "./growth.routes";
@@ -73,12 +74,17 @@ router.get("/", (req, res) => {
         "POST /upload/confirm":
           "Confirm file upload completion (requires auth)",
       },
+      chat: {
+        "POST /chat/stream": "Stream AI chat response (requires auth)",
+        "GET /chat/health": "Chat service health check (requires auth)",
+      },
     },
   });
 });
 
 // Mount route handlers
 router.use("/auth", authRoutes);
+router.use("/chat", chatRoutes);
 router.use("/children", childrenRoutes);
 router.use("/guardians", guardiansRoutes);
 router.use("/activities", activitiesRoutes);

@@ -1,8 +1,8 @@
+import { useAuthStore } from "@/shared/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SignUpFormSchema, SignUpFormSchemaType } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
@@ -26,14 +26,20 @@ export const SignUpForm = () => {
     },
   });
 
+  const { signUp } = useAuthStore();
+
   const handleSignUp = async () => {
     try {
-      const { success, data, error } = await authApi.signUp(form.getValues());
+      const email = form.getValues("email");
+      const password = form.getValues("password");
+      const name = form.getValues("name");
+      const phone = form.getValues("phone");
+      const { success, error } = await signUp(email, password, name, phone);
 
       if (success) {
         Alert.alert(
           "회원가입 성공",
-          `환영합니다, ${data.user.name}님! 다온을 시작해보세요.`,
+          `환영합니다, ${name}님! 다온을 시작해보세요.`,
           [
             {
               text: "확인",

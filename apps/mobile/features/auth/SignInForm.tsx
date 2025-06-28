@@ -1,8 +1,8 @@
+import { useAuthStore } from "@/shared/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SignInFormSchema, SignInFormSchemaType } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
@@ -18,13 +18,17 @@ export const SignInForm = () => {
     },
   });
 
+  const { signIn } = useAuthStore();
+
   const handleSignIn = async () => {
     try {
-      const { success, data, error } = await authApi.signIn(form.getValues());
+      const email = form.getValues("email");
+      const password = form.getValues("password");
+      const { success, error } = await signIn(email, password);
 
       if (success) {
         // 로그인 성공 - 메인 화면으로 이동
-        console.log("로그인 성공:", data.user.name);
+        console.log("[SignInForm] 로그인 성공");
         router.replace("/(tabs)");
       } else {
         Alert.alert("로그인 실패", error);

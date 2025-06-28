@@ -11,7 +11,8 @@
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
     "prepare": "husky",
-    "pre-commit": "turbo run type-check"
+    "pre-commit": "turbo run type-check",
+    "ios": "turbo run type-check && turbo run ios"
   },
   "keywords": [
     "baby",

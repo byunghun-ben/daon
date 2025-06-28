@@ -18,9 +18,11 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
-    "supabase:seed": "supabase db seed"
+    "supabase:seed": "supabase db seed",
+    "ios": "pnpm dev"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.55.0",
     "@aws-sdk/client-s3": "^3.835.0",
     "@aws-sdk/s3-request-presigner": "^3.835.0",
     "@daon/shared": "workspace:*",

@@ -22,6 +22,11 @@
     },
     "clean": {
       "cache": false
+    },
+    "ios": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
     }
   }
 }

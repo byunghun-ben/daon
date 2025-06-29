@@ -37,6 +37,7 @@ export const ChatStreamRequestSchema = z.object({
   model: z.string().optional().default("claude-3-7-sonnet-latest"),
   maxTokens: z.number().optional().default(1000),
   temperature: z.number().min(0).max(1).optional().default(0.7),
+  provider: z.enum(["anthropic", "openai"]).optional(),
 });
 
 export const ChatStreamChunkSchema = z.object({

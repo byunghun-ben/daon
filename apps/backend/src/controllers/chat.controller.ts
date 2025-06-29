@@ -1,18 +1,15 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { ChatStreamChunk, ChatStreamRequestSchema } from "@daon/shared";
 import { Request, Response } from "express";
 import { logger } from "../utils/logger";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import { ChatService } from "../services/ai/ChatService";
 
 export const chatController = {
   async streamChat(req: Request, res: Response) {
     try {
       // Validate request body
       const validatedData = ChatStreamRequestSchema.parse(req.body);
-      const { messages, model, maxTokens, temperature } = validatedData;
+      const { messages, model, maxTokens, temperature, provider } =
+        validatedData;
 
       // Set SSE headers
       res.writeHead(200, {
@@ -32,92 +29,43 @@ export const chatController = {
         model,
       });
 
-      try {
-        // Convert messages to Anthropic format
-        const anthropicMessages: Anthropic.MessageParam[] = messages
-          .filter((msg) => msg.role !== "system")
-          .map((msg) => ({
-            role: msg.role as "user" | "assistant",
-            content: msg.content,
-          }));
-
-        // Find system message if exists
-        const systemMessage = messages.find((msg) => msg.role === "system");
-
-        // Create streaming request to Anthropic
-        const stream = await anthropic.messages.create({
+      await ChatService.streamChat(
+        {
+          messages,
           model,
-          max_tokens: maxTokens,
+          maxTokens,
           temperature,
-          messages: anthropicMessages,
-          ...(systemMessage && { system: systemMessage.content }),
-          stream: true,
-        });
+          provider,
+        },
+        // onChunk
+        (chunk: ChatStreamChunk) => {
+          logger.info(`[Chunk] ${chunk.type}:`, {
+            id: chunk.id,
+            contentLength: chunk.content?.length || 0,
+            deltaLength: chunk.delta?.length || 0,
+          });
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        },
+        // onComplete
+        () => {
+          logger.info(`Chat stream completed: ${conversationId}`);
+          res.end();
+        },
+        // onError
+        (error: Error) => {
+          logger.error(`Chat stream error: ${conversationId}`, error);
 
-        let fullContent = "";
-        let chunkIndex = 0;
-
-        // Process streaming response
-        for await (const chunk of stream) {
-          chunkIndex++;
-
-          if (chunk.type === "content_block_start") {
-            // Start of content block
-            const startChunk: ChatStreamChunk = {
-              id: `${conversationId}_${chunkIndex}`,
-              type: "text",
-              content: "",
-              delta: "",
-            };
-            res.write(`data: ${JSON.stringify(startChunk)}\n\n`);
-          } else if (chunk.type === "content_block_delta") {
-            // Content delta (incremental text)
-            if (chunk.delta.type === "text_delta") {
-              const deltaText = chunk.delta.text;
-              fullContent += deltaText;
-
-              const deltaChunk: ChatStreamChunk = {
-                id: `${conversationId}_${chunkIndex}`,
-                type: "text",
-                content: fullContent,
-                delta: deltaText,
-              };
-              res.write(`data: ${JSON.stringify(deltaChunk)}\n\n`);
-            }
-          } else if (chunk.type === "message_stop") {
-            // End of message
-            break;
-          }
-        }
-
-        // Send completion signal
-        const doneChunk: ChatStreamChunk = {
-          id: `${conversationId}_done`,
-          type: "done",
-          content: fullContent,
-        };
-        res.write(`data: ${JSON.stringify(doneChunk)}\n\n`);
-
-        logger.info(`Chat stream completed: ${conversationId}`, {
-          totalChunks: chunkIndex,
-          contentLength: fullContent.length,
-        });
-      } catch (anthropicError) {
-        logger.error(`Anthropic API error: ${conversationId}`, anthropicError);
-
-        if (anthropicError instanceof Anthropic.AnthropicError) {
           const errorChunk: ChatStreamChunk = {
             id: `${conversationId}_error`,
             type: "error",
-            error: anthropicError.message || "AI service error",
+            error: error.message || "AI service error",
           };
           res.write(`data: ${JSON.stringify(errorChunk)}\n\n`);
-        }
-      }
-
-      res.end();
+          res.end();
+        },
+      );
     } catch (error) {
-      logger.error("Chat stream error:", error);
+      logger.error("Chat controller error:", error);
 
       // If headers already sent, we can't change status code
       if (res.headersSent) {
@@ -141,16 +89,11 @@ export const chatController = {
   // Health check for chat service
   async healthCheck(req: Request, res: Response) {
     try {
-      // Simple test to verify Anthropic API is accessible
-      const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+      const health = await ChatService.healthCheck();
 
       res.json({
-        status: "ok",
+        ...health,
         service: "chat",
-        anthropic: {
-          configured: hasApiKey,
-          available: hasApiKey ? "unknown" : false,
-        },
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
@@ -159,6 +102,27 @@ export const chatController = {
         status: "error",
         service: "chat",
         error: error instanceof Error ? error.message : "Internal server error",
+        timestamp: new Date().toISOString(),
+      });
+    }
+  },
+
+  // Get available models
+  async getModels(req: Request, res: Response) {
+    try {
+      const models = ChatService.getAvailableModels();
+
+      res.json({
+        status: "ok",
+        models,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      logger.error("Get models error:", error);
+      res.status(500).json({
+        status: "error",
+        error: error instanceof Error ? error.message : "Internal server error",
+        timestamp: new Date().toISOString(),
       });
     }
   },

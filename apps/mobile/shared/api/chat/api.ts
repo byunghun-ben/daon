@@ -1,5 +1,6 @@
 import type { ChatStreamChunk, ChatStreamRequest } from "@daon/shared";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import EventSource from "react-native-sse";
 import { STORAGE_KEYS } from "../client";
 
 const API_BASE_URL = __DEV__
@@ -10,6 +11,7 @@ export class ChatStreamError extends Error {
   constructor(
     message: string,
     public originalError?: Error,
+    public statusCode?: number,
   ) {
     super(message);
     this.name = "ChatStreamError";
@@ -24,98 +26,121 @@ export const chatApi = {
     onError: (error: ChatStreamError) => void,
     signal?: AbortSignal,
   ): Promise<void> {
-    try {
-      // Get auth token
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      if (!token) {
-        throw new ChatStreamError("Authentication required");
-      }
-
-      // Make streaming request
-      const response = await fetch(`${API_BASE_URL}/chat/stream`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          Accept: "text/event-stream",
-          "Cache-Control": "no-cache",
-        },
-        body: JSON.stringify(request),
-        signal,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new ChatStreamError(
-          `HTTP ${response.status}: ${errorText || response.statusText}`,
-        );
-      }
-
-      if (!response.body) {
-        throw new ChatStreamError("No response body received");
-      }
-
-      // Process streaming response
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
+    return new Promise<void>(async (resolve, reject) => {
+      let eventSource: EventSource | null = null;
 
       try {
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            onComplete();
-            break;
-          }
-
-          if (signal?.aborted) {
-            throw new ChatStreamError("Request aborted");
-          }
-
-          // Decode and process chunks
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-
-          // Keep the last incomplete line in buffer
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (line.trim() === "") continue;
-
-            if (line.startsWith("data: ")) {
-              const data = line.slice(6).trim();
-
-              try {
-                const chunk: ChatStreamChunk = JSON.parse(data);
-                onChunk(chunk);
-
-                // Handle completion or error
-                if (chunk.type === "done") {
-                  onComplete();
-                  return;
-                } else if (chunk.type === "error") {
-                  throw new ChatStreamError(chunk.error || "Stream error");
-                }
-              } catch (parseError) {
-                console.warn("Failed to parse SSE data:", data, parseError);
-                // Continue processing other chunks
-              }
-            }
-          }
+        // Get auth token
+        const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+        if (!token) {
+          throw new ChatStreamError("Authentication required");
         }
-      } finally {
-        reader.releaseLock();
+
+        console.log("[ChatAPI] Creating EventSource for streaming chat");
+
+        // Create EventSource with POST request (react-native-sse supports this)
+        eventSource = new EventSource(`${API_BASE_URL}/chat/stream`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          method: "POST",
+          body: JSON.stringify(request),
+          pollingInterval: 0, // Disable reconnections
+        });
+
+        // Handle abort signal
+        if (signal) {
+          signal.addEventListener("abort", () => {
+            console.log("[ChatAPI] Aborting stream");
+            if (eventSource) {
+              eventSource.removeAllEventListeners();
+              eventSource.close();
+            }
+            const error = new ChatStreamError("Request aborted");
+            onError(error);
+            reject(error);
+          });
+        }
+
+        eventSource.addEventListener("open", () => {
+          console.log("[ChatAPI] SSE connection opened");
+        });
+
+        eventSource.addEventListener("message", (event) => {
+          try {
+            console.log("[ChatAPI] Received SSE message:", event.data);
+
+            // Skip empty data
+            if (!event.data || event.data.trim() === "") {
+              return;
+            }
+
+            const chunk: ChatStreamChunk = JSON.parse(event.data);
+            onChunk(chunk);
+
+            // Handle completion or error
+            if (chunk.type === "done") {
+              console.log("[ChatAPI] Stream completed");
+              if (eventSource) {
+                eventSource.removeAllEventListeners();
+                eventSource.close();
+              }
+              onComplete();
+              resolve();
+            } else if (chunk.type === "error") {
+              console.error("[ChatAPI] Stream error:", chunk.error);
+              if (eventSource) {
+                eventSource.removeAllEventListeners();
+                eventSource.close();
+              }
+              throw new ChatStreamError(chunk.error || "Stream error");
+            }
+          } catch (parseError) {
+            console.warn("Failed to parse SSE data:", event.data, parseError);
+            // Continue processing other chunks - don't fail the entire stream
+          }
+        });
+
+        eventSource.addEventListener("error", (event) => {
+          console.error("[ChatAPI] SSE error:", event);
+          if (eventSource) {
+            eventSource.removeAllEventListeners();
+            eventSource.close();
+          }
+          const error = new ChatStreamError("SSE connection error");
+          onError(error);
+          reject(error);
+        });
+
+        // Handle connection close
+        eventSource.addEventListener("close", () => {
+          console.log("[ChatAPI] SSE connection closed");
+          // Only call onComplete if we haven't already resolved
+          if (eventSource) {
+            onComplete();
+            resolve();
+          }
+        });
+      } catch (error) {
+        console.error("[ChatAPI] Setup error:", error);
+        if (eventSource) {
+          eventSource.removeAllEventListeners();
+          eventSource.close();
+        }
+        const chatError =
+          error instanceof ChatStreamError
+            ? error
+            : new ChatStreamError(
+                error instanceof Error
+                  ? error.message
+                  : "Unknown error occurred",
+                error instanceof Error ? error : undefined,
+              );
+        onError(chatError);
+        reject(chatError);
       }
-    } catch (error) {
-      if (error instanceof ChatStreamError) {
-        onError(error);
-      } else if (error instanceof Error) {
-        onError(new ChatStreamError(error.message, error));
-      } else {
-        onError(new ChatStreamError("Unknown error occurred"));
-      }
-    }
+    });
   },
 
   async healthCheck(): Promise<{ status: string; service: string }> {

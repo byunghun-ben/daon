@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/shared/store";
 import type {
   ChatMessage,
   ChatStreamChunk,
@@ -32,6 +33,7 @@ export const useChatStream = (
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const currentResponseRef = useRef<ChatMessage | null>(null);
+  const { signOut } = useAuthStore();
 
   const updateState = useCallback((updates: Partial<UseChatStreamState>) => {
     setState((prev) => ({ ...prev, ...updates }));
@@ -75,13 +77,16 @@ export const useChatStream = (
       };
       addMessage(userMessage);
 
-      // Prepare request
+      // Prepare request - filter out empty content messages
       const request: ChatStreamRequest = {
-        messages: [...state.messages, userMessage].map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
+        messages: [...state.messages, userMessage]
+          .filter((msg) => msg.content.trim().length > 0) // Filter out empty messages
+          .map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
         model: "claude-3-7-sonnet-latest",
+        provider: "anthropic",
         maxTokens: 1000,
         temperature: 0.7,
       };
@@ -92,14 +97,15 @@ export const useChatStream = (
       // Start streaming
       updateState({ isStreaming: true, error: null });
 
-      // Initialize assistant response
+      // Initialize assistant response (but don't add to messages yet)
       currentResponseRef.current = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: "",
         timestamp: new Date().toISOString(),
       };
-      addMessage(currentResponseRef.current);
+
+      let assistantMessageAdded = false;
 
       try {
         await chatApi.streamChat(
@@ -107,6 +113,11 @@ export const useChatStream = (
           // onChunk
           (chunk: ChatStreamChunk) => {
             if (chunk.type === "text") {
+              // If this is the first chunk, add the assistant message to the list
+              if (currentResponseRef.current && !assistantMessageAdded) {
+                addMessage(currentResponseRef.current);
+                assistantMessageAdded = true;
+              }
               updateLastMessage(chunk.content || "");
             }
           },
@@ -114,25 +125,49 @@ export const useChatStream = (
           () => {
             updateState({ isStreaming: false });
             currentResponseRef.current = null;
+            assistantMessageAdded = false;
           },
           // onError
           (error: ChatStreamError) => {
+            // Handle authentication errors
+            if (
+              error.statusCode === 401 ||
+              error.message.includes("Invalid JWT")
+            ) {
+              // JWT is invalid, redirect to login
+              signOut();
+              return;
+            }
+
             updateState({
               isStreaming: false,
               error: error.message,
             });
             currentResponseRef.current = null;
+            assistantMessageAdded = false;
           },
           // signal
           abortControllerRef.current.signal,
         );
       } catch (error) {
+        // Handle authentication errors at the top level too
+        if (error instanceof ChatStreamError) {
+          if (
+            error.statusCode === 401 ||
+            error.message.includes("Invalid JWT")
+          ) {
+            signOut();
+            return;
+          }
+        }
+
         updateState({
           isStreaming: false,
           error:
             error instanceof Error ? error.message : "Failed to send message",
         });
         currentResponseRef.current = null;
+        assistantMessageAdded = false;
       }
     },
     [
@@ -141,6 +176,7 @@ export const useChatStream = (
       addMessage,
       updateLastMessage,
       updateState,
+      signOut,
     ],
   );
 

@@ -2,10 +2,10 @@ import { useAuthStore } from "@/shared/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SignInFormSchema, SignInFormSchemaType } from "../../shared/types";
-import { Button, Input } from "../../shared/ui";
+import { Button, Input, KakaoButton } from "../../shared/ui";
 
 export const SignInForm = () => {
   const router = useRouter();
@@ -39,6 +39,20 @@ export const SignInForm = () => {
     }
   };
 
+  const handleKakaoSignIn = async () => {
+    try {
+      // TODO: 카카오톡 로그인 로직 구현
+      console.log("[SignInForm] 카카오톡 로그인 시도");
+      Alert.alert("카카오톡 로그인", "카카오톡 로그인 기능을 구현 중입니다.");
+    } catch (error) {
+      console.error("카카오톡 로그인 중 오류:", error);
+      Alert.alert(
+        "오류",
+        "카카오톡 로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
+      );
+    }
+  };
+
   const styles = useThemedStyles((theme) => ({
     form: {
       marginBottom: theme.spacing.xl,
@@ -56,6 +70,21 @@ export const SignInForm = () => {
     linkButton: {
       color: theme.colors.primary,
       fontWeight: "600" as const,
+    },
+    divider: {
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      marginVertical: theme.spacing.lg,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: theme.colors.border,
+    },
+    dividerText: {
+      paddingHorizontal: theme.spacing.md,
+      fontSize: theme.typography.body2.fontSize,
+      color: theme.colors.text.secondary,
     },
   }));
 
@@ -106,6 +135,18 @@ export const SignInForm = () => {
         disabled={form.formState.isSubmitting}
         accessibilityLabel="로그인 버튼"
         accessibilityHint="입력한 정보로 로그인합니다"
+      />
+
+      <View style={styles.divider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>또는</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      <KakaoButton
+        onPress={handleKakaoSignIn}
+        accessibilityLabel="카카오톡으로 로그인"
+        accessibilityHint="카카오톡 계정으로 간편하게 로그인합니다"
       />
     </View>
   );

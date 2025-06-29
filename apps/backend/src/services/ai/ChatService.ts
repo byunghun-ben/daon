@@ -11,7 +11,7 @@ export interface ChatServiceRequest {
   model?: string;
   maxTokens?: number;
   temperature?: number;
-  provider?: "anthropic" | "openai"; // Optional provider override
+  provider?: "anthropic" | "openai" | "azure-openai"; // Optional provider override
 }
 
 export class ChatService {

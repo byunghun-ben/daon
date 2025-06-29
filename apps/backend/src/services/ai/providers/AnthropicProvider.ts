@@ -30,6 +30,15 @@ export class AnthropicProvider implements AIProvider {
     onComplete: (response: AIStreamResponse) => void,
     onError: (error: Error) => void,
   ): Promise<void> {
+    const conversationId = `anthropic_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    logger.info(`Starting Anthropic chat stream: ${conversationId}`, {
+      messageCount: request.messages.length,
+      model: request.model || this.supportedModels[0],
+      maxTokens: request.maxTokens || 1000,
+      temperature: request.temperature || 0.7,
+    });
+
     try {
       // Convert messages to Anthropic format
       const anthropicMessages: Anthropic.MessageParam[] = request.messages
@@ -44,6 +53,11 @@ export class AnthropicProvider implements AIProvider {
         (msg) => msg.role === "system",
       );
 
+      logger.debug(`Anthropic request prepared: ${conversationId}`, {
+        anthropicMessages: anthropicMessages.length,
+        hasSystemMessage: !!systemMessage,
+      });
+
       // Create streaming request
       const stream = await this.client.messages.create({
         model: request.model || this.supportedModels[0],
@@ -56,15 +70,16 @@ export class AnthropicProvider implements AIProvider {
 
       let fullContent = "";
       let chunkIndex = 0;
-      const conversationId = `anthropic_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      let startTime = Date.now();
 
       // Process streaming response
       for await (const chunk of stream) {
         chunkIndex++;
 
-        logger.info(`Anthropic chunk: ${conversationId}`, {
+        logger.debug(`Anthropic chunk received: ${conversationId}`, {
           chunkIndex,
-          chunk,
+          chunkType: chunk.type,
+          elapsedMs: Date.now() - startTime,
         });
 
         switch (chunk.type) {
@@ -80,15 +95,21 @@ export class AnthropicProvider implements AIProvider {
           }
           case "content_block_delta": {
             if (chunk.delta.type !== "text_delta") {
-              logger.warn(`Anthropic non-text delta`, {
+              logger.warn(`Anthropic non-text delta: ${conversationId}`, {
                 chunkIndex,
-                delta: chunk.delta,
+                deltaType: chunk.delta.type,
               });
               continue;
             }
 
             const deltaText = chunk.delta.text;
             fullContent += deltaText;
+
+            logger.debug(`Anthropic text delta: ${conversationId}`, {
+              chunkIndex,
+              deltaLength: deltaText.length,
+              totalLength: fullContent.length,
+            });
 
             const deltaChunk: ChatStreamChunk = {
               id: `${conversationId}_${chunkIndex}`,
@@ -100,6 +121,12 @@ export class AnthropicProvider implements AIProvider {
             break;
           }
           case "message_stop": {
+            logger.info(`Anthropic stream completed: ${conversationId}`, {
+              totalChunks: chunkIndex,
+              contentLength: fullContent.length,
+              durationMs: Date.now() - startTime,
+            });
+
             const doneChunk: ChatStreamChunk = {
               id: `${conversationId}_done`,
               type: "done",
@@ -120,16 +147,19 @@ export class AnthropicProvider implements AIProvider {
             break;
           }
           default: {
-            logger.warn(`Anthropic unknown chunk type`, {
+            logger.warn(`Anthropic unknown chunk type: ${conversationId}`, {
               chunkIndex,
-              chunk,
+              chunkType: chunk.type,
             });
             break;
           }
         }
       }
     } catch (error) {
-      logger.error("Anthropic streaming error:", error);
+      logger.error(`Anthropic streaming error: ${conversationId}`, {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       onError(
         error instanceof Error ? error : new Error("Unknown Anthropic error"),
       );
@@ -138,16 +168,25 @@ export class AnthropicProvider implements AIProvider {
 
   async healthCheck(): Promise<{ status: string; models: string[] }> {
     try {
+      logger.info("Anthropic health check started");
+
       // Simple health check - verify API key is configured
       if (!process.env.ANTHROPIC_API_KEY) {
         throw new Error("Anthropic API key not configured");
       }
+
+      logger.info("Anthropic health check passed", {
+        modelsCount: this.supportedModels.length,
+      });
 
       return {
         status: "ok",
         models: this.supportedModels,
       };
     } catch (error) {
+      logger.error("Anthropic health check failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
       throw new Error(
         `Anthropic health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );

@@ -21,6 +21,15 @@ export class OpenAIProvider implements AIProvider {
     onComplete: (response: AIStreamResponse) => void,
     onError: (error: Error) => void,
   ): Promise<void> {
+    const conversationId = `openai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    logger.info(`Starting OpenAI chat stream: ${conversationId}`, {
+      messageCount: request.messages.length,
+      model: request.model || this.supportedModels[0],
+      maxTokens: request.maxTokens || 1000,
+      temperature: request.temperature || 0.7,
+    });
+
     try {
       const response = await fetch(
         "https://api.openai.com/v1/chat/completions",
@@ -41,12 +50,17 @@ export class OpenAIProvider implements AIProvider {
       );
 
       if (!response.ok) {
+        logger.error(`OpenAI API error: ${conversationId}`, {
+          status: response.status,
+          statusText: response.statusText,
+        });
         throw new Error(
           `OpenAI API error: ${response.status} ${response.statusText}`,
         );
       }
 
       if (!response.body) {
+        logger.error(`No response body from OpenAI: ${conversationId}`);
         throw new Error("No response body received from OpenAI");
       }
 
@@ -55,13 +69,21 @@ export class OpenAIProvider implements AIProvider {
       let buffer = "";
       let fullContent = "";
       let chunkIndex = 0;
-      const conversationId = `openai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      let startTime = Date.now();
+
+      logger.debug(`OpenAI stream started: ${conversationId}`);
 
       try {
         while (true) {
           const { done, value } = await reader.read();
 
           if (done) {
+            logger.info(`OpenAI stream completed: ${conversationId}`, {
+              totalChunks: chunkIndex,
+              contentLength: fullContent.length,
+              durationMs: Date.now() - startTime,
+            });
+
             const response: AIStreamResponse = {
               id: conversationId,
               content: fullContent,
@@ -81,6 +103,8 @@ export class OpenAIProvider implements AIProvider {
               const data = line.slice(6).trim();
 
               if (data === "[DONE]") {
+                logger.debug(`OpenAI stream done signal: ${conversationId}`);
+
                 const doneChunk: ChatStreamChunk = {
                   id: `${conversationId}_done`,
                   type: "done",
@@ -105,6 +129,13 @@ export class OpenAIProvider implements AIProvider {
                   const deltaText = parsed.choices[0].delta.content;
                   fullContent += deltaText;
 
+                  logger.debug(`OpenAI text delta: ${conversationId}`, {
+                    chunkIndex,
+                    deltaLength: deltaText.length,
+                    totalLength: fullContent.length,
+                    elapsedMs: Date.now() - startTime,
+                  });
+
                   const deltaChunk: ChatStreamChunk = {
                     id: `${conversationId}_${chunkIndex}`,
                     type: "text",
@@ -114,11 +145,13 @@ export class OpenAIProvider implements AIProvider {
                   onChunk(deltaChunk);
                 }
               } catch (parseError) {
-                logger.warn(
-                  "Failed to parse OpenAI SSE data:",
-                  data,
-                  parseError,
-                );
+                logger.warn(`OpenAI parse error: ${conversationId}`, {
+                  data: data.substring(0, 100),
+                  error:
+                    parseError instanceof Error
+                      ? parseError.message
+                      : "Unknown error",
+                });
               }
             }
           }
@@ -127,7 +160,10 @@ export class OpenAIProvider implements AIProvider {
         reader.releaseLock();
       }
     } catch (error) {
-      logger.error("OpenAI streaming error:", error);
+      logger.error(`OpenAI streaming error: ${conversationId}`, {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       onError(
         error instanceof Error ? error : new Error("Unknown OpenAI error"),
       );
@@ -136,15 +172,24 @@ export class OpenAIProvider implements AIProvider {
 
   async healthCheck(): Promise<{ status: string; models: string[] }> {
     try {
+      logger.info("OpenAI health check started");
+
       if (!process.env.OPENAI_API_KEY) {
         throw new Error("OpenAI API key not configured");
       }
+
+      logger.info("OpenAI health check passed", {
+        modelsCount: this.supportedModels.length,
+      });
 
       return {
         status: "ok",
         models: this.supportedModels,
       };
     } catch (error) {
+      logger.error("OpenAI health check failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
       throw new Error(
         `OpenAI health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );

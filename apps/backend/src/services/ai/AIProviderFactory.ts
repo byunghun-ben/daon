@@ -1,8 +1,9 @@
 import type { AIProvider } from "./interfaces/AIProvider";
 import { AnthropicProvider } from "./providers/AnthropicProvider";
 import { OpenAIProvider } from "./providers/OpenAIProvider";
+import { AzureOpenAIProvider } from "./providers/AzureOpenAIProvider";
 
-export type AIProviderType = "anthropic" | "openai";
+export type AIProviderType = "anthropic" | "openai" | "azure-openai";
 
 export class AIProviderFactory {
   private static providers = new Map<AIProviderType, AIProvider>();
@@ -11,6 +12,7 @@ export class AIProviderFactory {
     // Register available providers
     this.providers.set("anthropic", new AnthropicProvider());
     this.providers.set("openai", new OpenAIProvider());
+    this.providers.set("azure-openai", new AzureOpenAIProvider());
   }
 
   static getProvider(type: AIProviderType): AIProvider {

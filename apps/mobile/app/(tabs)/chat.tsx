@@ -1,7 +1,8 @@
 import { ChatInput, ChatMessage } from "@/features/chat/components";
 import { useChatStream } from "@/shared/api/chat";
-import type { ChatMessage as ChatMessageType } from "@daon/shared";
-import React, { useRef } from "react";
+import { ModelSelector } from "@/shared/ui/ModelSelector";
+import type { ChatMessage as ChatMessageType, AIModel } from "@daon/shared";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -9,6 +10,7 @@ import {
   Platform,
   SafeAreaView,
   StyleSheet,
+  View,
 } from "react-native";
 
 const INITIAL_MESSAGE: ChatMessageType = {
@@ -20,6 +22,10 @@ const INITIAL_MESSAGE: ChatMessageType = {
 
 export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
+  const [selectedModel, setSelectedModel] = useState<AIModel>(
+    "claude-3-7-sonnet-latest",
+  );
+
   const {
     messages,
     isStreaming,
@@ -27,7 +33,7 @@ export default function ChatScreen() {
     sendMessage,
     clearError,
     cancelStream,
-  } = useChatStream([INITIAL_MESSAGE]);
+  } = useChatStream([INITIAL_MESSAGE], selectedModel);
 
   const handleSendMessage = async (content: string) => {
     try {
@@ -77,6 +83,13 @@ export default function ChatScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
+        <View style={styles.modelSelectorContainer}>
+          <ModelSelector
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+          />
+        </View>
+
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -108,6 +121,11 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
+  },
+  modelSelectorContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    backgroundColor: "#FFFFFF",
   },
   messagesList: {
     flex: 1,

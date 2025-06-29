@@ -1,9 +1,11 @@
 import { useAuthStore } from "@/shared/store";
 import type {
+  AIModel,
   ChatMessage,
   ChatStreamChunk,
   ChatStreamRequest,
 } from "@daon/shared";
+import { MODEL_PROVIDER_MAP } from "@daon/shared";
 import { useCallback, useRef, useState } from "react";
 import { ChatStreamError, chatApi } from "../api";
 
@@ -23,6 +25,7 @@ interface UseChatStreamReturn extends UseChatStreamState {
 
 export const useChatStream = (
   initialMessages: ChatMessage[] = [],
+  selectedModel: AIModel = "claude-3-7-sonnet-latest",
 ): UseChatStreamReturn => {
   const [state, setState] = useState<UseChatStreamState>({
     messages: initialMessages,
@@ -85,8 +88,8 @@ export const useChatStream = (
             role: msg.role,
             content: msg.content,
           })),
-        model: "claude-3-7-sonnet-latest",
-        provider: "anthropic",
+        model: selectedModel,
+        provider: MODEL_PROVIDER_MAP[selectedModel],
         maxTokens: 1000,
         temperature: 0.7,
       };
@@ -177,6 +180,7 @@ export const useChatStream = (
       updateLastMessage,
       updateState,
       signOut,
+      selectedModel,
     ],
   );
 

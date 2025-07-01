@@ -1,31 +1,29 @@
-import React, { useState, useCallback } from "react";
+import { type ActivityApi as Activity } from "@daon/shared";
+import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
+  Alert,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
-  RefreshControl,
-  Alert,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { useRecentActivities } from "../../shared/api/hooks/useActivities";
 import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
-import { type ActivityApi as Activity } from "@daon/shared";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useRecentActivities } from "../../shared/api/hooks/useActivities";
 
 export default function RecordScreen() {
   const router = useRouter();
   const { activeChild } = useActiveChild();
-  
-  const {
-    data: recentActivities = [],
-    isLoading,
-    refetch,
-  } = useRecentActivities(activeChild?.id || null);
+
+  const { data: recentActivities = [], refetch } = useRecentActivities(
+    activeChild?.id || null,
+  );
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -33,7 +31,7 @@ export default function RecordScreen() {
     setRefreshing(true);
     try {
       await refetch();
-    } catch (error) {
+    } catch {
       Alert.alert("오류", "데이터를 새로고침하는 중 오류가 발생했습니다.");
     } finally {
       setRefreshing(false);
@@ -150,7 +148,7 @@ export default function RecordScreen() {
   ];
 
   const getActivityLabel = (type: string) => {
-    const activity = activityTypes.find(a => a.key === type);
+    const activity = activityTypes.find((a) => a.key === type);
     return activity ? `${activity.icon} ${activity.label}` : type;
   };
 
@@ -166,9 +164,7 @@ export default function RecordScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>활동 기록</Text>
-          <Text style={styles.subtitle}>
-            아이를 먼저 등록해주세요
-          </Text>
+          <Text style={styles.subtitle}>아이를 먼저 등록해주세요</Text>
         </View>
         <View style={styles.content}>
           <Card>
@@ -229,8 +225,7 @@ export default function RecordScreen() {
             <Card>
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>
-                  아직 기록된 활동이 없습니다.{"\n"}
-                  첫 번째 활동을 기록해보세요!
+                  아직 기록된 활동이 없습니다.{"\n"}첫 번째 활동을 기록해보세요!
                 </Text>
                 <Button
                   title="활동 기록하기"

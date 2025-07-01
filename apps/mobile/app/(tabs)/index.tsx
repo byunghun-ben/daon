@@ -1,6 +1,5 @@
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
 import {
   Alert,
   RefreshControl,
@@ -33,7 +32,6 @@ export default function HomeScreen() {
     activeChildId,
     activeChild,
     isLoading: isActiveChildLoading,
-    error: activeChildError,
     refetchChildren,
   } = useActiveChild();
 
@@ -52,16 +50,11 @@ export default function HomeScreen() {
   } = useRecentActivities(activeChildId);
 
   const isLoading = isActiveChildLoading || isTodayLoading || isRecentLoading;
-  const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     try {
-      await Promise.all([
-        refetchChildren(),
-        refetchToday(),
-        refetchRecent(),
-      ]);
-    } catch (error) {
+      await Promise.all([refetchChildren(), refetchToday(), refetchRecent()]);
+    } catch {
       Alert.alert("오류", "데이터를 새로고침하는 중 오류가 발생했습니다.");
     }
   };
@@ -127,8 +120,7 @@ export default function HomeScreen() {
           <Card>
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>
-                아직 등록된 아이가 없습니다.{"\n"}
-                첫 번째 아이를 등록해보세요!
+                아직 등록된 아이가 없습니다.{"\n"}첫 번째 아이를 등록해보세요!
               </Text>
               <Button
                 title="아이 등록하기"

@@ -4,22 +4,23 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import type { Notification } from "expo-notifications";
 import {
-  Notification,
   addNotificationResponseReceivedListener,
   getLastNotificationResponseAsync,
 } from "expo-notifications";
-import { RelativePathString, Stack, router } from "expo-router";
+import type { RelativePathString } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
-import { View, ActivityIndicator } from "react-native";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 import { queryClient } from "@/shared/lib/queryClient";
+import { useAuthStore } from "@/shared/store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useAuthStore } from "@/shared/store";
-import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 
 const useNotificationObserver = () => {
   useEffect(() => {

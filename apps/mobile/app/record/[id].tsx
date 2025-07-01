@@ -1,11 +1,10 @@
-import React from "react";
-import { View, Text, SafeAreaView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { SafeAreaView, Text } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function RecordDetailScreen() {
   const { id } = useLocalSearchParams();
-  
+
   const styles = useThemedStyles((theme) => ({
     container: {
       flex: 1,

@@ -1,14 +1,8 @@
-import React from "react";
-import {
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View,
-  ViewStyle,
-} from "react-native";
+import type { TextStyle, TouchableOpacityProps, ViewStyle } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { BUTTON_HEIGHT } from "../../config/theme";
 import { useThemedStyles } from "../../lib/hooks/useTheme";
+import KakaoIcon from "../icons/KakaoIcon";
 
 interface KakaoButtonProps extends TouchableOpacityProps {
   title?: string;
@@ -53,8 +47,7 @@ export default function KakaoButton({
     <TouchableOpacity style={[styles.button, buttonStyle]} {...props}>
       <View style={styles.container}>
         <View style={styles.icon}>
-          {/* 카카오톡 아이콘 영역 - 나중에 실제 아이콘으로 교체 */}
-          <Text style={{ fontSize: 16, color: "#000000" }}>💬</Text>
+          <KakaoIcon size={20} color="#191919" />
         </View>
         <Text style={[styles.text, textStyle]}>{title}</Text>
       </View>

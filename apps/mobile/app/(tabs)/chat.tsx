@@ -1,7 +1,7 @@
 import { ChatInput, ChatMessage } from "@/features/chat/components";
 import { useChatStream } from "@/shared/api/chat";
 import { ModelSelector } from "@/shared/ui/ModelSelector";
-import type { ChatMessage as ChatMessageType, AIModel } from "@daon/shared";
+import type { AIModel, ChatMessage as ChatMessageType } from "@daon/shared";
 import React, { useRef, useState } from "react";
 import {
   Alert,
@@ -38,7 +38,7 @@ export default function ChatScreen() {
   const handleSendMessage = async (content: string) => {
     try {
       await sendMessage(content);
-    } catch (err) {
+    } catch {
       Alert.alert(
         "오류",
         "메시지를 전송하는데 실패했습니다. 다시 시도해주세요.",

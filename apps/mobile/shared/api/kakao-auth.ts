@@ -36,6 +36,8 @@ export interface KakaoLoginError {
  */
 export const parseKakaoCallback = (url: string) => {
   try {
+    console.log("🔍 Parsing callback URL:", url);
+
     const urlObj = new URL(url);
     const success = urlObj.searchParams.get("success") === "true";
     const token = urlObj.searchParams.get("token") ?? undefined;
@@ -43,6 +45,18 @@ export const parseKakaoCallback = (url: string) => {
     const needsChildSetup =
       urlObj.searchParams.get("needs_child_setup") === "true";
     const error = urlObj.searchParams.get("error") ?? undefined;
+
+    const result = {
+      success,
+      token: token ? `${token.substring(0, 20)}...` : undefined, // 토큰 일부만 로깅
+      refreshToken: refreshToken
+        ? `${refreshToken.substring(0, 20)}...`
+        : undefined,
+      needsChildSetup,
+      error,
+    };
+
+    console.log("📊 Parsed callback result:", result);
 
     return {
       success,
@@ -52,7 +66,7 @@ export const parseKakaoCallback = (url: string) => {
       error,
     };
   } catch (error) {
-    console.error("잘못된 콜백 URL 형식입니다", error);
+    console.error("❌ 잘못된 콜백 URL 형식입니다", error);
     throw new Error("잘못된 콜백 URL 형식입니다");
   }
 };

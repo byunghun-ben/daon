@@ -48,6 +48,12 @@ export const SignInForm = () => {
       console.log("[SignInForm] 카카오톡 로그인 시도");
 
       const result = await kakaoAuthService.login();
+      console.log("[SignInForm] 카카오 로그인 결과:", {
+        success: result.success,
+        hasToken: !!result.token,
+        needsChildSetup: result.needsChildSetup,
+        error: result.error,
+      });
 
       if (result.success && result.token) {
         // 카카오톡 로그인 성공 - 토큰을 사용해 인증 상태 업데이트
@@ -59,11 +65,22 @@ export const SignInForm = () => {
         await saveToken(result.token, result.refreshToken);
 
         // 아이 설정이 필요한지 확인하고 적절한 화면으로 이동
-        if (result.needsChildSetup) {
-          router.replace("/(onboarding)/child-setup");
-        } else {
-          router.replace("/(tabs)");
-        }
+        // 네비게이션 스택이 준비될 때까지 약간의 지연
+        setTimeout(() => {
+          try {
+            if (result.needsChildSetup) {
+              console.log("[SignInForm] Navigating to child setup");
+              router.replace("/(onboarding)/child-setup");
+            } else {
+              console.log("[SignInForm] Navigating to main tabs");
+              router.replace("/(tabs)");
+            }
+          } catch (navError) {
+            console.error("[SignInForm] Navigation error:", navError);
+            // 폴백: 메인 화면으로 이동
+            router.replace("/");
+          }
+        }, 100);
       } else {
         Alert.alert(
           "카카오톡 로그인 실패",

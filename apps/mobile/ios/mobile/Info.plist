@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>mobile</string>
+          <string>daon</string>
           <string>com.bridgestudio.daon</string>
         </array>
       </dict>

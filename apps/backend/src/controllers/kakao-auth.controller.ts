@@ -67,6 +67,9 @@ export class KakaoAuthController {
    * GET /auth/kakao/callback?code=xxx&state=xxx
    */
   handleCallback = async (req: Request, res: Response): Promise<void> => {
+    logger.debug("Kakao callback received", {
+      query: req.query,
+    });
     try {
       // 쿼리 파라미터 검증
       const validationResult = KakaoCallbackQuerySchema.safeParse(req.query);
@@ -270,7 +273,11 @@ export class KakaoAuthController {
     const redirectUrl = `daon://auth/kakao/callback?${params.toString()}`;
 
     logger.info("Redirecting to app", {
-      redirectUrl: `${redirectUrl.substring(0, 50)}...`,
+      redirectUrl:
+        redirectUrl.length > 100
+          ? `${redirectUrl.substring(0, 100)}...`
+          : redirectUrl,
+      fullUrl: redirectUrl, // 전체 URL 로깅 (디버깅용)
     });
 
     res.redirect(redirectUrl);

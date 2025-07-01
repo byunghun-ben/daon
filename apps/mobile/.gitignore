@@ -9,6 +9,9 @@ dist/
 web-build/
 expo-env.d.ts
 
+# Expo logs
+.expo/*.log
+
 # Native
 .kotlin/
 *.orig.*
@@ -35,5 +38,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Turborepo
+.turbo/
 
 app-example

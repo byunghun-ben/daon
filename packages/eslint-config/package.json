@@ -22,8 +22,8 @@
     "eslint-config-expo": "^9.2.0"
   },
   "peerDependencies": {
-    "eslint": "^9.0.0",
-    "typescript": "^5.0.0"
+    "eslint": "^9.29.0",
+    "typescript": "^5.8.0"
   },
   "keywords": [
     "eslint",

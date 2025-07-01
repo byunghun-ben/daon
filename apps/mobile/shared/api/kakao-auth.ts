@@ -38,18 +38,18 @@ export const parseKakaoCallback = (url: string) => {
   try {
     const urlObj = new URL(url);
     const success = urlObj.searchParams.get("success") === "true";
-    const token = urlObj.searchParams.get("token");
-    const refreshToken = urlObj.searchParams.get("refresh_token");
+    const token = urlObj.searchParams.get("token") ?? undefined;
+    const refreshToken = urlObj.searchParams.get("refresh_token") ?? undefined;
     const needsChildSetup =
       urlObj.searchParams.get("needs_child_setup") === "true";
-    const error = urlObj.searchParams.get("error");
+    const error = urlObj.searchParams.get("error") ?? undefined;
 
     return {
       success,
-      token: token ?? undefined,
-      refreshToken: refreshToken ?? undefined,
+      token,
+      refreshToken,
       needsChildSetup,
-      error: error ?? undefined,
+      error,
     };
   } catch (error) {
     console.error("잘못된 콜백 URL 형식입니다", error);

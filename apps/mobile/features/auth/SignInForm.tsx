@@ -61,26 +61,29 @@ export const SignInForm = () => {
 
         // AuthStore에 토큰 저장 (임시 구현)
         // 실제로는 signInWithKakao 같은 메서드를 구현해야 함
+        console.log("[SignInForm] Saving tokens to AuthStore");
         const { saveToken } = useAuthStore.getState();
         await saveToken(result.token, result.refreshToken);
+        console.log("[SignInForm] Tokens saved successfully");
 
         // 아이 설정이 필요한지 확인하고 적절한 화면으로 이동
-        // 네비게이션 스택이 준비될 때까지 약간의 지연
-        setTimeout(() => {
-          try {
-            if (result.needsChildSetup) {
-              console.log("[SignInForm] Navigating to child setup");
-              router.replace("/(onboarding)/child-setup");
-            } else {
-              console.log("[SignInForm] Navigating to main tabs");
-              router.replace("/(tabs)");
-            }
-          } catch (navError) {
-            console.error("[SignInForm] Navigation error:", navError);
-            // 폴백: 메인 화면으로 이동
-            router.replace("/");
+        // 네비게이션과 상태 업데이트 완료 후 이동
+        console.log("[SignInForm] Waiting for state synchronization");
+        await new Promise((resolve) => setTimeout(resolve, 300)); // 상태 동기화 대기
+
+        try {
+          if (result.needsChildSetup) {
+            console.log("[SignInForm] Navigating to child setup");
+            router.replace("/(onboarding)/child-setup");
+          } else {
+            console.log("[SignInForm] Navigating to main tabs");
+            router.replace("/(tabs)");
           }
-        }, 100);
+        } catch (navError) {
+          console.error("[SignInForm] Navigation error:", navError);
+          // 폴백: 홈 화면으로 이동
+          router.replace("/");
+        }
       } else {
         Alert.alert(
           "카카오톡 로그인 실패",

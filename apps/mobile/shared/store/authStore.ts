@@ -204,17 +204,30 @@ export const useAuthStore = create<AuthState>()(
       },
 
       saveToken: async (token: string, refreshToken?: string) => {
+        set({ isLoading: true });
+
         try {
+          console.log("[AuthStore] Saving tokens and fetching profile");
+
           // 토큰을 저장하고 사용자 프로필을 가져옴
           await authUtils.saveTokens(token, refreshToken);
 
           // 사용자 프로필 가져오기
           const response = await authApi.getProfile();
+
+          // 상태 업데이트를 동기적으로 처리
           set({
             user: response.user,
             isAuthenticated: true,
             isLoading: false,
           });
+
+          console.log(
+            "[AuthStore] Successfully saved tokens and updated user profile",
+          );
+
+          // 상태 동기화를 위한 추가 지연
+          await new Promise((resolve) => setTimeout(resolve, 100));
         } catch (error) {
           console.error(
             "[AuthStore] Failed to save token and get profile:",

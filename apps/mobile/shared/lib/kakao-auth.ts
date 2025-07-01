@@ -85,23 +85,50 @@ export class KakaoAuthService {
       error: result.error,
     });
 
-    if (this.loginPromiseResolve) {
-      // 딥링크로 로그인 성공시 WebBrowser를 닫음
-      if (result.success) {
-        try {
-          WebBrowser.dismissBrowser();
-          console.log("🌐 WebBrowser dismissed");
-        } catch (error) {
-          console.log("⚠️ WebBrowser dismiss error:", error);
-        }
+    // 딥링크로 로그인 성공시 WebBrowser를 닫음
+    if (result.success) {
+      try {
+        WebBrowser.dismissBrowser();
+        console.log("🌐 WebBrowser dismissed");
+      } catch (error) {
+        console.log("⚠️ WebBrowser dismiss error:", error);
       }
+    }
 
-      console.log("✅ Calling loginPromiseResolve");
+    if (this.loginPromiseResolve) {
+      console.log("✅ loginPromiseResolve is available, resolving immediately");
       this.loginPromiseResolve(result);
       this.loginPromiseResolve = null;
+      this.isLoginInProgress = false;
       console.log("✅ loginPromiseResolve completed");
+    } else {
+      console.log("⚠️ loginPromiseResolve is not ready, waiting...");
+      // loginPromiseResolve가 아직 설정되지 않은 경우, 잠시 대기 후 재시도
+      const waitForResolver = (attempts = 0) => {
+        if (attempts >= 50) {
+          // 최대 5초 대기 (100ms * 50)
+          console.log("❌ Timeout waiting for loginPromiseResolve");
+          this.isLoginInProgress = false;
+          return;
+        }
+
+        setTimeout(() => {
+          if (this.loginPromiseResolve) {
+            console.log(
+              `✅ loginPromiseResolve available after ${attempts * 100}ms`,
+            );
+            this.loginPromiseResolve(result);
+            this.loginPromiseResolve = null;
+            this.isLoginInProgress = false;
+            console.log("✅ loginPromiseResolve completed (delayed)");
+          } else {
+            waitForResolver(attempts + 1);
+          }
+        }, 100);
+      };
+
+      waitForResolver();
     }
-    this.isLoginInProgress = false;
   }
 
   /**
@@ -120,22 +147,9 @@ export class KakaoAuthService {
         platform: "mobile",
       });
 
-      // 2. 웹브라우저로 카카오 로그인 페이지 열기
-      console.log("🌐 Opening browser with URL:", loginUrl);
-
-      const result = await WebBrowser.openBrowserAsync(loginUrl, {
-        dismissButtonStyle: "close",
-        showTitle: true,
-        controlsColor: "#007AFF",
-        browserPackage: undefined, // 기본 브라우저 사용
-        showInRecents: false, // iOS에서 최근 항목에 표시하지 않음
-        enableBarCollapsing: false, // iOS에서 바 숨김 방지
-      });
-
-      console.log("🌐 Browser result:", result);
-
-      // 3. 딥링크 콜백을 기다림 (WebBrowser 결과와 무관하게)
-      return new Promise<KakaoLoginResult>((resolve) => {
+      // 2. Promise를 먼저 설정하여 race condition 방지
+      const loginPromise = new Promise<KakaoLoginResult>((resolve) => {
+        console.log("🔗 Setting up loginPromiseResolve");
         this.loginPromiseResolve = resolve;
 
         // 60초 타임아웃 설정
@@ -148,14 +162,36 @@ export class KakaoAuthService {
             });
           }
         }, 60000);
-
-        // WebBrowser 결과 처리를 별도로 수행 (cancel이어도 딥링크를 기다림)
-        if (result.type === "cancel" || result.type === "dismiss") {
-          console.log("🌐 WebBrowser closed, waiting for deep link...");
-        }
       });
+
+      // 3. Promise 설정 후 WebBrowser 열기
+      console.log("🌐 Opening browser with URL:", loginUrl);
+
+      // WebBrowser 비동기적으로 실행 (결과 대기하지 않음)
+      WebBrowser.openBrowserAsync(loginUrl, {
+        dismissButtonStyle: "close",
+        showTitle: true,
+        controlsColor: "#007AFF",
+        browserPackage: undefined, // 기본 브라우저 사용
+        showInRecents: false, // iOS에서 최근 항목에 표시하지 않음
+        enableBarCollapsing: false, // iOS에서 바 숨김 방지
+      })
+        .then((result) => {
+          console.log("🌐 Browser result:", result);
+          // WebBrowser 결과 처리를 별도로 수행 (cancel이어도 딥링크를 기다림)
+          if (result.type === "cancel" || result.type === "dismiss") {
+            console.log("🌐 WebBrowser closed, waiting for deep link...");
+          }
+        })
+        .catch((error) => {
+          console.error("🌐 WebBrowser error:", error);
+        });
+
+      // 4. 딥링크 콜백을 기다림
+      return await loginPromise;
     } catch (error) {
       this.isLoginInProgress = false;
+      this.loginPromiseResolve = null;
       return {
         success: false,
         error: error instanceof Error ? error.message : "로그인에 실패했습니다",

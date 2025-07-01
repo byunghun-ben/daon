@@ -1,10 +1,18 @@
-import type { ChatStreamChunk } from "@daon/shared";
-import { logger } from "../../../utils/logger";
 import type {
   AIProvider,
   AIStreamRequest,
   AIStreamResponse,
-} from "../interfaces/AIProvider";
+} from "@/services/ai/interfaces/AIProvider.js";
+import { logger } from "@/utils/logger.js";
+import type { ChatStreamChunk } from "@daon/shared";
+
+interface OpenAIStreamResponse {
+  choices?: Array<{
+    delta?: {
+      content?: string;
+    };
+  }>;
+}
 
 export class OpenAIProvider implements AIProvider {
   readonly name = "openai";
@@ -25,9 +33,9 @@ export class OpenAIProvider implements AIProvider {
 
     logger.info(`Starting OpenAI chat stream: ${conversationId}`, {
       messageCount: request.messages.length,
-      model: request.model || this.supportedModels[0],
-      maxTokens: request.maxTokens || 1000,
-      temperature: request.temperature || 0.7,
+      model: request.model ?? this.supportedModels[0],
+      maxTokens: request.maxTokens ?? 1000,
+      temperature: request.temperature ?? 0.7,
     });
 
     try {
@@ -40,10 +48,10 @@ export class OpenAIProvider implements AIProvider {
             Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           },
           body: JSON.stringify({
-            model: request.model || this.supportedModels[0],
+            model: request.model ?? this.supportedModels[0],
             messages: request.messages,
-            max_tokens: request.maxTokens || 1000,
-            temperature: request.temperature || 0.7,
+            max_tokens: request.maxTokens ?? 1000,
+            temperature: request.temperature ?? 0.7,
             stream: true,
           }),
         },
@@ -69,15 +77,15 @@ export class OpenAIProvider implements AIProvider {
       let buffer = "";
       let fullContent = "";
       let chunkIndex = 0;
-      let startTime = Date.now();
+      const startTime = Date.now();
 
       logger.debug(`OpenAI stream started: ${conversationId}`);
 
       try {
         while (true) {
-          const { done, value } = await reader.read();
+          const result = await reader.read();
 
-          if (done) {
+          if (result.done) {
             logger.info(`OpenAI stream completed: ${conversationId}`, {
               totalChunks: chunkIndex,
               contentLength: fullContent.length,
@@ -93,9 +101,11 @@ export class OpenAIProvider implements AIProvider {
             break;
           }
 
-          buffer += decoder.decode(value, { stream: true });
+          buffer += decoder.decode(result.value as ArrayBuffer, {
+            stream: true,
+          });
           const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          buffer = lines.pop() ?? "";
 
           for (const line of lines) {
             if (line.trim() === "") continue;
@@ -122,16 +132,16 @@ export class OpenAIProvider implements AIProvider {
               }
 
               try {
-                const parsed = JSON.parse(data);
+                const parsed = JSON.parse(data) as OpenAIStreamResponse;
                 chunkIndex++;
 
-                if (parsed.choices?.[0]?.delta?.content) {
-                  const deltaText = parsed.choices[0].delta.content;
-                  fullContent += deltaText;
+                const deltaContent = parsed.choices?.[0]?.delta?.content;
+                if (deltaContent && typeof deltaContent === "string") {
+                  fullContent += deltaContent;
 
                   logger.debug(`OpenAI text delta: ${conversationId}`, {
                     chunkIndex,
-                    deltaLength: deltaText.length,
+                    deltaLength: deltaContent.length,
                     totalLength: fullContent.length,
                     elapsedMs: Date.now() - startTime,
                   });
@@ -140,7 +150,7 @@ export class OpenAIProvider implements AIProvider {
                     id: `${conversationId}_${chunkIndex}`,
                     type: "text",
                     content: fullContent,
-                    delta: deltaText,
+                    delta: deltaContent,
                   };
                   onChunk(deltaChunk);
                 }
@@ -170,7 +180,7 @@ export class OpenAIProvider implements AIProvider {
     }
   }
 
-  async healthCheck(): Promise<{ status: string; models: string[] }> {
+  healthCheck(): { status: string; models: string[] } {
     try {
       logger.info("OpenAI health check started");
 

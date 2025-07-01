@@ -1,13 +1,13 @@
-import { Router } from "express";
 import {
   createChild,
-  getChildren,
-  getChild,
-  updateChild,
   deleteChild,
+  getChild,
+  getChildren,
   joinChild,
-} from "../controllers/children.controller";
-import { authenticateToken } from "../middleware/auth";
+  updateChild,
+} from "@/controllers/children.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
 

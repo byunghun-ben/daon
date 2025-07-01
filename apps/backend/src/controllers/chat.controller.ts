@@ -1,10 +1,11 @@
-import { ChatStreamChunk, ChatStreamRequestSchema } from "@daon/shared";
-import { Request, Response } from "express";
-import { logger } from "../utils/logger";
-import { ChatService } from "../services/ai/ChatService";
+import { ChatService } from "@/services/ai/ChatService.js";
+import { logger } from "@/utils/logger.js";
+import type { ChatStreamChunk } from "@daon/shared";
+import { ChatStreamRequestSchema } from "@daon/shared";
+import type { Request, Response } from "express";
 
 export const chatController = {
-  async streamChat(req: Request, res: Response) {
+  streamChat: async (req: Request, res: Response): Promise<void> => {
     try {
       // Validate request body
       const validatedData = ChatStreamRequestSchema.parse(req.body);
@@ -41,8 +42,8 @@ export const chatController = {
         (chunk: ChatStreamChunk) => {
           logger.info(`[Chunk] ${chunk.type}:`, {
             id: chunk.id,
-            contentLength: chunk.content?.length || 0,
-            deltaLength: chunk.delta?.length || 0,
+            contentLength: chunk.content?.length ?? 0,
+            deltaLength: chunk.delta?.length ?? 0,
           });
           res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         },
@@ -87,7 +88,7 @@ export const chatController = {
   },
 
   // Health check for chat service
-  async healthCheck(req: Request, res: Response) {
+  healthCheck: async (req: Request, res: Response): Promise<void> => {
     try {
       const health = await ChatService.healthCheck();
 
@@ -108,7 +109,7 @@ export const chatController = {
   },
 
   // Get available models
-  async getModels(req: Request, res: Response) {
+  getModels: (req: Request, res: Response): void => {
     try {
       const models = ChatService.getAvailableModels();
 

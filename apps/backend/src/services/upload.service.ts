@@ -69,7 +69,7 @@ export class UploadService {
     const accessKeyId = process.env.R2_ACCESS_KEY_ID;
     const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
     const bucketName = process.env.R2_BUCKET_NAME;
-    const region = process.env.R2_REGION || "auto";
+    const region = process.env.R2_REGION ?? "auto";
 
     if (!endpoint || !accessKeyId || !secretAccessKey || !bucketName) {
       throw new Error(
@@ -146,7 +146,7 @@ export class UploadService {
         userId,
         originalName: fileName,
         uploadedAt: new Date().toISOString(),
-        category: category || "general",
+        category: category ?? "general",
       },
     });
 
@@ -193,11 +193,11 @@ export class UploadService {
 
       // 3. 파일 정보 수집
       const fileInfo = {
-        size: headResult.ContentLength || 0,
-        contentType: headResult.ContentType || "",
-        lastModified: headResult.LastModified || new Date(),
-        etag: headResult.ETag || "",
-        metadata: headResult.Metadata || {},
+        size: headResult.ContentLength ?? 0,
+        contentType: headResult.ContentType ?? "",
+        lastModified: headResult.LastModified ?? new Date(),
+        etag: headResult.ETag ?? "",
+        metadata: headResult.Metadata ?? {},
       };
 
       const publicUrl = `${this.publicBaseUrl}/${fileKey}`;

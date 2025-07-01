@@ -1,13 +1,13 @@
-import { Router } from "express";
 import {
   createActivity,
+  deleteActivity,
   getActivities,
   getActivity,
-  updateActivity,
-  deleteActivity,
   getActivitySummary,
-} from "../controllers/activities.controller";
-import { authenticateToken } from "../middleware/auth";
+  updateActivity,
+} from "@/controllers/activities.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
 

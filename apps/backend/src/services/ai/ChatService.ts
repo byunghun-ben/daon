@@ -1,7 +1,7 @@
+import { AIProviderFactory } from "@/services/ai/AIProviderFactory.js";
+import type { AIStreamRequest } from "@/services/ai/interfaces/AIProvider.js";
+import { logger } from "@/utils/logger.js";
 import type { ChatStreamChunk } from "@daon/shared";
-import { logger } from "../../utils/logger";
-import { AIProviderFactory } from "./AIProviderFactory";
-import type { AIStreamRequest } from "./interfaces/AIProvider";
 
 export interface ChatServiceRequest {
   messages: Array<{
@@ -67,16 +67,16 @@ export class ChatService {
     }
   }
 
-  static async healthCheck(): Promise<{
+  static healthCheck(): {
     status: string;
     providers: Record<string, { status: string; models: string[] }>;
-  }> {
+  } {
     const providers = AIProviderFactory.getAllProviders();
     const results: Record<string, { status: string; models: string[] }> = {};
 
     for (const [type, provider] of providers) {
       try {
-        const health = await provider.healthCheck();
+        const health = provider.healthCheck();
         results[type] = health;
       } catch (error) {
         results[type] = {

@@ -8,7 +8,7 @@ import baseConfig from "./base.mjs";
  */
 export default [
   ...baseConfig,
-  
+
   // Node.js 환경 설정
   {
     files: ["**/*.ts", "**/*.tsx"],
@@ -36,26 +36,61 @@ export default [
     plugins: {
       "@typescript-eslint": tseslint,
     },
+    settings: {
+      // TypeScript 경로 매핑 해결을 위한 설정
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+      },
+    },
     rules: {
       // Node.js 환경에서 추가 규칙
       ...tseslint.configs["recommended-type-checked"].rules,
-      
+
+      // Supabase와 같은 라이브러리에서 발생하는 타입 안전성 경고 완화
+      // "@typescript-eslint/no-unsafe-assignment": "warn",
+      // "@typescript-eslint/no-unsafe-member-access": "warn",
+      // "@typescript-eslint/no-unsafe-call": "warn",
+      // "@typescript-eslint/no-unsafe-return": "warn",
+
       // 함수 반환 타입 명시 (백엔드에서는 더 엄격하게)
       "@typescript-eslint/explicit-function-return-type": "warn",
       "@typescript-eslint/explicit-module-boundary-types": "warn",
-      
+
       // Node.js에서 console.log는 일반적
       "no-console": "off",
+      "no-undef": "off",
     },
   },
 
   // 설정 파일 및 스크립트는 더 관대하게
   {
-    files: ["*.config.js", "*.config.mjs", "scripts/**/*.js", "scripts/**/*.ts"],
+    files: [
+      "*.config.js",
+      "*.config.mjs",
+      "scripts/**/*.js",
+      "scripts/**/*.ts",
+    ],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
+      // "@typescript-eslint/no-unsafe-assignment": "off",
+      // "@typescript-eslint/no-unsafe-member-access": "off",
+      // "@typescript-eslint/no-unsafe-call": "off",
       "no-console": "off",
+    },
+  },
+
+  {
+    files: ["**/supabase.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-definitions": "off",
+      "@typescript-eslint/no-redundant-type-constituents": "off",
     },
   },
 ];

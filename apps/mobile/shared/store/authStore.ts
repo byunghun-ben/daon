@@ -28,6 +28,7 @@ interface AuthState {
   initializeAuth: () => Promise<void>;
   setUser: (user: UserApi | null) => void;
   setLoading: (loading: boolean) => void;
+  saveToken: (token: string, refreshToken?: string) => Promise<void>;
 }
 
 const STORAGE_KEY = "auth-store";
@@ -199,6 +200,33 @@ export const useAuthStore = create<AuthState>()(
 
           // Navigate to auth screen
           router.replace("/(auth)/sign-in");
+        }
+      },
+
+      saveToken: async (token: string, refreshToken?: string) => {
+        try {
+          // 토큰을 저장하고 사용자 프로필을 가져옴
+          await authUtils.saveTokens(token, refreshToken);
+
+          // 사용자 프로필 가져오기
+          const response = await authApi.getProfile();
+          set({
+            user: response.user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          console.error(
+            "[AuthStore] Failed to save token and get profile:",
+            error,
+          );
+          await authUtils.clearTokens();
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          throw error;
         }
       },
     }),

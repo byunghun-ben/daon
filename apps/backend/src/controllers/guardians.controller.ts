@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase";
-import { logger } from "../utils/logger";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
+import { supabaseAdmin } from "@/lib/supabase.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
+import { z } from "zod/v4";
 
 // Zod schemas for validation
 const InviteGuardianSchema = z.object({
@@ -77,7 +77,7 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    if (existingGuardian && existingGuardian.accepted_at) {
+    if (existingGuardian?.accepted_at) {
       res
         .status(400)
         .json({ error: "User is already a guardian for this child" });
@@ -102,7 +102,7 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
         *,
         users(name, email),
         children(name)
-      `
+      `,
       )
       .single();
 
@@ -133,7 +133,7 @@ export const inviteGuardian = createAuthenticatedHandler(async (req, res) => {
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: "Validation failed",
-        details: error.errors,
+        details: error.issues,
       });
       return;
     }
@@ -170,7 +170,7 @@ export const getGuardians = createAuthenticatedHandler(async (req, res) => {
         `
         *,
         users(id, name, email, avatar_url)
-      `
+      `,
       )
       .eq("child_id", child_id)
       .order("created_at", { ascending: true });
@@ -207,7 +207,7 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
         *,
         children(name, owner_id),
         users(name, email)
-      `
+      `,
       )
       .eq("id", validatedData.invitation_id)
       .eq("user_id", req.user.id)
@@ -231,7 +231,7 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
         *,
         children(name),
         users(name, email)
-      `
+      `,
       )
       .single();
 
@@ -258,7 +258,7 @@ export const acceptInvitation = createAuthenticatedHandler(async (req, res) => {
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: "Validation failed",
-        details: error.errors,
+        details: error.issues,
       });
       return;
     }
@@ -281,7 +281,7 @@ export const getPendingInvitations = createAuthenticatedHandler(
         *,
         children(name, birth_date, gender),
         users!child_guardians_child_id_fkey(name, email)
-      `
+      `,
         )
         .eq("user_id", req.user.id)
         .is("accepted_at", null)
@@ -301,7 +301,7 @@ export const getPendingInvitations = createAuthenticatedHandler(
       logger.error("Get pending invitations error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**

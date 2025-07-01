@@ -1,3 +1,7 @@
+import { supabaseAdmin } from "@/lib/supabase.js";
+import type { TablesUpdate } from "@/types/supabase.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
 import {
   apiToDb,
   CreateChildRequestSchema,
@@ -5,18 +9,14 @@ import {
   JoinChildRequestSchema,
   UpdateChildRequestSchema,
 } from "@daon/shared";
-import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase";
-import type { TablesUpdate } from "../types/supabase";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
-import { logger } from "../utils/logger";
+import { z } from "zod/v4";
 
 /**
  * Create a new child profile
  */
 export const createChild = createAuthenticatedHandler(async (req, res) => {
   logger.info("createChild", {
-    body: req.body,
+    body: req.body as unknown,
     user: req.user,
   });
 
@@ -84,7 +84,7 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: "Validation failed",
-        details: error.errors,
+        details: error.issues,
       });
       return;
     }
@@ -242,7 +242,7 @@ export const updateChild = createAuthenticatedHandler(async (req, res) => {
     if (error instanceof z.ZodError) {
       res.status(400).json({
         error: "Validation failed",
-        details: error.errors,
+        details: error.issues,
       });
       return;
     }
@@ -323,7 +323,7 @@ export const joinChild = createAuthenticatedHandler(async (req, res) => {
     if (childError || !child) {
       logger.warn("Invalid invite code", {
         userId: req.user.id,
-        inviteCode: inviteCode,
+        inviteCode,
         error: childError,
       });
       res.status(404).json({ error: "Invalid invite code" });
@@ -351,7 +351,7 @@ export const joinChild = createAuthenticatedHandler(async (req, res) => {
       .insert({
         child_id: child.id,
         user_id: req.user.id,
-        role: role,
+        role,
         accepted_at: new Date().toISOString(),
       });
 
@@ -381,7 +381,7 @@ export const joinChild = createAuthenticatedHandler(async (req, res) => {
     logger.info("User joined child successfully", {
       userId: req.user.id,
       childId: child.id,
-      inviteCode: inviteCode,
+      inviteCode,
     });
 
     // DB 데이터를 API 형식으로 변환 (snake_case → camelCase)

@@ -1,15 +1,21 @@
 // Load environment variables first
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-import express, { Express } from "express";
+import apiRoutes from "@/routes/index.js";
+import { logger } from "@/utils/logger.js";
 import cors from "cors";
+import type { Express } from "express";
+import express from "express";
 import helmet from "helmet";
-import { logger } from "./utils/logger";
 
 const app: Express = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT ?? 3001;
 
 // Security middleware
 app.use(helmet());
@@ -17,7 +23,7 @@ app.use(helmet());
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
     credentials: true,
   }),
 );
@@ -54,7 +60,6 @@ app.get("/", (req, res) => {
 });
 
 // API routes
-import apiRoutes from "./routes";
 app.use("/api/v1", apiRoutes);
 
 // Extended Error interface with status property
@@ -76,7 +81,7 @@ app.use(
       return next(err);
     }
 
-    res.status(err.status || 500).json({
+    res.status(err.status ?? 500).json({
       error:
         process.env.NODE_ENV === "production"
           ? "Internal server error"
@@ -94,7 +99,7 @@ app.use("/*splat", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+  logger.info(`Environment: ${process.env.NODE_ENV ?? "development"}`);
 });
 
 export default app;

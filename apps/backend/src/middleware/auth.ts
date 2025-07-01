@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { supabase } from "../lib/supabase";
-import { logger } from "../utils/logger";
+import { supabase } from "@/lib/supabase.js";
+import { logger } from "@/utils/logger.js";
+import type { NextFunction, Request, Response } from "express";
 
 // User type definition
 export interface User {
@@ -24,11 +24,11 @@ export interface AuthenticatedRequest extends Request {
 export async function authenticateToken(
   req: BaseRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+    const token = authHeader?.split(" ")[1]; // Bearer TOKEN
 
     if (!token) {
       res.status(401).json({ error: "Access token required" });
@@ -50,7 +50,7 @@ export async function authenticateToken(
     // Add user info to request
     req.user = {
       id: user.id,
-      email: user.email || "",
+      email: user.email ?? "",
       role: user.role,
     };
 
@@ -65,7 +65,7 @@ export async function authenticateToken(
  * Type guard to check if request has authenticated user
  */
 export function isAuthenticatedRequest(
-  req: BaseRequest
+  req: BaseRequest,
 ): req is AuthenticatedRequest {
   return req.user !== undefined;
 }
@@ -76,11 +76,11 @@ export function isAuthenticatedRequest(
 export async function optionalAuth(
   req: BaseRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(" ")[1];
+    const token = authHeader?.split(" ")[1];
 
     if (token) {
       const {
@@ -91,7 +91,7 @@ export async function optionalAuth(
       if (!error && user) {
         req.user = {
           id: user.id,
-          email: user.email || "",
+          email: user.email ?? "",
           role: user.role,
         };
       }
@@ -111,7 +111,7 @@ export function requireRole(role: string) {
   return (
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): void => {
     if (!req.user) {
       res.status(401).json({ error: "Authentication required" });

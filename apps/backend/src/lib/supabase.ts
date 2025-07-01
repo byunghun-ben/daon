@@ -1,21 +1,24 @@
+import type { Database } from "@/types/supabase.js";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "../types/supabase";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
 
 // Ensure environment variables are loaded
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
   throw new Error(
     `Missing Supabase environment variables:\n` +
-    `SUPABASE_URL: ${supabaseUrl ? "✓" : "✗"}\n` +
-    `SUPABASE_ANON_KEY: ${supabaseAnonKey ? "✓" : "✗"}\n` +
-    `SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? "✓" : "✗"}`
+      `SUPABASE_URL: ${supabaseUrl ? "✓" : "✗"}\n` +
+      `SUPABASE_ANON_KEY: ${supabaseAnonKey ? "✓" : "✗"}\n` +
+      `SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? "✓" : "✗"}`,
   );
 }
 
@@ -31,7 +34,7 @@ export const supabaseAdmin = createClient<Database>(
       autoRefreshToken: false,
       persistSession: false,
     },
-  }
+  },
 );
 
 export type SupabaseClient = typeof supabase;

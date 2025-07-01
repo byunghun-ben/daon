@@ -1,13 +1,13 @@
-import { Router } from "express";
 import {
   createGrowthRecord,
-  getGrowthRecords,
-  getGrowthRecord,
-  updateGrowthRecord,
   deleteGrowthRecord,
   getGrowthChart,
-} from "../controllers/growth.controller";
-import { authenticateToken } from "../middleware/auth";
+  getGrowthRecord,
+  getGrowthRecords,
+  updateGrowthRecord,
+} from "@/controllers/growth.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
 

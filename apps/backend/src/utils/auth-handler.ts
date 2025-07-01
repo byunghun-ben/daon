@@ -1,13 +1,13 @@
 import {
+  isAuthenticatedRequest,
+  type AuthenticatedRequest,
+} from "@/middleware/auth.js";
+import {
   type NextFunction,
   type Request,
   type RequestHandler,
   type Response,
 } from "express";
-import {
-  isAuthenticatedRequest,
-  type AuthenticatedRequest,
-} from "../middleware/auth";
 
 /**
  * Wrapper function to create authenticated handlers

@@ -33,5 +33,5 @@ export interface AIProvider {
     onError: (error: Error) => void,
   ): Promise<void>;
 
-  healthCheck(): Promise<{ status: string; models: string[] }>;
+  healthCheck(): { status: string; models: string[] };
 }

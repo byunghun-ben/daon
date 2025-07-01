@@ -1,11 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk";
-import type { ChatStreamChunk } from "@daon/shared";
-import { logger } from "../../../utils/logger";
 import type {
   AIProvider,
   AIStreamRequest,
   AIStreamResponse,
-} from "../interfaces/AIProvider";
+} from "@/services/ai/interfaces/AIProvider.js";
+import { logger } from "@/utils/logger.js";
+import Anthropic from "@anthropic-ai/sdk";
+import type { ChatStreamChunk } from "@daon/shared";
 
 export class AnthropicProvider implements AIProvider {
   readonly name = "anthropic";
@@ -34,9 +34,9 @@ export class AnthropicProvider implements AIProvider {
 
     logger.info(`Starting Anthropic chat stream: ${conversationId}`, {
       messageCount: request.messages.length,
-      model: request.model || this.supportedModels[0],
-      maxTokens: request.maxTokens || 1000,
-      temperature: request.temperature || 0.7,
+      model: request.model ?? this.supportedModels[0],
+      maxTokens: request.maxTokens ?? 1000,
+      temperature: request.temperature ?? 0.7,
     });
 
     try {
@@ -60,9 +60,9 @@ export class AnthropicProvider implements AIProvider {
 
       // Create streaming request
       const stream = await this.client.messages.create({
-        model: request.model || this.supportedModels[0],
-        max_tokens: request.maxTokens || 1000,
-        temperature: request.temperature || 0.7,
+        model: request.model ?? this.supportedModels[0],
+        max_tokens: request.maxTokens ?? 1000,
+        temperature: request.temperature ?? 0.7,
         messages: anthropicMessages,
         ...(systemMessage && { system: systemMessage.content }),
         stream: true,
@@ -70,7 +70,7 @@ export class AnthropicProvider implements AIProvider {
 
       let fullContent = "";
       let chunkIndex = 0;
-      let startTime = Date.now();
+      const startTime = Date.now();
 
       // Process streaming response
       for await (const chunk of stream) {
@@ -166,7 +166,7 @@ export class AnthropicProvider implements AIProvider {
     }
   }
 
-  async healthCheck(): Promise<{ status: string; models: string[] }> {
+  healthCheck(): { status: string; models: string[] } {
     try {
       logger.info("Anthropic health check started");
 

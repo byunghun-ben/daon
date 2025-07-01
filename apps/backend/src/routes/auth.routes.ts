@@ -1,19 +1,25 @@
-import { Router } from "express";
 import {
-  signUp,
+  createChild,
+  getProfile,
   signIn,
   signOut,
-  getProfile,
+  signUp,
   updateProfile,
-  createChild,
-} from "../controllers/auth.controller";
-import { authenticateToken } from "../middleware/auth";
+} from "@/controllers/auth.controller.js";
+import { KakaoAuthController } from "@/controllers/kakao-auth.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
+const kakaoAuthController = new KakaoAuthController();
 
 // Public routes
 router.post("/signup", signUp);
 router.post("/signin", signIn);
+
+// Kakao OAuth routes
+router.post("/kakao/url", kakaoAuthController.generateLoginUrl);
+router.get("/kakao/callback", kakaoAuthController.handleCallback);
 
 // Protected routes
 router.post("/signout", authenticateToken, signOut);

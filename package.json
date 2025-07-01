@@ -2,6 +2,7 @@
   "name": "daon",
   "version": "1.0.0",
   "description": "다온 - 육아 기록 모바일 앱",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",

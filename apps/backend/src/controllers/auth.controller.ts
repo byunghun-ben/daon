@@ -1,3 +1,7 @@
+import { supabase, supabaseAdmin } from "@/lib/supabase.js";
+import type { TablesUpdate } from "@/types/supabase.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
 import {
   CreateChildRequestSchema,
   SignInRequestSchema,
@@ -6,12 +10,8 @@ import {
   apiToDb,
   dbToApi,
 } from "@daon/shared";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import z from "zod/v4";
-import { supabase, supabaseAdmin } from "../lib/supabase";
-import type { TablesUpdate } from "../types/supabase";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
-import { logger } from "../utils/logger";
 
 // Using shared schemas for request validation
 
@@ -35,7 +35,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    if (!data.user) {
+    if (!data.user?.email) {
       res.status(400).json({ error: "Failed to create user" });
       return;
     }
@@ -43,7 +43,7 @@ export async function signUp(req: Request, res: Response): Promise<void> {
     // Create user profile in our database (registration incomplete)
     const { error: profileError } = await supabaseAdmin.from("users").insert({
       id: data.user.id,
-      email: data.user.email!,
+      email: data.user.email,
       name,
       registration_status: "incomplete",
       phone,
@@ -148,8 +148,8 @@ export async function signIn(req: Request, res: Response): Promise<void> {
     }
 
     const allChildren = [
-      ...(children || []),
-      ...(guardianChildren?.map((g) => g.children) || []),
+      ...(children ?? []),
+      ...(guardianChildren?.map((g) => g.children) ?? []),
     ];
 
     logger.info("User signed in successfully", {
@@ -160,7 +160,7 @@ export async function signIn(req: Request, res: Response): Promise<void> {
 
     res.json({
       message: "Signed in successfully",
-      user: profile || {
+      user: profile ?? {
         id: data.user.id,
         email: data.user.email,
       },
@@ -189,7 +189,7 @@ export const signOut = createAuthenticatedHandler(async (req, res) => {
   try {
     // Get the current user's token from the request header for proper logout
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(" ")[1];
+    const token = authHeader?.split(" ")[1];
 
     if (token) {
       // Create a Supabase client with the user's token for proper session invalidation

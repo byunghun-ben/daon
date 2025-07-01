@@ -4,7 +4,11 @@ import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SignInFormSchema, SignInFormSchemaType } from "../../shared/types";
+import { kakaoAuthService } from "../../shared/lib/kakao-auth";
+import {
+  SignInFormSchema,
+  type SignInFormSchemaType,
+} from "../../shared/types";
 import { Button, Input, KakaoButton } from "../../shared/ui";
 
 export const SignInForm = () => {
@@ -41,9 +45,31 @@ export const SignInForm = () => {
 
   const handleKakaoSignIn = async () => {
     try {
-      // TODO: 카카오톡 로그인 로직 구현
       console.log("[SignInForm] 카카오톡 로그인 시도");
-      Alert.alert("카카오톡 로그인", "카카오톡 로그인 기능을 구현 중입니다.");
+
+      const result = await kakaoAuthService.login();
+
+      if (result.success && result.token) {
+        // 카카오톡 로그인 성공 - 토큰을 사용해 인증 상태 업데이트
+        console.log("[SignInForm] 카카오톡 로그인 성공");
+
+        // AuthStore에 토큰 저장 (임시 구현)
+        // 실제로는 signInWithKakao 같은 메서드를 구현해야 함
+        const { saveToken } = useAuthStore.getState();
+        await saveToken(result.token, result.refreshToken);
+
+        // 아이 설정이 필요한지 확인하고 적절한 화면으로 이동
+        if (result.needsChildSetup) {
+          router.replace("/(onboarding)/child-setup");
+        } else {
+          router.replace("/(tabs)");
+        }
+      } else {
+        Alert.alert(
+          "카카오톡 로그인 실패",
+          result.error || "알 수 없는 오류가 발생했습니다",
+        );
+      }
     } catch (error) {
       console.error("카카오톡 로그인 중 오류:", error);
       Alert.alert(

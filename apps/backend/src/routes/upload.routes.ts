@@ -1,6 +1,6 @@
+import { UploadController } from "@/controllers/upload.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
 import { Router } from "express";
-import { UploadController } from "../controllers/upload.controller";
-import { authenticateToken } from "../middleware/auth";
 
 const router = Router();
 

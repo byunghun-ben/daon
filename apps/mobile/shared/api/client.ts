@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from "axios";
+import type { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios from "axios";
 
 // API base configuration
-const API_BASE_URL = __DEV__ 
-  ? "http://localhost:3001/api/v1" 
+const API_BASE_URL = __DEV__
+  ? "http://localhost:3001/api/v1"
   : "https://api.daon.app/v1"; // Replace with your production URL
 
 // Storage keys
@@ -18,7 +19,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
-    public data?: any
+    public data?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -55,7 +56,7 @@ class ApiClient {
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     // Response interceptor to handle errors
@@ -65,19 +66,26 @@ class ApiClient {
         if (error.response) {
           // Server responded with error status
           const { status, data } = error.response;
-          throw new ApiError(
-            status, 
-            (data as any)?.error || error.message || "API Error", 
-            data
-          );
+          let errorMessage = error.message;
+          if (
+            data &&
+            typeof data === "object" &&
+            "error" in data &&
+            typeof data.error === "string"
+          ) {
+            errorMessage = data.error;
+          }
+          throw new ApiError(status, errorMessage || "API Error", data);
         } else if (error.request) {
           // Network error
           throw new ApiError(0, "Network Error", { originalError: error });
         } else {
           // Other error
-          throw new ApiError(0, error.message || "Unknown Error", { originalError: error });
+          throw new ApiError(0, error.message || "Unknown Error", {
+            originalError: error,
+          });
         }
-      }
+      },
     );
   }
 
@@ -87,12 +95,20 @@ class ApiClient {
     return response.data;
   }
 
-  async post<T>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     const response = await this.client.post<T>(endpoint, data, config);
     return response.data;
   }
 
-  async put<T>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async put<T>(
+    endpoint: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     const response = await this.client.put<T>(endpoint, data, config);
     return response.data;
   }
@@ -103,7 +119,11 @@ class ApiClient {
   }
 
   // File upload support
-  async postFormData<T>(endpoint: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+  async postFormData<T>(
+    endpoint: string,
+    formData: FormData,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     const response = await this.client.post<T>(endpoint, formData, {
       ...config,
       headers: {

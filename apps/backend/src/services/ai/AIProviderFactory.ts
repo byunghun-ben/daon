@@ -1,7 +1,7 @@
-import type { AIProvider } from "./interfaces/AIProvider";
-import { AnthropicProvider } from "./providers/AnthropicProvider";
-import { OpenAIProvider } from "./providers/OpenAIProvider";
-import { AzureOpenAIProvider } from "./providers/AzureOpenAIProvider";
+import type { AIProvider } from "@/services/ai/interfaces/AIProvider.js";
+import { AnthropicProvider } from "@/services/ai/providers/AnthropicProvider.js";
+import { AzureOpenAIProvider } from "@/services/ai/providers/AzureOpenAIProvider.js";
+import { OpenAIProvider } from "@/services/ai/providers/OpenAIProvider.js";
 
 export type AIProviderType = "anthropic" | "openai" | "azure-openai";
 

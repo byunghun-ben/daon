@@ -1,13 +1,13 @@
-import { Router } from "express";
 import {
+  addMilestone,
   createDiaryEntry,
+  deleteDiaryEntry,
   getDiaryEntries,
   getDiaryEntry,
   updateDiaryEntry,
-  deleteDiaryEntry,
-  addMilestone,
-} from "../controllers/diary.controller";
-import { authenticateToken } from "../middleware/auth";
+} from "@/controllers/diary.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
 

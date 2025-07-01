@@ -1,12 +1,12 @@
-import { Router } from "express";
 import {
-  inviteGuardian,
-  getGuardians,
   acceptInvitation,
+  getGuardians,
   getPendingInvitations,
+  inviteGuardian,
   removeGuardian,
-} from "../controllers/guardians.controller";
-import { authenticateToken } from "../middleware/auth";
+} from "@/controllers/guardians.controller.js";
+import { authenticateToken } from "@/middleware/auth.js";
+import { Router } from "express";
 
 const router: Router = Router();
 

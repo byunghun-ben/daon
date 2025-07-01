@@ -19,6 +19,7 @@ import { queryClient } from "@/shared/lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useAuthStore } from "@/shared/store";
+import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 
 const useNotificationObserver = () => {
   useEffect(() => {
@@ -66,6 +67,16 @@ export default function RootLayout() {
       initializeAuth();
     }
   }, [isInitialized, initializeAuth]);
+
+  // Initialize Kakao auth service on app start
+  useEffect(() => {
+    kakaoAuthService.checkInitialURL();
+
+    // Cleanup on unmount
+    return () => {
+      kakaoAuthService.cleanup();
+    };
+  }, []);
 
   // Show loading screen while fonts or auth are loading
   if (!loaded || !isInitialized || isLoading) {

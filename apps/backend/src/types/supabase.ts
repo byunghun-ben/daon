@@ -309,6 +309,8 @@ export type Database = {
           email: string;
           id: string;
           name: string | null;
+          oauth_provider: string | null;
+          oauth_provider_id: string | null;
           phone: string | null;
           registration_status: string;
           updated_at: string;
@@ -319,6 +321,8 @@ export type Database = {
           email: string;
           id: string;
           name?: string | null;
+          oauth_provider?: string | null;
+          oauth_provider_id?: string | null;
           phone?: string | null;
           registration_status?: string;
           updated_at?: string;
@@ -329,6 +333,8 @@ export type Database = {
           email?: string;
           id?: string;
           name?: string | null;
+          oauth_provider?: string | null;
+          oauth_provider_id?: string | null;
           phone?: string | null;
           registration_status?: string;
           updated_at?: string;

@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase";
-import { logger } from "../utils/logger";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
+import { supabaseAdmin } from "@/lib/supabase.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
 import {
   CreateDiaryEntryRequestSchema,
-  UpdateDiaryEntryRequestSchema,
-  DiaryFiltersSchema,
   CreateMilestoneRequestSchema,
+  DiaryFiltersSchema,
+  UpdateDiaryEntryRequestSchema,
 } from "@daon/shared";
+import { z } from "zod/v4";
 
 /**
  * Create a new diary entry
@@ -45,27 +45,29 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
     const { data: diaryEntry, error } = await supabaseAdmin
       .from("diary_entries")
       .insert(dbData)
-      .select(`
+      .select(
+        `
         *,
         children(name),
         users(name, email)
-      `)
+      `,
+      )
       .single();
 
     if (error) {
-      logger.error("Failed to create diary entry", { 
+      logger.error("Failed to create diary entry", {
         userId: req.user.id,
         childId: validatedApiData.childId,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to create diary entry" });
       return;
     }
 
-    logger.info("Diary entry created successfully", { 
+    logger.info("Diary entry created successfully", {
       diaryEntryId: diaryEntry.id,
       childId: validatedApiData.childId,
-      userId: req.user.id
+      userId: req.user.id,
     });
 
     res.status(201).json({
@@ -74,9 +76,9 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.issues,
       });
       return;
     }
@@ -94,9 +96,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     const filters = DiaryFiltersSchema.parse(req.query);
 
     // Build query
-    let query = supabaseAdmin
-      .from("diary_entries")
-      .select(`
+    let query = supabaseAdmin.from("diary_entries").select(`
         *,
         children(id, name),
         users(name, email),
@@ -110,7 +110,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
       .eq("user_id", req.user.id)
       .not("accepted_at", "is", null);
 
-    const accessibleChildIds = guardianRelations?.map((r) => r.child_id) || [];
+    const accessibleChildIds = guardianRelations?.map((r) => r.child_id) ?? [];
 
     // Also include owned children
     const { data: ownedChildren } = await supabaseAdmin
@@ -118,7 +118,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
       .select("id")
       .eq("owner_id", req.user.id);
 
-    const ownedChildIds = ownedChildren?.map((c) => c.id) || [];
+    const ownedChildIds = ownedChildren?.map((c) => c.id) ?? [];
 
     const allAccessibleChildIds = [...accessibleChildIds, ...ownedChildIds];
 
@@ -147,16 +147,20 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     }
 
     // Add pagination and ordering
-    const { data: diaryEntries, error, count } = await query
+    const {
+      data: diaryEntries,
+      error,
+      count,
+    } = await query
       .order("date", { ascending: false })
       .range(filters.offset, filters.offset + filters.limit - 1)
       .limit(filters.limit);
 
     if (error) {
-      logger.error("Failed to get diary entries", { 
+      logger.error("Failed to get diary entries", {
         userId: req.user.id,
         filters,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to get diary entries" });
       return;
@@ -167,14 +171,14 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
       pagination: {
         limit: filters.limit,
         offset: filters.offset,
-        total: count || diaryEntries.length,
+        total: count ?? diaryEntries.length,
       },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Invalid query parameters", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Invalid query parameters",
+        details: error.issues,
       });
       return;
     }
@@ -193,7 +197,8 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
 
     const { data: diaryEntry, error } = await supabaseAdmin
       .from("diary_entries")
-      .select(`
+      .select(
+        `
         *,
         children!inner(
           id, name,
@@ -204,7 +209,8 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
         ),
         users(name, email),
         milestones(*)
-      `)
+      `,
+      )
       .eq("id", id)
       .eq("children.child_guardians.user_id", req.user.id)
       .not("children.child_guardians.accepted_at", "is", null)
@@ -212,14 +218,16 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
 
     if (error) {
       if (error.code === "PGRST116") {
-        res.status(404).json({ error: "Diary entry not found or access denied" });
+        res
+          .status(404)
+          .json({ error: "Diary entry not found or access denied" });
         return;
       }
 
-      logger.error("Failed to get diary entry", { 
+      logger.error("Failed to get diary entry", {
         diaryEntryId: id,
         userId: req.user.id,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to get diary entry" });
       return;
@@ -261,27 +269,29 @@ export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       .from("diary_entries")
       .update(validatedData)
       .eq("id", id)
-      .select(`
+      .select(
+        `
         *,
         children(name),
         users(name, email),
         milestones(*)
-      `)
+      `,
+      )
       .single();
 
     if (error) {
-      logger.error("Failed to update diary entry", { 
+      logger.error("Failed to update diary entry", {
         diaryEntryId: id,
         userId: req.user.id,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to update diary entry" });
       return;
     }
 
-    logger.info("Diary entry updated successfully", { 
+    logger.info("Diary entry updated successfully", {
       diaryEntryId: id,
-      userId: req.user.id 
+      userId: req.user.id,
     });
 
     res.json({
@@ -290,9 +300,9 @@ export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.issues,
       });
       return;
     }
@@ -332,18 +342,18 @@ export const deleteDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       .eq("id", id);
 
     if (error) {
-      logger.error("Failed to delete diary entry", { 
+      logger.error("Failed to delete diary entry", {
         diaryEntryId: id,
         userId: req.user.id,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to delete diary entry" });
       return;
     }
 
-    logger.info("Diary entry deleted successfully", { 
+    logger.info("Diary entry deleted successfully", {
       diaryEntryId: id,
-      userId: req.user.id 
+      userId: req.user.id,
     });
 
     res.json({ message: "Diary entry deleted successfully" });
@@ -378,37 +388,39 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     const dbData = {
       type: validatedData.type,
       title: validatedData.title,
-      description: validatedData.description || "",
+      description: validatedData.description ?? "",
       achieved_at: validatedData.achievedAt,
       child_id: validatedData.childId,
-      diary_entry_id: validatedData.diaryEntryId || null,
+      diary_entry_id: validatedData.diaryEntryId ?? null,
     };
 
     // Create milestone
     const { data: milestone, error } = await supabaseAdmin
       .from("milestones")
       .insert(dbData)
-      .select(`
+      .select(
+        `
         *,
         children(name),
         diary_entries(date, content)
-      `)
+      `,
+      )
       .single();
 
     if (error) {
-      logger.error("Failed to create milestone", { 
+      logger.error("Failed to create milestone", {
         userId: req.user.id,
         childId: validatedData.childId,
-        error 
+        error,
       });
       res.status(500).json({ error: "Failed to create milestone" });
       return;
     }
 
-    logger.info("Milestone created successfully", { 
+    logger.info("Milestone created successfully", {
       milestoneId: milestone.id,
       childId: validatedData.childId,
-      userId: req.user.id
+      userId: req.user.id,
     });
 
     res.status(201).json({
@@ -417,9 +429,9 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.errors 
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.issues,
       });
       return;
     }

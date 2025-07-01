@@ -1,12 +1,12 @@
 import { Router } from "express";
-import activitiesRoutes from "./activities.routes";
-import authRoutes from "./auth.routes";
-import chatRoutes from "./chat.routes";
-import childrenRoutes from "./children.routes";
-import diaryRoutes from "./diary.routes";
-import growthRoutes from "./growth.routes";
-import guardiansRoutes from "./guardians.routes";
-import uploadRoutes from "./upload.routes";
+import activitiesRoutes from "./activities.routes.js";
+import authRoutes from "./auth.routes.js";
+import chatRoutes from "./chat.routes.js";
+import childrenRoutes from "./children.routes.js";
+import diaryRoutes from "./diary.routes.js";
+import growthRoutes from "./growth.routes.js";
+import guardiansRoutes from "./guardians.routes.js";
+import uploadRoutes from "./upload.routes.js";
 
 const router: Router = Router();
 

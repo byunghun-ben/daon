@@ -1,7 +1,7 @@
-import { createAuthenticatedHandler } from "src/utils/auth-handler";
-import { z } from "zod";
-import { UploadService } from "../services/upload.service";
-import { logger } from "../utils/logger";
+import { UploadService } from "@/services/upload.service.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
+import { z } from "zod/v4";
 
 // Request 유효성 검사 스키마
 const PresignedUrlRequestSchema = z.object({
@@ -41,7 +41,7 @@ export class UploadController {
         res.status(400).json({
           success: false,
           error: "잘못된 요청 데이터입니다",
-          details: validationResult.error.errors,
+          details: validationResult.error.issues,
         });
         return;
       }
@@ -106,7 +106,7 @@ export class UploadController {
         res.status(400).json({
           success: false,
           error: "잘못된 요청 데이터입니다",
-          details: validationResult.error.errors,
+          details: validationResult.error.issues,
         });
         return;
       }

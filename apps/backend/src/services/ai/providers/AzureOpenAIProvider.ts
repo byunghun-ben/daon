@@ -1,32 +1,45 @@
-import type { ChatStreamChunk } from "@daon/shared";
-import { AzureOpenAI } from "openai";
-import { logger } from "../../../utils/logger";
 import type {
   AIProvider,
   AIStreamRequest,
   AIStreamResponse,
-} from "../interfaces/AIProvider";
+} from "@/services/ai/interfaces/AIProvider.js";
+import { logger } from "@/utils/logger.js";
+import type { ChatStreamChunk } from "@daon/shared";
+import { AzureOpenAI } from "openai";
 
 export class AzureOpenAIProvider implements AIProvider {
   readonly name = "azure-openai";
   readonly supportedModels = ["gpt-4.1"];
 
   private client: AzureOpenAI;
+  private endpoint: string;
+  private apiKey: string;
+  private apiVersion: string;
+  private deployment: string;
+  private model: string;
 
   constructor() {
     const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
     const apiKey = process.env.AZURE_OPENAI_API_KEY;
-    const apiVersion = process.env.OPENAI_API_VERSION || "2024-08-01-preview";
+    const apiVersion = "2024-04-01-preview";
+    const deployment = "gpt-4.1";
+    const model = "gpt-4.1";
 
     if (!endpoint || !apiKey) {
       throw new Error("Azure OpenAI endpoint and API key are required");
     }
 
+    this.endpoint = endpoint;
+    this.apiKey = apiKey;
+    this.apiVersion = apiVersion;
+    this.deployment = deployment;
+    this.model = model;
+
     this.client = new AzureOpenAI({
       endpoint,
       apiKey,
       apiVersion,
-      deployment: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4.1",
+      deployment,
     });
   }
 
@@ -38,31 +51,27 @@ export class AzureOpenAIProvider implements AIProvider {
   ): Promise<void> {
     const conversationId = `azure_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-    logger.info(`Starting Azure OpenAI chat stream: ${conversationId}`, {
-      messageCount: request.messages.length,
-      model: request.model || "gpt-4.1",
-      maxTokens: request.maxTokens || 1000,
-      temperature: request.temperature || 0.7,
-      endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-      deployment: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
-    });
+    logger.info(
+      `Starting Azure OpenAI chat stream: ${conversationId}`,
+      request,
+    );
 
     try {
       // Create streaming request
       const stream = await this.client.chat.completions.create({
-        model: request.model || "gpt-4.1",
+        model: request.model ?? this.model,
         messages: request.messages.map((msg) => ({
           role: msg.role,
           content: msg.content,
         })),
-        max_tokens: request.maxTokens || 1000,
-        temperature: request.temperature || 0.7,
+        max_tokens: request.maxTokens ?? 1000,
+        temperature: request.temperature ?? 0.7,
         stream: true,
       });
 
       let fullContent = "";
       let chunkIndex = 0;
-      let startTime = Date.now();
+      const startTime = Date.now();
 
       logger.debug(`Azure OpenAI stream started: ${conversationId}`);
 
@@ -121,8 +130,8 @@ export class AzureOpenAIProvider implements AIProvider {
             finishReason: choice.finish_reason,
             usage: chunk.usage
               ? {
-                  inputTokens: chunk.usage.prompt_tokens || 0,
-                  outputTokens: chunk.usage.completion_tokens || 0,
+                  inputTokens: chunk.usage.prompt_tokens ?? 0,
+                  outputTokens: chunk.usage.completion_tokens ?? 0,
                 }
               : undefined,
           };
@@ -143,7 +152,7 @@ export class AzureOpenAIProvider implements AIProvider {
     }
   }
 
-  async healthCheck(): Promise<{ status: string; models: string[] }> {
+  healthCheck(): { status: string; models: string[] } {
     try {
       logger.info("Azure OpenAI health check started", {
         endpoint: process.env.AZURE_OPENAI_ENDPOINT,

@@ -1,3 +1,8 @@
+import { supabaseAdmin } from "@/lib/supabase.js";
+import type { Json } from "@/types/supabase.js";
+import { createAuthenticatedHandler } from "@/utils/auth-handler.js";
+import { logger } from "@/utils/logger.js";
+import type { SleepDataApi } from "@daon/shared";
 import {
   ActivityFiltersSchema,
   CreateActivityRequestSchema,
@@ -5,12 +10,8 @@ import {
   apiToDb,
   dbToApi,
 } from "@daon/shared";
-import { RequestHandler } from "express";
-import { z } from "zod";
-import { supabaseAdmin } from "../lib/supabase";
-import type { SleepDataApi } from "@daon/shared";
-import { createAuthenticatedHandler } from "../utils/auth-handler";
-import { logger } from "../utils/logger";
+import { type RequestHandler } from "express";
+import { z } from "zod/v4";
 
 /**
  * Create a new activity record
@@ -42,8 +43,12 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
           child_id: validatedApiData.childId,
           user_id: req.user.id,
           type: validatedApiData.type,
-          timestamp: validatedApiData.timestamp || new Date().toISOString(),
-          data: JSON.parse(JSON.stringify(validatedApiData.data)),
+          timestamp: validatedApiData.timestamp ?? new Date().toISOString(),
+          data: validatedApiData.data
+            ? (JSON.parse(
+                JSON.stringify(validatedApiData.data),
+              ) as unknown as Json)
+            : null,
           notes: validatedApiData.notes,
         })
         .select(
@@ -51,7 +56,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
         *,
         children(name),
         users(name, email)
-      `
+      `,
         )
         .single();
 
@@ -83,7 +88,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: "Validation failed",
-          details: error.errors,
+          details: error.issues,
         });
         return;
       }
@@ -91,7 +96,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
       logger.error("Create activity error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**
@@ -117,7 +122,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
         .not("accepted_at", "is", null);
 
       const accessibleChildIds =
-        guardianRelations?.map((r) => r.child_id) || [];
+        guardianRelations?.map((r) => r.child_id) ?? [];
 
       // Also include owned children
       const { data: ownedChildren } = await supabaseAdmin
@@ -125,7 +130,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
         .select("id")
         .eq("owner_id", req.user.id);
 
-      const ownedChildIds = ownedChildren?.map((c) => c.id) || [];
+      const ownedChildIds = ownedChildren?.map((c) => c.id) ?? [];
 
       const allAccessibleChildIds = [...accessibleChildIds, ...ownedChildIds];
 
@@ -185,14 +190,14 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
         pagination: {
           limit: filters.limit,
           offset: filters.offset,
-          total: count || activities.length,
+          total: count ?? activities.length,
         },
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: "Invalid query parameters",
-          details: error.errors,
+          details: error.issues,
         });
         return;
       }
@@ -200,7 +205,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
       logger.error("Get activities error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**
@@ -224,7 +229,7 @@ export const getActivity: RequestHandler = createAuthenticatedHandler(
           )
         ),
         users(name, email)
-      `
+      `,
         )
         .eq("id", id)
         .eq("children.child_guardians.user_id", req.user.id)
@@ -256,7 +261,7 @@ export const getActivity: RequestHandler = createAuthenticatedHandler(
       logger.error("Get activity error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**
@@ -295,7 +300,9 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
         .from("activities")
         .update({
           ...dbData,
-          data: dbData.data ? JSON.parse(JSON.stringify(dbData.data)) : null,
+          data: dbData.data
+            ? (JSON.parse(JSON.stringify(dbData.data)) as unknown as Json)
+            : null,
         })
         .eq("id", id)
         .select(
@@ -303,7 +310,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
         *,
         children(name),
         users(name, email)
-      `
+      `,
         )
         .single();
 
@@ -333,7 +340,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: "Validation failed",
-          details: error.errors,
+          details: error.issues,
         });
         return;
       }
@@ -341,7 +348,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
       logger.error("Update activity error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**
@@ -396,7 +403,7 @@ export const deleteActivity: RequestHandler = createAuthenticatedHandler(
       logger.error("Delete activity error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 /**
@@ -462,19 +469,25 @@ export const getActivitySummary: RequestHandler = createAuthenticatedHandler(
           count: activities.filter((a) => a.type === "sleep").length,
           totalHours: activities
             .filter((a) => {
-              return a.type === "sleep" && 
-                     a.data && 
-                     typeof a.data === "object" && 
-                     "endedAt" in a.data && 
-                     a.data.endedAt;
+              return (
+                a.type === "sleep" &&
+                a.data &&
+                typeof a.data === "object" &&
+                "endedAt" in a.data &&
+                a.data.endedAt
+              );
             })
             .reduce((total, activity) => {
-              if (!activity.data || typeof activity.data !== "object" || !("endedAt" in activity.data)) {
+              if (
+                !activity.data ||
+                typeof activity.data !== "object" ||
+                !("endedAt" in activity.data)
+              ) {
                 return total;
               }
-              const sleepData = activity.data as SleepDataApi;
+              const sleepData = activity.data as unknown as SleepDataApi;
               if (!sleepData.endedAt) return total;
-              
+
               const start = new Date(sleepData.startedAt);
               const end = new Date(sleepData.endedAt);
               return (
@@ -491,7 +504,7 @@ export const getActivitySummary: RequestHandler = createAuthenticatedHandler(
               if (!activity.data || typeof activity.data !== "object")
                 return total;
               const data = activity.data as { duration?: number };
-              return total + (data.duration || 0);
+              return total + (data.duration ?? 0);
             }, 0),
           lastTime: activities.find((a) => a.type === "tummy_time")?.timestamp,
         },
@@ -503,5 +516,5 @@ export const getActivitySummary: RequestHandler = createAuthenticatedHandler(
       logger.error("Get activity summary error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );

@@ -78,6 +78,9 @@ importers:
         specifier: ^3.25.67
         version: 3.25.67
     devDependencies:
+      '@daon/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@eslint/js':
         specifier: ^9.29.0
         version: 9.30.0
@@ -93,6 +96,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
+      eslint:
+        specifier: ^9.29.0
+        version: 9.30.0
       jest:
         specifier: ^30.0.2
         version: 30.0.3(@types/node@24.0.7)
@@ -247,6 +253,9 @@ importers:
       '@babel/core':
         specifier: ^7.25.2
         version: 7.27.7
+      '@daon/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@types/react':
         specifier: ~19.0.10
         version: 19.0.14
@@ -260,12 +269,39 @@ importers:
         specifier: ~5.8.3
         version: 5.8.3
 
+  packages/eslint-config:
+    dependencies:
+      '@eslint/js':
+        specifier: ^9.29.0
+        version: 9.30.0
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.34.1
+        version: 8.35.0(@typescript-eslint/parser@8.35.0(eslint@9.30.0)(typescript@5.8.3))(eslint@9.30.0)(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.34.1
+        version: 8.35.0(eslint@9.30.0)(typescript@5.8.3)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.30.0
+      eslint-config-expo:
+        specifier: ^9.2.0
+        version: 9.2.0(eslint@9.30.0)(typescript@5.8.3)
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.5(eslint@9.30.0)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
+
   packages/shared:
     dependencies:
       zod:
         specifier: ^3.25.67
         version: 3.25.67
     devDependencies:
+      '@daon/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@eslint/js':
         specifier: ^9.29.0
         version: 9.30.0

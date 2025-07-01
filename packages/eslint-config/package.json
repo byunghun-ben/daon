@@ -1,0 +1,36 @@
+{
+  "name": "@daon/eslint-config",
+  "version": "1.0.0",
+  "description": "Shared ESLint configurations for Daon project",
+  "main": "index.js",
+  "files": [
+    "*.js",
+    "*.mjs",
+    "*.d.ts"
+  ],
+  "types": "./types.d.ts",
+  "exports": {
+    "./base": "./base.mjs",
+    "./react-native": "./react-native.mjs",
+    "./node": "./node.mjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.29.0",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-config-expo": "^9.2.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "eslint",
+    "config",
+    "typescript",
+    "react-native",
+    "node"
+  ],
+  "license": "MIT"
+}

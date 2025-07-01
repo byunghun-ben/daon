@@ -1,10 +1,12 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "@daon/tsconfig/react-native.json",
   "compilerOptions": {
-    "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@daon/shared": ["../../packages/shared/dist/index"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "android", "ios", ".expo"]
 }

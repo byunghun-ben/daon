@@ -16,7 +16,7 @@ import type {
 // 날짜 포맷팅
 export const formatDate = (
   date: string | Date,
-  format: "display" | "api" | "time" = "display"
+  format: "display" | "api" | "time" = "display",
 ): string => {
   const d = new Date(date);
 
@@ -28,7 +28,7 @@ export const formatDate = (
     case "display":
       return `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, "0")}월 ${String(d.getDate()).padStart(2, "0")}일`;
     case "api":
-      return d.toISOString().split("T")[0];
+      return d.toISOString().split("T")[0] ?? "";
     case "time":
       return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
     default:
@@ -56,35 +56,35 @@ export const formatRelativeTime = (date: string | Date): string => {
 
 // 활동 타입 라벨
 export const formatActivityType = (
-  type: keyof typeof ACTIVITY_LABELS
+  type: keyof typeof ACTIVITY_LABELS,
 ): string => {
   return ACTIVITY_LABELS[type] || type;
 };
 
 // 수유 타입 라벨
 export const formatFeedingType = (
-  type: keyof typeof FEEDING_TYPE_LABELS
+  type: keyof typeof FEEDING_TYPE_LABELS,
 ): string => {
   return FEEDING_TYPE_LABELS[type] || type;
 };
 
 // 기저귀 타입 라벨
 export const formatDiaperType = (
-  type: keyof typeof DIAPER_TYPE_LABELS
+  type: keyof typeof DIAPER_TYPE_LABELS,
 ): string => {
   return DIAPER_TYPE_LABELS[type] || type;
 };
 
 // 수면 품질 라벨
 export const formatSleepQuality = (
-  quality: keyof typeof SLEEP_QUALITY_LABELS
+  quality: keyof typeof SLEEP_QUALITY_LABELS,
 ): string => {
   return SLEEP_QUALITY_LABELS[quality] || quality;
 };
 
 // 마일스톤 타입 라벨
 export const formatMilestoneType = (
-  type: keyof typeof MILESTONE_TYPE_LABELS
+  type: keyof typeof MILESTONE_TYPE_LABELS,
 ): string => {
   return MILESTONE_TYPE_LABELS[type] || type;
 };
@@ -142,7 +142,7 @@ export const calculateAge = (birthDate: string): string => {
 // 활동 요약 텍스트 생성
 export const formatActivitySummary = (activity: ActivityApi): string => {
   const typeLabel = formatActivityType(
-    activity.type.toUpperCase() as keyof typeof ACTIVITY_LABELS
+    activity.type.toUpperCase() as keyof typeof ACTIVITY_LABELS,
   );
 
   switch (activity.type) {
@@ -155,7 +155,7 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
         const feedingData = activity.data as FeedingDataApi;
         const parts = [
           formatFeedingType(
-            feedingData.type.toUpperCase() as keyof typeof FEEDING_TYPE_LABELS
+            feedingData.type.toUpperCase() as keyof typeof FEEDING_TYPE_LABELS,
           ),
         ];
         if (feedingData.amount) parts.push(`${feedingData.amount}ml`);
@@ -186,14 +186,14 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
           const duration = Math.floor(
             (new Date(sleepData.endedAt).getTime() -
               new Date(sleepData.startedAt).getTime()) /
-              (1000 * 60)
+              (1000 * 60),
           );
           const parts = [formatDuration(duration)];
           if (sleepData.quality)
             parts.push(
               formatSleepQuality(
-                sleepData.quality.toUpperCase() as keyof typeof SLEEP_QUALITY_LABELS
-              )
+                sleepData.quality.toUpperCase() as keyof typeof SLEEP_QUALITY_LABELS,
+              ),
             );
           return `${typeLabel} - ${parts.join(", ")}`;
         }

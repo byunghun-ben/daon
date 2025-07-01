@@ -13,6 +13,7 @@
     "ios": "echo 'Shared package built successfully'"
   },
   "devDependencies": {
-    "@daon/eslint-config": "workspace:*"
+    "@daon/eslint-config": "workspace:*",
+    "@daon/tsconfig": "workspace:*"
   }
 }

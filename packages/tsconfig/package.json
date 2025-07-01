@@ -1,0 +1,17 @@
+{
+  "name": "@daon/tsconfig",
+  "version": "1.0.0",
+  "description": "Shared TypeScript configurations for Daon project",
+  "main": "index.json",
+  "files": [
+    "*.json"
+  ],
+  "keywords": [
+    "typescript",
+    "tsconfig",
+    "config",
+    "react-native",
+    "node"
+  ],
+  "license": "MIT"
+}

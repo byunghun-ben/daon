@@ -1,11 +1,11 @@
 import { uploadFile } from "@/shared/api/upload";
 import {
-  ImagePickerOptions,
-  ImagePickerResult,
   launchCameraAsync,
   launchImageLibraryAsync,
   requestCameraPermissionsAsync,
   requestMediaLibraryPermissionsAsync,
+  type ImagePickerOptions,
+  type ImagePickerResult,
 } from "expo-image-picker";
 import { useState } from "react";
 import { Alert } from "react-native";

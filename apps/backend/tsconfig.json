@@ -1,32 +1,13 @@
 {
+  "extends": "@daon/tsconfig/node.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "declaration": false,
-    "declarationMap": false,
-    "sourceMap": true,
-    "removeComments": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "allowSyntheticDefaultImports": true,
     "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
     "paths": {
-      "@daon/shared": ["../../packages/shared/dist/index"]
+      "src/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -83,7 +83,7 @@ export const uploadFileToR2 = async (
       uri: file.uri,
       type: file.type,
       name: file.name,
-    } as any);
+    } as unknown as File);
 
     const xhr = new XMLHttpRequest();
 

@@ -50,24 +50,19 @@ export default [
       "object-shorthand": "error",
       "prefer-arrow-callback": "error",
       "prefer-template": "error",
-
-      // import/export 관련
-      "sort-imports": [
-        "error",
-        {
-          ignoreCase: false,
-          ignoreDeclarationSort: true,
-          ignoreMemberSort: false,
-          memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
-          allowSeparatedGroups: true,
-        },
-      ],
     },
   },
 
   // 테스트 파일에 대한 완화된 규칙
   {
-    files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**/*.ts", "**/__tests__/**/*.tsx"],
+    files: [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/__tests__/**/*.ts",
+      "**/__tests__/**/*.tsx",
+    ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "no-console": "off",

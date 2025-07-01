@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@daon/eslint-config": "workspace:*",
+    "@daon/tsconfig": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/supertest": "^6.0.3",

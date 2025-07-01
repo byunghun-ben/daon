@@ -88,9 +88,9 @@ export const chatController = {
   },
 
   // Health check for chat service
-  healthCheck: async (req: Request, res: Response): Promise<void> => {
+  healthCheck: (req: Request, res: Response): void => {
     try {
-      const health = await ChatService.healthCheck();
+      const health = ChatService.healthCheck();
 
       res.json({
         ...health,

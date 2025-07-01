@@ -208,11 +208,34 @@ export class KakaoAuthController {
     userId: string,
     kakaoId: number,
   ): Promise<void> {
-    // 여기서는 카카오 ID를 별도 테이블에 저장하거나
-    // 사용자 메타데이터에 저장할 수 있습니다
-    // 현재는 로깅만 수행
-    logger.info("Linking Kakao account", { userId, kakaoId });
-    return Promise.resolve();
+    try {
+      // 1. 다른 사용자가 이미 이 카카오 계정을 사용하고 있는지 확인
+      const existingUser = await this.authService.getUserByOAuthProvider(
+        "kakao",
+        kakaoId.toString(),
+      );
+
+      if (existingUser && existingUser.id !== userId) {
+        logger.warn("Kakao account already linked to another user", {
+          userId,
+          kakaoId,
+          existingUserId: existingUser.id,
+        });
+        throw new Error("This Kakao account is already linked to another user");
+      }
+
+      // 2. 현재 사용자의 OAuth 정보 업데이트
+      await this.authService.updateUserOAuthInfo(
+        userId,
+        "kakao",
+        kakaoId.toString(),
+      );
+
+      logger.info("Successfully linked Kakao account", { userId, kakaoId });
+    } catch (error) {
+      logger.error("Error in linkKakaoAccount", { userId, kakaoId, error });
+      throw error;
+    }
   }
 
   /**

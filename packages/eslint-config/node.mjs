@@ -53,10 +53,10 @@ export default [
       ...tseslint.configs["recommended-type-checked"].rules,
 
       // Supabase와 같은 라이브러리에서 발생하는 타입 안전성 경고 완화
-      "@typescript-eslint/no-unsafe-assignment": "warn",
-      "@typescript-eslint/no-unsafe-member-access": "warn",
-      "@typescript-eslint/no-unsafe-call": "warn",
-      "@typescript-eslint/no-unsafe-return": "warn",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
 
       // 함수 반환 타입 명시 (백엔드에서는 더 엄격하게)
       "@typescript-eslint/explicit-function-return-type": "warn",

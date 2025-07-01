@@ -85,7 +85,10 @@ export const KakaoCallbackQuerySchema = z.object({
 
 export const KakaoUserInfoSchema = z.object({
   id: z.number(),
-  connected_at: z.string(),
+  connected_at: z
+    .string()
+    .optional()
+    .describe("서비스에 연결 완료된 시각, UTC"),
   kakao_account: z.object({
     profile_nickname_needs_agreement: z.boolean().optional(),
     profile_image_needs_agreement: z.boolean().optional(),
@@ -118,6 +121,17 @@ export const KakaoUserInfoSchema = z.object({
   }),
 });
 
+// Kakao Token Response Schema
+export const KakaoTokenResponseSchema = z.object({
+  token_type: z.string(),
+  access_token: z.string(),
+  id_token: z.string().optional(),
+  expires_in: z.number(),
+  refresh_token: z.string(),
+  refresh_token_expires_in: z.number(),
+  scope: z.string().optional(),
+});
+
 // Inferred types
 export type UserDb = z.infer<typeof UserDbSchema>;
 export type UserApi = z.infer<typeof UserApiSchema>;
@@ -131,3 +145,4 @@ export type KakaoLoginUrlRequest = z.infer<typeof KakaoLoginUrlRequestSchema>;
 export type KakaoLoginUrlResponse = z.infer<typeof KakaoLoginUrlResponseSchema>;
 export type KakaoCallbackQuery = z.infer<typeof KakaoCallbackQuerySchema>;
 export type KakaoUserInfo = z.infer<typeof KakaoUserInfoSchema>;
+export type KakaoTokenResponse = z.infer<typeof KakaoTokenResponseSchema>;

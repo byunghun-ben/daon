@@ -2,21 +2,13 @@ import { supabaseAdmin } from "@/lib/supabase.js";
 import { logger } from "@/utils/logger.js";
 import {
   KakaoUserInfoSchema,
+  KakaoTokenResponseSchema,
   type KakaoCallbackQuery,
   type KakaoLoginUrlResponse,
   type KakaoUserInfo,
+  type KakaoTokenResponse,
 } from "@daon/shared";
 import crypto from "crypto";
-
-interface KakaoTokenResponse {
-  token_type: string;
-  access_token: string;
-  id_token?: string;
-  expires_in: number;
-  refresh_token: string;
-  refresh_token_expires_in: number;
-  scope?: string;
-}
 
 export class KakaoAuthService {
   private readonly clientId: string;
@@ -160,8 +152,19 @@ export class KakaoAuthService {
       throw new Error(`Failed to exchange code for token: ${response.status}`);
     }
 
-    const tokenData = (await response.json()) as KakaoTokenResponse;
-    return tokenData;
+    const tokenData = await response.json();
+
+    // Zod로 응답 검증
+    const validationResult = KakaoTokenResponseSchema.safeParse(tokenData);
+    if (!validationResult.success) {
+      logger.error("Invalid Kakao token response", {
+        error: validationResult.error,
+        data: tokenData,
+      });
+      throw new Error("Invalid token response from Kakao");
+    }
+
+    return validationResult.data;
   }
 
   /**

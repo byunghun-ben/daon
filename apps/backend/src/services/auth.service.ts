@@ -1,7 +1,8 @@
-import { supabaseAdmin } from "@/lib/supabase.js";
+import { supabase, supabaseAdmin } from "@/lib/supabase.js";
 import type { Tables } from "@/types/supabase.js";
 import { logger } from "@/utils/logger.js";
 import type { Session } from "@daon/shared";
+import crypto from "crypto";
 
 interface CreateKakaoUserParams {
   email: string;
@@ -116,28 +117,45 @@ export class AuthService {
         throw new Error("Failed to get user");
       }
 
-      // 관리자 권한으로 액세스 토큰 생성
-      const { data: sessionData, error: sessionError } =
-        await supabaseAdmin.auth.admin.generateLink({
-          type: "recovery",
-          email: user.user.email,
+      // 사용자 임시 로그인으로 JWT 토큰 생성
+      const tempPassword = crypto.randomBytes(32).toString("hex");
+
+      // 임시 비밀번호로 사용자 업데이트 (Auth 전용)
+      const { error: updateError } =
+        await supabaseAdmin.auth.admin.updateUserById(userId, {
+          password: tempPassword,
         });
 
-      if (sessionError || !sessionData) {
-        logger.error("Failed to generate session tokens", {
+      if (updateError) {
+        logger.error("Failed to set temporary password", {
+          userId,
+          error: updateError,
+        });
+        throw new Error("Failed to create session");
+      }
+
+      // 임시 비밀번호로 로그인하여 실제 JWT 토큰 획득
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.signInWithPassword({
+          email: user.user.email,
+          password: tempPassword,
+        });
+
+      if (sessionError || !sessionData?.session) {
+        logger.error("Failed to create session with temp password", {
           userId,
           error: sessionError,
         });
         throw new Error("Failed to create session");
       }
 
-      // 임시로 기본 세션 정보 반환
-      // 실제 운영에서는 더 적절한 토큰 생성 방법 필요
+      // 실제 Supabase JWT 토큰 반환
+      const session = sessionData.session;
       return {
-        access_token: `temp_${userId}_${Date.now()}`,
-        refresh_token: `refresh_${userId}_${Date.now()}`,
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        expires_in: session.expires_in ?? 3600,
+        expires_at: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
         token_type: "bearer",
       };
     } catch (error) {
@@ -183,5 +201,69 @@ export class AuthService {
     const hasGuardianChildren = (guardianChildren?.length ?? 0) > 0;
 
     return hasOwnedChildren || hasGuardianChildren;
+  }
+
+  /**
+   * OAuth 제공자로 기존 사용자 찾기
+   */
+  async getUserByOAuthProvider(
+    provider: string,
+    providerId: string,
+  ): Promise<User | null> {
+    const { data: user, error } = await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("oauth_provider", provider)
+      .eq("oauth_provider_id", providerId)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        // No rows found
+        return null;
+      }
+      logger.error("Failed to get user by OAuth provider", {
+        provider,
+        providerId,
+        error,
+      });
+      throw new Error("Failed to get user by OAuth provider");
+    }
+
+    return user;
+  }
+
+  /**
+   * 사용자의 OAuth 정보 업데이트
+   */
+  async updateUserOAuthInfo(
+    userId: string,
+    provider: string,
+    providerId: string,
+  ): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({
+        oauth_provider: provider,
+        oauth_provider_id: providerId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
+
+    if (error) {
+      logger.error("Failed to update user OAuth info", {
+        userId,
+        provider,
+        providerId,
+        error,
+      });
+      throw new Error("Failed to update user OAuth info");
+    }
+
+    logger.info("Successfully updated user OAuth info", {
+      userId,
+      provider,
+      providerId,
+    });
   }
 }

@@ -14,5 +14,5 @@
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "postman.settings.dotenv-detection-notification-visibility": false,
-  "java.compile.nullAnalysis.mode": "automatic"
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

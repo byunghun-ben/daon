@@ -1,3 +1,4 @@
+import { supabaseAdmin } from "@/lib/supabase.js";
 import { logger } from "@/utils/logger.js";
 import {
   KakaoUserInfoSchema,
@@ -21,7 +22,6 @@ export class KakaoAuthService {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
-  private readonly states = new Map<string, { timestamp: number }>();
 
   constructor() {
     const clientId = process.env.KAKAO_CLIENT_ID;
@@ -39,7 +39,7 @@ export class KakaoAuthService {
     // 5분마다 만료된 state 정리
     setInterval(
       () => {
-        this.cleanupExpiredStates();
+        void this.cleanupExpiredStates();
       },
       5 * 60 * 1000,
     );
@@ -48,13 +48,21 @@ export class KakaoAuthService {
   /**
    * 카카오 로그인 URL 생성
    */
-  generateLoginUrl(): KakaoLoginUrlResponse {
+  async generateLoginUrl(): Promise<KakaoLoginUrlResponse> {
     const state = this.generateState();
 
-    // state 저장 (10분 만료)
-    this.states.set(state, {
-      timestamp: Date.now() + 10 * 60 * 1000,
+    // state를 DB에 저장 (10분 만료)
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const { error } = await supabaseAdmin.from("oauth_states").insert({
+      state,
+      provider: "kakao",
+      expires_at: expiresAt.toISOString(),
     });
+
+    if (error) {
+      logger.error("Failed to save OAuth state", { error, state });
+      throw new Error("Failed to generate login URL");
+    }
 
     const params = new URLSearchParams({
       client_id: this.clientId,
@@ -90,7 +98,7 @@ export class KakaoAuthService {
     }
 
     // state 검증
-    if (!this.validateState(state)) {
+    if (!(await this.validateState(state))) {
       logger.error("Invalid or expired state", { state });
       throw new Error("Invalid or expired state parameter");
     }
@@ -117,7 +125,7 @@ export class KakaoAuthService {
       throw error;
     } finally {
       // state 정리
-      this.states.delete(state);
+      await this.deleteState(state);
     }
   }
 
@@ -202,15 +210,24 @@ export class KakaoAuthService {
   /**
    * state 유효성 검증
    */
-  private validateState(state: string): boolean {
-    const stateData = this.states.get(state);
-    if (!stateData) {
+  private async validateState(state: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from("oauth_states")
+      .select("expires_at")
+      .eq("state", state)
+      .eq("provider", "kakao")
+      .single();
+
+    if (error || !data) {
+      logger.warn("OAuth state not found", { state, error });
       return false;
     }
 
     // 만료 시간 체크
-    if (Date.now() > stateData.timestamp) {
-      this.states.delete(state);
+    const expiresAt = new Date(data.expires_at).getTime();
+    if (Date.now() > expiresAt) {
+      logger.warn("OAuth state expired", { state, expiresAt });
+      await this.deleteState(state);
       return false;
     }
 
@@ -218,14 +235,33 @@ export class KakaoAuthService {
   }
 
   /**
+   * 특정 state 삭제
+   */
+  private async deleteState(state: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from("oauth_states")
+      .delete()
+      .eq("state", state)
+      .eq("provider", "kakao");
+
+    if (error) {
+      logger.error("Failed to delete OAuth state", { error, state });
+    }
+  }
+
+  /**
    * 만료된 state 정리
    */
-  private cleanupExpiredStates(): void {
-    const now = Date.now();
-    for (const [state, data] of this.states.entries()) {
-      if (now > data.timestamp) {
-        this.states.delete(state);
-      }
+  private async cleanupExpiredStates(): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from("oauth_states")
+      .delete()
+      .lt("expires_at", new Date().toISOString());
+
+    if (error) {
+      logger.error("Failed to cleanup expired OAuth states", { error });
+    } else {
+      logger.debug("Cleaned up expired OAuth states");
     }
   }
 }

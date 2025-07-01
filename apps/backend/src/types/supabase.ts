@@ -302,6 +302,27 @@ export type Database = {
           },
         ];
       };
+      oauth_states: {
+        Row: {
+          created_at: string;
+          expires_at: string;
+          provider: string;
+          state: string;
+        };
+        Insert: {
+          created_at?: string;
+          expires_at: string;
+          provider?: string;
+          state: string;
+        };
+        Update: {
+          created_at?: string;
+          expires_at?: string;
+          provider?: string;
+          state?: string;
+        };
+        Relationships: [];
+      };
       users: {
         Row: {
           avatar_url: string | null;
@@ -346,6 +367,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      cleanup_expired_oauth_states: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       generate_invite_code: {
         Args: Record<PropertyKey, never>;
         Returns: string;

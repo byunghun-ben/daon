@@ -25,7 +25,7 @@ export class KakaoAuthController {
    * 카카오 로그인 URL 생성
    * POST /auth/kakao/url
    */
-  generateLoginUrl = (req: Request, res: Response): void => {
+  generateLoginUrl = async (req: Request, res: Response): Promise<void> => {
     try {
       // 요청 데이터 검증
       const validationResult = KakaoLoginUrlRequestSchema.safeParse(req.body);
@@ -39,7 +39,7 @@ export class KakaoAuthController {
       }
 
       // 카카오 로그인 URL 생성
-      const result = this.kakaoAuthService.generateLoginUrl();
+      const result = await this.kakaoAuthService.generateLoginUrl();
 
       logger.info("Generated Kakao login URL", {
         state: result.state,

@@ -1,5 +1,5 @@
 import { Tabs, router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -35,13 +35,13 @@ export default function TabLayout() {
         setHasChildren(childrenCount > 0);
 
         if (childrenCount === 0) {
-          router.replace("/(onboarding)/child-setup");
+          router.replace("/(onboarding)");
         }
       } catch (error) {
         console.warn("[TabLayout] Failed to fetch children:", error);
         // If can't fetch children, assume none and redirect to onboarding
         setHasChildren(false);
-        router.replace("/(onboarding)/child-setup");
+        router.replace("/(onboarding)");
       }
     };
 

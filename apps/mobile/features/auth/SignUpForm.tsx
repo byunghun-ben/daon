@@ -4,7 +4,8 @@ import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { SignUpFormSchema, SignUpFormSchemaType } from "../../shared/types";
+import type { SignUpFormSchemaType } from "../../shared/types";
+import { SignUpFormSchema } from "../../shared/types";
 import { Button, Input } from "../../shared/ui";
 
 const normalizePhoneNumber = (value: string) => {
@@ -44,7 +45,7 @@ export const SignUpForm = () => {
             {
               text: "확인",
               onPress: () => {
-                router.replace("/(onboarding)/child-setup");
+                router.replace("/(onboarding)");
               },
             },
           ],

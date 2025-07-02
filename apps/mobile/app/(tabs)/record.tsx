@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ActivityCard } from "../../entities";
 import { useRecentActivities } from "../../shared/api/hooks/useActivities";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
@@ -43,7 +44,7 @@ export default function RecordScreen() {
   };
 
   const handleActivityPress = (activity: Activity) => {
-    router.push(`/record/${activity.id}`);
+    router.push(`/activities/${activity.id}`);
   };
 
   const styles = useThemedStyles((theme) => ({
@@ -236,23 +237,12 @@ export default function RecordScreen() {
             </Card>
           ) : Array.isArray(recentActivities) ? (
             recentActivities.map((activity: Activity) => (
-              <Card key={activity.id} style={styles.activityItem}>
-                <TouchableOpacity onPress={() => handleActivityPress(activity)}>
-                  <View style={styles.activityHeader}>
-                    <Text style={styles.activityType}>
-                      {getActivityLabel(activity.type)}
-                    </Text>
-                    <Text style={styles.activityTime}>
-                      {formatTime(activity.timestamp)}
-                    </Text>
-                  </View>
-                  {activity.notes && (
-                    <Text style={styles.activityDetails} numberOfLines={2}>
-                      {activity.notes}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              </Card>
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                onPress={handleActivityPress}
+                showUser={false}
+              />
             ))
           ) : null}
         </View>

@@ -1,6 +1,6 @@
+import { useAuthStore } from "@/shared/store";
 import { Stack, router } from "expo-router";
 import { useEffect } from "react";
-import { useAuthStore } from "@/shared/store";
 
 export default function OnboardingLayout() {
   const { isAuthenticated } = useAuthStore();
@@ -21,7 +21,6 @@ export default function OnboardingLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        presentation: "modal",
       }}
     >
       <Stack.Screen name="child-setup" />

@@ -5,6 +5,7 @@ export interface Theme {
     secondary: string;
     background: string;
     surface: string;
+    white: string;
     text: {
       primary: string;
       secondary: string;
@@ -39,6 +40,10 @@ export interface Theme {
       fontSize: number;
       fontWeight: "normal";
       lineHeight?: number;
+    };
+    h3: {
+      fontSize: number;
+      fontWeight: "bold";
     };
     body1: {
       fontSize: number;
@@ -89,6 +94,7 @@ export const theme: Theme = {
     secondary: "#6c757d",
     background: "#f8f9fa",
     surface: "#fff",
+    white: "#ffffff",
     text: {
       primary: "#333",
       secondary: "#666",
@@ -123,6 +129,10 @@ export const theme: Theme = {
       fontSize: 16,
       fontWeight: "normal" as const,
       lineHeight: 20,
+    },
+    h3: {
+      fontSize: 20,
+      fontWeight: "bold" as const,
     },
     body1: {
       fontSize: 16,

@@ -35,6 +35,11 @@ const useNotificationObserver = () => {
     };
 
     getLastNotificationResponseAsync().then((response) => {
+      console.log(
+        "[useNotificationObserver] getLastNotificationResponseAsync",
+        response,
+      );
+
       if (!isMounted || !response?.notification) {
         return;
       }

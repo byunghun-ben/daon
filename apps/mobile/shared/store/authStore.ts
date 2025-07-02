@@ -167,8 +167,8 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
             });
 
-            // Navigate to main app (tabs will handle child check)
-            router.replace("/(tabs)");
+            // Navigate to onboarding for child setup
+            router.replace("/(onboarding)");
 
             return { success: true };
           } else {

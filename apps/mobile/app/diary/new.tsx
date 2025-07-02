@@ -1,25 +1,34 @@
-import { SafeAreaView, Text } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { CreateDiaryForm } from "../../features/diary";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function NewDiaryScreen() {
+  const router = useRouter();
+
   const styles = useThemedStyles((theme) => ({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      padding: theme.spacing.lg,
-    },
-    title: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
     },
   }));
 
+  const handleSuccess = () => {
+    // 성공 후 이전 화면으로 돌아가기
+    router.back();
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>새 일기 작성 화면</Text>
-    </SafeAreaView>
+    <>
+      <Stack.Screen
+        options={{
+          title: "새 일기 작성",
+          headerBackTitle: "뒤로",
+        }}
+      />
+      <SafeAreaView style={styles.container}>
+        <CreateDiaryForm onSuccess={handleSuccess} />
+      </SafeAreaView>
+    </>
   );
 }

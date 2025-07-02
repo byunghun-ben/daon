@@ -64,7 +64,7 @@ export default function HomeScreen() {
   };
 
   const handleNavigateToActivity = (activity: ActivityApi) => {
-    router.push(`/record/${activity.id}`);
+    router.push(`/activities/${activity.id}`);
   };
 
   const styles = useThemedStyles((theme) => ({

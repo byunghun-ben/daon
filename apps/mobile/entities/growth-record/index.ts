@@ -1,0 +1,1 @@
+export { GrowthRecordCard } from "./GrowthRecordCard";

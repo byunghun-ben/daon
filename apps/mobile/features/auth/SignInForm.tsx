@@ -73,8 +73,8 @@ export const SignInForm = () => {
 
         try {
           if (result.needsChildSetup) {
-            console.log("[SignInForm] Navigating to child setup");
-            router.replace("/(onboarding)/child-setup");
+            console.log("[SignInForm] Navigating to onboarding");
+            router.replace("/(onboarding)");
           } else {
             console.log("[SignInForm] Navigating to main tabs");
             router.replace("/(tabs)");

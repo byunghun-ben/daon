@@ -12,14 +12,15 @@
 
 - **육아일기**: 일상 관찰 내용과 성장 기록을 위한 디지털 다이어리
 - **활동 기록**: 수유, 기저귀 교체, 수면 패턴 등 비정기적 활동 기록
-- **정기 기록**: 주기적인 일기 작성 및 체크인
+- **성장 기록**: 키, 몸무게, 머리둘레 등 신체 발달 추적
+- **마일스톤 기록**: 첫 미소, 첫 걸음마, 첫 말 등 특별한 순간
 - **다중 부모 지원**: 여러 보호자가 함께 육아 책임을 공유
 
 #### 사용자 관리
 
-- 개별 부모 회원가입 및 인증
+- 개별 부모 회원가입 및 인증 (카카오 로그인, 이메일 인증)
 - 아이 프로필 생성 및 관리
-- 보호자 초대 시스템 (기본적으로 아이당 최대 2명)
+- 보호자 초대 시스템 (초대 코드 기반)
 - 프리미엄 구독을 통한 추가 보호자 슬롯 제공
 
 ## 🏗 기술 아키텍처
@@ -29,74 +30,74 @@
 ```
 daon/
 ├── apps/
-│   ├── mobile/          # 새로운 Expo 모바일 앱 (Expo Router)
-│   └── backend/         # Node.js API 서버
+│   ├── mobile/          # Expo 모바일 앱 (Expo Router v5)
+│   └── backend/         # Node.js API 서버 (Express.js + Supabase)
 ├── packages/
-│   ├── mobile/          # 기존 React Native 앱 (FSD 아키텍처) - 레거시
-│   ├── shared/          # 공유 타입 및 유틸리티 (Zod 스키마)
-│   └── web/             # 향후 웹 대시보드 (선택사항)
+│   └── shared/          # 공유 타입 및 유틸리티 (Zod 스키마)
 ├── docs/                # 문서
-└── tools/               # 빌드 도구 및 스크립트
+└── CLAUDE.md           # Claude Code 가이드
 ```
 
-### 모바일 앱 아키텍처 (FSD - Feature-Sliced Design)
+### 모바일 앱 아키텍처 (FSD + Expo Router)
 
 ```
-packages/mobile/src/
-├── app/                 # 앱 설정 및 전역 구성
-│   └── navigation/      # 네비게이션 설정
-├── pages/               # 페이지 컴포넌트
-│   ├── home/           # 홈 화면
-│   ├── record/         # 활동 기록 화면
-│   ├── diary/          # 일기 화면
-│   ├── growth/         # 성장 차트 화면
-│   └── settings/       # 설정 화면
-├── widgets/            # 복합 UI 블록
+apps/mobile/
+├── app/                 # Expo Router 파일 기반 라우팅
+│   ├── (tabs)/         # 메인 탭 네비게이션
+│   │   ├── index.tsx   # 홈 대시보드
+│   │   ├── record.tsx  # 활동 기록 메인
+│   │   ├── diary.tsx   # 일기 목록
+│   │   ├── growth.tsx  # 성장 차트
+│   │   └── settings.tsx # 설정
+│   ├── (auth)/         # 인증 화면
+│   ├── (onboarding)/   # 온보딩 플로우
+│   ├── children/       # 아이 관리
+│   ├── activities/     # 활동 상세
+│   ├── diary/          # 일기 상세
+│   └── growth/         # 성장 기록 상세
 ├── features/           # 기능별 비즈니스 로직
-│   ├── record-activity/
-│   ├── write-diary/
-│   └── track-growth/
-├── entities/           # 도메인 엔티티
-│   ├── child/
-│   ├── activity/
-│   ├── diary-entry/
-│   └── growth-record/
-└── shared/             # 공유 리소스
-    ├── ui/             # 공유 UI 컴포넌트
-    ├── types/          # Zod 스키마 및 타입
-    ├── config/         # 설정 및 테마
-    ├── lib/            # 유틸리티 함수
-    └── api/            # API 클라이언트
+│   ├── auth/          # 인증 관련
+│   ├── activities/    # 활동 기록
+│   ├── diary/         # 일기 작성
+│   ├── growth/        # 성장 기록
+│   └── children/      # 아이 관리
+├── widgets/           # 복합 UI 블록
+├── entities/          # 도메인 엔티티
+│   ├── activity/      # 활동 도메인
+│   ├── child/         # 아이 도메인
+│   ├── diary-entry/   # 일기 도메인
+│   └── growth-record/ # 성장 기록 도메인
+└── shared/            # 공유 리소스
+    ├── api/          # API 클라이언트 & 훅
+    ├── ui/           # 디자인 시스템
+    ├── hooks/        # 커스텀 훅
+    ├── lib/          # 유틸리티
+    ├── store/        # 상태 관리
+    ├── config/       # 테마 & 설정
+    └── constants/    # 상수
 ```
 
 ### 기술 스택
 
 #### 프론트엔드 (모바일)
 
-**새로운 Expo 앱 (apps/mobile)**:
 - **프레임워크**: Expo SDK 53 + React Native 0.79
 - **라우팅**: Expo Router v5 (file-based routing)
-- **New Architecture**: React Native New Architecture 활성화
+- **상태 관리**: TanStack Query (서버) + Zustand (로컬)
+- **HTTP 클라이언트**: Axios (인터셉터 기반 인증)
+- **폼 관리**: react-hook-form + Zod validation
+- **UI 시스템**: 커스텀 디자인 시스템 + 테마
+- **타입 검증**: Zod 스키마 + TypeScript strict
 - **빌드/배포**: EAS (Expo Application Services)
-- **웹 지원**: Metro 번들러를 통한 웹 빌드
-
-**기존 React Native 앱 (packages/mobile - 레거시)**:
-- **프레임워크**: React Native 0.80
-- **아키텍처**: Feature-Sliced Design (FSD)
-- **상태 관리**: Zustand / Tanstack Query
-- **내비게이션**: React Navigation v7
-- **타입 검증**: Zod 스키마 + TypeScript
-- **UI 컴포넌트**: 자체 구현된 Design System
-- **오프라인 저장소**: AsyncStorage / SQLite
 
 #### 백엔드
 
-- **런타임**: Node.js
-- **프레임워크**: Express.js / Fastify
+- **런타임**: Node.js + Express.js
 - **데이터베이스**: Supabase (PostgreSQL + 실시간 기능)
-- **인증**: Supabase Auth (JWT 기반)
+- **인증**: Supabase Auth (JWT 기반) + 카카오 OAuth
 - **파일 저장소**: Supabase Storage
-- **푸시 알림**: Firebase Cloud Messaging
+- **타입 검증**: Zod 스키마
+- **API 문서**: OpenAPI/Swagger
 
 #### 공유 라이브러리
 
@@ -108,191 +109,152 @@ packages/mobile/src/
 
 - **패키지 매니저**: pnpm (모노레포 지원)
 - **빌드 도구**: Turborepo
-- **테스트**: Jest + React Native Testing Library
-- **CI/CD**: GitHub Actions
 - **코드 품질**: ESLint + Prettier + TypeScript
+- **테스트**: Jest (설정 완료)
 
 ## 👶 핵심 기능
 
-### 1. 활동 추적 (비정기적 기록)
+### 1. 활동 추적 ✅ 완료
 
-- **수유**: 시간, 양, 종류 (모유/분유/이유식)
+- **수유**: 시간, 양, 종류 (모유/분유/이유식), 소요시간
 - **기저귀 교체**: 시간, 종류 (소변/대변), 메모
 - **수면**: 시작/종료 시간, 수면 품질 메모
-- **배 뒤집기 시간**: 지속 시간 및 관찰 내용
-- **사용자 정의 활동**: 사용자가 정의한 추적 카테고리
+- **배밀이 시간**: 지속 시간 및 관찰 내용
+- **사용자 정의 활동**: 커스텀 활동 추가
+- **실시간 CRUD**: 생성, 조회, 수정, 삭제 완전 지원
+- **자동 동기화**: Pull-to-refresh 및 실시간 캐시 업데이트
 
-### 2. 일기 및 마일스톤 (정기적 기록)
+### 2. 일기 및 마일스톤 ✅ 완료
 
-- **일상 일기**: 사진과 동영상이 포함된 텍스트 기록
-- **성장 기록**: 첫 미소, 첫 걸음마, 첫 말 등
-- **신체 성장**: 키, 몸무게, 머리둘레
-- **사진 타임라인**: 시각적 성장 과정
+- **일상 일기**: 날짜별 텍스트 기록 + 사진/동영상 업로드
+- **마일스톤 기록**: 첫 미소, 첫 걸음마, 첫 말, 커스텀 마일스톤
+- **상세 보기**: 각 일기 항목별 상세 화면
+- **편집/삭제**: 완전한 CRUD 지원
+- **이미지 업로더**: 갤러리/카메라 선택, 다중 이미지 업로드
 
-### 3. 인사이트 및 분석
+### 3. 성장 기록 ✅ 완료
 
-- **패턴 인식**: 수면 및 수유 패턴 분석
-- **성장 차트**: WHO 표준 성장 백분위수
-- **활동 요약**: 일별, 주별, 월별 리포트
-- **성장 타임라인**: 시각적 발달 진행 상황
+- **신체 측정**: 키, 몸무게, 머리둘레 기록
+- **성장 차트**: 시각적 성장 추이 표시
+- **측정 단위**: 탭 기반 단위별 차트 (체중/키/머리둘레)
+- **기록 관리**: 날짜별 성장 기록 추가/수정/삭제
 
-### 4. 향후 연동 기능
+### 4. 사용자 관리 ✅ 완료
 
-- **웨어러블 기기**: Apple Watch, 스마트 베이비 모니터
-- **IoT 연동**: 스마트 체중계, 체온계
-- **음성 기록**: 빠른 음성-텍스트 변환 입력
-- **의료진 연동**: 소아과 방문 기록
+- **다단계 인증**: 카카오 로그인 + 이메일/비밀번호
+- **온보딩 플로우**: 환영 페이지 → 아이 프로필 설정
+- **아이 등록 방식**: 
+  - 새 아이 프로필 생성
+  - 기존 아이 초대 코드로 참여
+- **보호자 관리**: 아이별 다중 보호자 지원
+- **설정 화면**: 프로필, 알림, 앱 정보 등
 
-## 👨‍👩‍👧‍👦 사용자 관리
+### 5. 실시간 대시보드 ✅ 완료
 
-### 회원가입 및 설정
+- **홈 스크린**: 오늘 활동 요약 + 최근 기록 표시
+- **빠른 액션**: 주요 활동 바로가기 버튼
+- **아이 선택기**: 여러 아이 중 활성 아이 전환
+- **실시간 업데이트**: 데이터 변경 즉시 반영
 
-1. 부모가 이메일/전화번호 인증으로 계정 생성
-2. 아이 프로필 설정 (이름, 생년월일, 사진)
-3. 이메일 또는 고유 코드로 파트너/보호자 초대
-4. 초대 수락 및 아이 프로필 연결
+## 🔧 최신 개발 현황
 
-### 보호자 관리
+### ✅ 완료된 기능들
 
-- **무료 티어**: 아이당 최대 2명의 보호자
-- **프리미엄 티어**: 추가 보호자 슬롯 (조부모, 육아도우미 등)
-- 역할 기반 권한 (보기 전용 vs. 전체 접근)
-- 활동 기록자 표시 (누가 무엇을 기록했는지)
+#### 🎯 Phase 1-4: 핵심 기능 완성 (2024년 12월)
 
-## 💰 수익화 전략
+**인증 및 사용자 관리**
+- ✅ JWT 기반 인증 시스템 (Supabase Auth)
+- ✅ 카카오 소셜 로그인 통합
+- ✅ 이메일/비밀번호 회원가입
+- ✅ 온보딩 플로우 (환영 페이지 → 아이 설정)
+- ✅ 2가지 아이 등록 방식 (신규 생성/기존 참여)
+- ✅ 보호자 초대 코드 시스템
+- ✅ 로그아웃 및 세션 관리
 
-### 무료 기능
+**활동 기록 시스템**
+- ✅ TanStack Query 기반 서버 상태 관리
+- ✅ Axios HTTP 클라이언트 (인터셉터 인증)
+- ✅ 수유, 기저귀, 수면, 배밀이 기록
+- ✅ 활동 CRUD (생성/조회/수정/삭제)
+- ✅ 활동 목록 및 필터링
+- ✅ 실시간 대시보드 (홈 스크린)
+- ✅ Pull-to-refresh 및 자동 동기화
 
-- 기본 활동 추적
-- 사진이 포함된 일기 작성
-- 아이당 2개의 보호자 계정
-- 기본 분석 및 인사이트
-- 1GB 클라우드 저장공간
+**일기 및 마일스톤**
+- ✅ 날짜별 일기 작성
+- ✅ 사진/동영상 업로드 기능
+- ✅ 마일스톤 추가 및 관리
+- ✅ 일기 목록 및 상세 보기
+- ✅ 일기 편집/삭제 기능
 
-### 프리미엄 기능 (월 4,900원)
+**성장 기록**
+- ✅ 키, 몸무게, 머리둘레 기록
+- ✅ 성장 차트 시각화
+- ✅ 측정 단위별 탭 네비게이션
+- ✅ 성장 기록 CRUD
 
-- 무제한 보호자 계정
-- 고급 분석 및 AI 인사이트
-- 무제한 클라우드 저장공간
-- 동영상 기록
-- 데이터 내보내기 (PDF 리포트, CSV)
-- 우선 고객 지원
-- 신기능 우선 접근
+**UI/UX 및 아키텍처**
+- ✅ Feature-Sliced Design (FSD) 아키텍처
+- ✅ Expo Router v5 파일 기반 라우팅
+- ✅ 커스텀 디자인 시스템 (Button, Input, Card 등)
+- ✅ 테마 시스템 (색상, 타이포그래피, 간격)
+- ✅ 반응형 레이아웃 및 Safe Area 처리
 
-## ✨ 최신 개발 현황 (2024년 6월)
+**데이터 관리**
+- ✅ Zod 스키마 기반 타입 안전성
+- ✅ 실시간 캐싱 및 동기화
+- ✅ 낙관적 업데이트 (Optimistic Updates)
+- ✅ 에러 처리 및 사용자 피드백
 
-### 🎉 주요 완료 사항
-
-#### 인증 및 사용자 관리
-- **2단계 회원가입 시스템**: 기본 회원가입 → 아이 프로필 생성/참여
-- **보호자 초대 시스템**: 초대 코드를 통한 기존 아이 프로필 참여
-- **JWT 기반 인증**: Supabase Auth 통합으로 안전한 세션 관리
-- **로그아웃 기능**: 서버 세션 무효화 및 로컬 토큰 정리
-
-#### 활동 기록 시스템 (Phase 4 완료)
-- **TanStack Query 도입**: 서버 상태 관리, 캐싱, 실시간 동기화
-- **Axios HTTP 클라이언트**: 인터셉터 기반 인증 처리 및 에러 핸들링  
-- **활동 CRUD**: 수유, 기저귀, 수면, 배밀이 등 완전한 생성/조회/수정/삭제
-- **실시간 대시보드**: HomeScreen에서 오늘 활동 요약 및 최근 기록 표시
-- **활동 목록 및 필터링**: ActivityListScreen에서 전체 활동 조회
-- **자동 데이터 동기화**: Pull-to-refresh 및 mutation 후 자동 캐시 업데이트
-
-#### 모바일 앱 UI/UX
-- **Feature-Sliced Design (FSD) 아키텍처**: 확장 가능한 코드 구조
-- **테마 시스템**: 일관된 디자인 및 다크모드 대응 준비
-- **반응형 UI 컴포넌트**: Button, Input, Card 등 재사용 가능한 컴포넌트
-- **타입 안전성**: Zod 스키마 기반 런타임 검증
-
-#### 백엔드 API
-- **RESTful API**: Express.js 기반 확장 가능한 API 구조
-- **데이터베이스**: Supabase PostgreSQL 스키마 최적화
-- **타입 검증**: Zod를 통한 요청/응답 검증
-- **인증 미들웨어**: JWT 토큰 검증 및 사용자 컨텍스트 제공
+**개발 환경**
+- ✅ 모노레포 설정 (pnpm + Turborepo)
+- ✅ TypeScript strict 모드
+- ✅ ESLint + Prettier 설정
+- ✅ 전체 타입 체크 통과
+- ✅ 빌드 시스템 완성
 
 ### 🔧 기술적 성과
 
-- **서버 상태 관리**: TanStack Query로 캐싱, 동기화, 낙관적 업데이트 구현
-- **타입 안전성**: `as` 타입 단언 없이 완전한 타입 안전성 확보
-- **HTTP 클라이언트**: Axios 인터셉터로 자동 인증 토큰 처리 및 에러 핸들링
-- **실시간 UI**: 데이터 변경 시 즉시 UI 업데이트 및 Pull-to-refresh
-- **에러 처리**: 체계적인 에러 처리 및 사용자 피드백
-- **모노레포**: Turborepo + pnpm으로 효율적인 개발 환경
-- **코드 품질**: ESLint + Prettier + TypeScript 설정
+- **100% 타입 안전성**: `as` 타입 단언 없이 완전한 타입 안전성 확보
+- **실시간 동기화**: TanStack Query를 통한 자동 캐싱 및 데이터 동기화
+- **에러 처리**: 체계적인 에러 처리 및 사용자 친화적 피드백
+- **성능 최적화**: 메모이제이션, 가상화, 이미지 최적화
+- **개발자 경험**: Hot reload, 타입 체크, 린팅 자동화
 
-## 🚀 개발 로드맵
+## 🚀 향후 개발 계획
 
-### Phase 1: 기본 인프라 (2주) - ✅ 완료
-
-- [x] 모노레포 설정 (pnpm + Turborepo)
-- [x] React Native 기본 설정 및 FSD 아키텍처 적용
-- [x] 공유 타입 정의 (Zod 스키마 기반)
-- [x] 기본 UI 컴포넌트 시스템 구축
-- [x] 백엔드 기본 구조
-- [x] 데이터베이스 스키마 설계
-
-### Phase 2: 사용자 관리 (3주) - ✅ 완료
-
-- [x] 회원가입/로그인 API
-- [x] JWT 인증 시스템 (Supabase Auth)
-- [x] 사용자 프로필 관리
-- [x] 아이 프로필 CRUD (임신 중 출산예정일 지원)
-- [x] 보호자 초대 시스템
-
-### Phase 3: 기본 기록 기능 (4주) - ✅ 완료
-
-- [x] 활동 기록 API (수유, 기저귀, 수면, 배밀이)
-- [x] 활동 데이터 검증 및 타입 정의 (Zod 스키마)
-- [x] 활동 조회 및 필터링 API
-- [x] 성장 기록 API (키, 몸무게, 머리둘레)
-- [x] 일기 작성 기본 API
-- [x] 마일스톤 기록 시스템
-
-### Phase 4: 활동 기록 기능 (4주) - ✅ 완료
-
-- [x] 모바일 앱 기본 UI 구현 (FSD 아키텍처)
-- [x] 인증 화면 구현 (로그인/회원가입)
-- [x] 아이 프로필 관리 화면 (2단계 등록 시스템 포함)
-- [x] 보호자 초대 코드 시스템
-- [x] 로그아웃 기능 구현
-- [x] TanStack Query 기반 서버 상태 관리 구현
-- [x] Axios HTTP 클라이언트 도입
-- [x] 활동 기록 화면 (수유, 기저귀, 수면, 배밀이)
-- [x] 실시간 활동 CRUD (생성/조회/수정/삭제)
-- [x] 활동 목록 및 필터링
-- [x] HomeScreen 실시간 대시보드 구현
-- [x] 데이터 동기화 및 캐싱
-
-### Phase 5: 고급 기능 및 분석 (3주)
+### Phase 5: 고급 기능 및 분석 (예정)
 
 - [ ] 활동 패턴 분석 및 인사이트
 - [ ] 성장 차트 WHO 표준 비교
 - [ ] 푸시 알림 및 리마인더
 - [ ] 데이터 내보내기 (PDF 리포트)
-- [ ] 사진/동영상 업로드 기능
+- [ ] 고급 이미지/동영상 처리
 
-### Phase 6: 프리미엄 기능 (2주)
+### Phase 6: 프리미엄 기능 (예정)
 
 - [ ] 구독 시스템 구현
 - [ ] 고급 분석 기능
 - [ ] 추가 보호자 지원 (무제한)
 - [ ] 클라우드 백업 및 복원
+- [ ] AI 기반 인사이트
 
 ### 향후 확장 계획
 
 - [ ] Apple Watch 컴패니언 앱
 - [ ] 보호자용 웹 대시보드
-- [ ] AI 기반 인사이트 및 추천
 - [ ] 의료진과의 공유 기능
 - [ ] 다국어 지원
+- [ ] 웨어러블 기기 연동
 
 ## 🛠 시작하기
 
 ### 사전 요구사항
 
-- Node.js 24+ 및 pnpm
-- React Native 개발 환경
-- PostgreSQL 데이터베이스 (Supabase)
-- iOS/Android 개발 도구
+- Node.js 22+ 및 pnpm
+- Expo CLI 및 EAS CLI
+- iOS/Android 개발 환경
+- Supabase 계정
 
 ### 설치
 
@@ -317,112 +279,86 @@ pnpm dev
 # 모든 서비스 시작
 pnpm dev
 
-# 새로운 Expo 앱 (apps/mobile)
+# 모바일 앱 (apps/mobile)
 cd apps/mobile
 pnpm start          # Expo 개발 서버
-pnpm ios           # iOS
-pnpm android       # Android
-pnpm web           # 웹 브라우저
-
-# 기존 React Native 앱 (packages/mobile - 레거시)
-cd packages/mobile
-pnpm dev           # Metro 번들러
 pnpm ios           # iOS 시뮬레이터
 pnpm android       # Android 에뮬레이터
+pnpm web           # 웹 브라우저
 
-# 백엔드 실행
+# 백엔드 (apps/backend)
 cd apps/backend
-pnpm dev
+pnpm dev           # 개발 서버
+pnpm db:types      # Supabase 타입 생성
 
-# 테스트 실행
-pnpm test
-
-# 프로덕션 빌드
-pnpm build
+# 테스트 및 빌드
+pnpm test          # 테스트 실행
+pnpm type-check    # 타입 체크
+pnpm lint          # 린팅
+pnpm build         # 프로덕션 빌드
 ```
 
 ### EAS 배포 명령어
 
 ```bash
-# 모바일 디렉토리로 이동
-cd packages/mobile
+# 모바일 앱 디렉토리
+cd apps/mobile
 
-# 개발 빌드 (내부 테스트용)
-pnpm build:development
+# 빌드
+pnpm build:development  # 개발 빌드
+pnpm build:preview     # 프리뷰 빌드
+pnpm build:production  # 프로덕션 빌드
+pnpm build:all         # 모든 플랫폼
 
-# 프리뷰 빌드 (베타 테스트용)
-pnpm build:preview
-
-# 프로덕션 빌드 (배포용)
-pnpm build:production
-
-# 모든 플랫폼 프로덕션 빌드
-pnpm build:all
-
-# OTA 업데이트 배포
-pnpm update
-
-# 앱스토어 제출
-pnpm submit:ios      # App Store
-pnpm submit:android  # Google Play
+# 배포
+pnpm update           # OTA 업데이트
+pnpm submit:ios       # App Store 제출
+pnpm submit:android   # Google Play 제출
 ```
 
-### 핵심 기술 스택
+## 💰 수익화 전략
 
-#### 프론트엔드 (모바일)
-- **React Native 0.80** + TypeScript
-- **TanStack Query** - 서버 상태 관리 및 캐싱
-- **Axios** - HTTP 클라이언트
-- **Feature-Sliced Design (FSD)** - 아키텍처 패턴
-- **Zustand** - 로컬 상태 관리
-- **React Navigation v7** - 네비게이션
+### 무료 기능
 
-#### 백엔드
-- **Node.js + Express.js**
-- **Supabase** - PostgreSQL + 실시간 기능 + 인증
-- **Zod** - 스키마 검증 및 타입 안전성
-- **JWT** - 인증 토큰
+- 기본 활동 추적 (수유, 기저귀, 수면)
+- 사진이 포함된 일기 작성
+- 아이당 2개의 보호자 계정
+- 기본 성장 차트
+- 1GB 클라우드 저장공간
 
-#### 개발 도구
-- **pnpm** + **Turborepo** - 모노레포 관리
-- **ESLint + Prettier** - 코드 품질
-- **Jest** - 테스트 프레임워크
+### 프리미엄 기능 (월 4,900원)
 
-#### 배포 및 CI/CD
-- **EAS (Expo Application Services)** - 클라우드 빌드 및 배포
-- **EAS Build** - iOS/Android 자동 빌드
-- **EAS Update** - OTA(Over-The-Air) 업데이트
-- **EAS Submit** - 앱스토어 자동 제출
+- 무제한 보호자 계정
+- 고급 분석 및 AI 인사이트
+- 무제한 클라우드 저장공간
+- 동영상 기록 및 고급 미디어 기능
+- 데이터 내보내기 (PDF, CSV)
+- 우선 고객 지원
+- 신기능 우선 접근
 
 ## 📱 플랫폼 지원
 
-### 초기 출시
-
+### 현재 지원
 - iOS 13+
 - Android 8+ (API level 26)
+- 웹 브라우저 (Metro 번들러)
 
-### 향후 플랫폼
-
+### 향후 지원 예정
 - Apple Watch (watchOS 7+)
-- 웹 대시보드 (반응형)
-- iPad 최적화 인터페이스
+- iPad 최적화
+- 웹 대시보드
 
 ## 🔒 개인정보 보호 및 보안
 
 - GDPR 및 CCPA 준수
-- 민감한 데이터의 종단간 암호화
-- 기기 내 로컬 데이터 암호화
-- JWT를 통한 안전한 API 인증
-- 정기적인 보안 감사 및 업데이트
-- 아동 데이터에 대한 부모 동의
+- JWT 기반 안전한 인증
+- Supabase 보안 정책 준수
+- 아동 데이터 보호 강화
+- 정기적인 보안 감사
 
 ## 📄 라이선스
 
 이 프로젝트는 독점 소프트웨어입니다. 모든 권리가 보유됩니다.
-
-## 🤝 기여하기
-
-이것은 비공개 프로젝트입니다. 기여 가이드라인은 개발팀에 문의해 주세요.
 
 ---
 

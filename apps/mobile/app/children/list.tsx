@@ -39,13 +39,13 @@ export default function ChildrenListScreen() {
     },
     emptyText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.lg,
     },
     loadingText: {
       textAlign: "center" as const,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       padding: theme.spacing.lg,
     },
     errorText: {
@@ -59,12 +59,12 @@ export default function ChildrenListScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     activeChildBadge: {
       backgroundColor: theme.colors.primary,

@@ -27,7 +27,7 @@ export default function Index() {
 
   // Show loading screen while determining route
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ flex: 1, justifyContent: "center" as const, alignItems: "center" as const }}>
       <ActivityIndicator size="large" />
     </View>
   );

@@ -18,6 +18,8 @@ interface ButtonProps extends TouchableOpacityProps {
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
   loading?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export default function Button({
@@ -28,6 +30,8 @@ export default function Button({
   textStyle,
   loading = false,
   disabled,
+  accessibilityLabel,
+  accessibilityHint,
   ...props
 }: ButtonProps) {
   const styles = useThemedStyles((theme) => ({
@@ -98,6 +102,13 @@ export default function Button({
         buttonStyle,
       ]}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{
+        disabled: isDisabled,
+        busy: loading,
+      }}
       {...props}
     >
       {loading ? (

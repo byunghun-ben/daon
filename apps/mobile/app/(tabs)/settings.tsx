@@ -46,12 +46,12 @@ export default function SettingsScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     content: {
       flex: 1,
@@ -63,7 +63,7 @@ export default function SettingsScreen() {
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     menuItem: {
@@ -76,11 +76,11 @@ export default function SettingsScreen() {
     },
     menuItemText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     menuItemSubtext: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
     },
     logoutButton: {
@@ -125,6 +125,24 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>앱 설정</Text>
           <Card>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.push("/settings/theme")}
+            >
+              <Text style={styles.menuItemText}>테마 설정</Text>
+              <Text style={styles.menuItemSubtext}>
+                라이트/다크 모드 및 시스템 설정 따라가기
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.push("/settings/accessibility")}
+            >
+              <Text style={styles.menuItemText}>접근성</Text>
+              <Text style={styles.menuItemSubtext}>
+                폰트 크기, 고대비 모드, 모션 설정
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => router.push("/settings/notifications")}

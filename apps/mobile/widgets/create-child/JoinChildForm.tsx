@@ -61,12 +61,12 @@ export const JoinChildForm = ({
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.subtitle.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     form: {
@@ -75,12 +75,12 @@ export const JoinChildForm = ({
     inputLabel: {
       fontSize: 16,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     inputHelper: {
       fontSize: 14,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
       lineHeight: 20,
     },
@@ -90,7 +90,7 @@ export const JoinChildForm = ({
     roleLabel: {
       fontSize: 16,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     roleOptions: {
@@ -121,7 +121,7 @@ export const JoinChildForm = ({
       color: theme.colors.primary,
     },
     roleOptionTitleUnselected: {
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     roleOptionDescription: {
       fontSize: 12,
@@ -132,7 +132,7 @@ export const JoinChildForm = ({
       color: theme.colors.primary,
     },
     roleOptionDescriptionUnselected: {
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     buttonContainer: {
       marginTop: theme.spacing.xl,

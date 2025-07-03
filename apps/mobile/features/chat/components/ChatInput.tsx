@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     borderTopColor: "#E5E5EA",
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+    flexDirection: "row" as const,
+    alignItems: "flex-end" as const,
     backgroundColor: "#F2F2F7",
     borderRadius: 20,
     paddingHorizontal: 16,
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     backgroundColor: "#CCCCCC",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
     marginBottom: 2,
   },
   sendButtonActive: {

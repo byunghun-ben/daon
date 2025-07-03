@@ -13,7 +13,7 @@ export default function PrivacyScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
   }));
 

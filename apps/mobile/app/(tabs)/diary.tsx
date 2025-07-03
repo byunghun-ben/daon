@@ -39,12 +39,12 @@ export default function DiaryScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     content: {
       flex: 1,
@@ -57,7 +57,7 @@ export default function DiaryScreen() {
     },
     emptyText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.lg,
     },
@@ -72,12 +72,12 @@ export default function DiaryScreen() {
     },
     diaryDate: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       fontWeight: "600" as const,
     },
     diaryContent: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       lineHeight: theme.typography.body1.lineHeight,
       marginBottom: theme.spacing.sm,
     },
@@ -93,7 +93,7 @@ export default function DiaryScreen() {
     },
     photoCount: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     milestoneTag: {
       backgroundColor: theme.colors.primary + "20",
@@ -109,7 +109,7 @@ export default function DiaryScreen() {
     },
     loadingText: {
       textAlign: "center" as const,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       padding: theme.spacing.lg,
     },
     errorText: {

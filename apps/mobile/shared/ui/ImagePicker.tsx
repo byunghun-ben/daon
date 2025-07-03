@@ -37,7 +37,7 @@ const ImagePicker = ({
     label: {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: "500" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     imageContainer: {
@@ -62,7 +62,7 @@ const ImagePicker = ({
     },
     placeholderText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.xs,
     },
@@ -99,7 +99,7 @@ const ImagePicker = ({
       borderRadius: theme.borderRadius.sm,
     },
     changeButtonText: {
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       fontSize: theme.typography.caption.fontSize,
       fontWeight: "500" as const,
     },
@@ -109,7 +109,7 @@ const ImagePicker = ({
     },
     progressText: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
     },
     errorText: {
@@ -126,7 +126,7 @@ const ImagePicker = ({
     loadingText: {
       marginLeft: theme.spacing.xs,
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
   }));
 

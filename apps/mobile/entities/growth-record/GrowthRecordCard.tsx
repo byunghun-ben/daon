@@ -30,11 +30,11 @@ export const GrowthRecordCard: React.FC<GrowthRecordCardProps> = ({
     date: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     age: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     measurements: {
       flexDirection: "row" as const,
@@ -53,12 +53,12 @@ export const GrowthRecordCard: React.FC<GrowthRecordCardProps> = ({
     },
     measurementLabel: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     measurementUnit: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     separator: {
       width: 1,
@@ -67,7 +67,7 @@ export const GrowthRecordCard: React.FC<GrowthRecordCardProps> = ({
     },
     notes: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       fontStyle: "italic" as const,
       marginTop: theme.spacing.sm,
       paddingTop: theme.spacing.sm,
@@ -76,7 +76,7 @@ export const GrowthRecordCard: React.FC<GrowthRecordCardProps> = ({
     },
     userInfo: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
     },
   }));

@@ -19,6 +19,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 import { queryClient } from "@/shared/lib/queryClient";
 import { useAuthStore } from "@/shared/store";
+import { useThemeStore, initializeThemeStore } from "@/shared/store/theme.store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -64,8 +65,15 @@ export default function RootLayout() {
   });
 
   const { isLoading, isInitialized, initializeAuth } = useAuthStore();
+  const { theme } = useThemeStore();
 
   useNotificationObserver();
+
+  // Initialize theme store on app start
+  useEffect(() => {
+    const subscription = initializeThemeStore();
+    return () => subscription?.remove();
+  }, []);
 
   // Initialize auth on app start
   useEffect(() => {
@@ -87,8 +95,13 @@ export default function RootLayout() {
   // Show loading screen while fonts or auth are loading
   if (!loaded || !isInitialized || isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={{ 
+        flex: 1, 
+        justifyContent: "center" as const, 
+        alignItems: "center" as const,
+        backgroundColor: theme.colors.background
+      }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -102,7 +115,7 @@ export default function RootLayout() {
           <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style={theme.colors.background === "#121212" ? "light" : "dark"} />
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -57,7 +57,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     dateButton: {
@@ -70,7 +70,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
     dateText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     photoContainer: {
       flexDirection: "row" as const,
@@ -90,7 +90,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
     photoButtonText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     photoPreview: {
@@ -135,7 +135,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     milestoneTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     addMilestoneButton: {
       paddingVertical: theme.spacing.sm,
@@ -157,12 +157,12 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     milestoneItemTitle: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     milestoneItemDescription: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     submitButton: {
       marginTop: theme.spacing.xl,

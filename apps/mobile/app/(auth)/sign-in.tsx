@@ -29,12 +29,12 @@ export default function SignInScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.subtitle.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     footer: {
@@ -43,7 +43,7 @@ export default function SignInScreen() {
     },
     linkText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     linkButton: {

@@ -23,7 +23,7 @@ const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
     cardTitle: {
       fontSize: 18,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     summaryGrid: {
@@ -42,7 +42,7 @@ const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
     },
     summaryLabel: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
   }));
 

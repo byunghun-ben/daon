@@ -82,12 +82,12 @@ export default function HomeScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     section: {
       marginBottom: theme.spacing.xl,
@@ -99,7 +99,7 @@ export default function HomeScreen() {
     },
     emptyText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.lg,
     },

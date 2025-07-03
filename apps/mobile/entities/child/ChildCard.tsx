@@ -55,12 +55,12 @@ export const ChildCard: React.FC<ChildCardProps> = ({
     childName: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     childAge: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     details: {
       paddingTop: theme.spacing.sm,
@@ -74,11 +74,11 @@ export const ChildCard: React.FC<ChildCardProps> = ({
     },
     detailLabel: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     detailValue: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       fontWeight: "500" as const,
     },
     selectedIndicator: {

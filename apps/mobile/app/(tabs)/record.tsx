@@ -59,12 +59,12 @@ export default function RecordScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     content: {
       flex: 1,
@@ -93,7 +93,7 @@ export default function RecordScreen() {
     activityButtonText: {
       fontSize: theme.typography.button.fontSize,
       fontWeight: theme.typography.button.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginTop: theme.spacing.sm,
     },
     activitiesSection: {
@@ -102,7 +102,7 @@ export default function RecordScreen() {
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     activityItem: {
@@ -118,15 +118,15 @@ export default function RecordScreen() {
     activityType: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     activityTime: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     activityDetails: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     emptyState: {
       alignItems: "center" as const,
@@ -135,7 +135,7 @@ export default function RecordScreen() {
     },
     emptyText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.lg,
     },

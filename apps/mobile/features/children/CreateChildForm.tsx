@@ -44,7 +44,7 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     row: {
@@ -74,7 +74,7 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
     },
     genderButtonText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     genderButtonTextSelected: {
       color: theme.colors.primary,
@@ -92,7 +92,7 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
     },
     photoButtonText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     selectedPhotoContainer: {
@@ -110,7 +110,7 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
     },
     helpText: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
       fontStyle: "italic" as const,
     },

@@ -59,7 +59,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     activityTypeGrid: {
@@ -88,7 +88,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     },
     activityTypeText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       textAlign: "center" as const,
     },
     activeActivityTypeText: {
@@ -116,7 +116,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     },
     optionButtonText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     activeOptionButtonText: {
       color: theme.colors.white,
@@ -133,7 +133,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     },
     dateText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     submitButton: {
       marginTop: theme.spacing.xl,

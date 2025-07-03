@@ -68,12 +68,12 @@ export const CreateChildForm = ({
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.subtitle.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     genderContainer: {
@@ -82,7 +82,7 @@ export const CreateChildForm = ({
     genderLabel: {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: "500" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     genderButtons: {

@@ -79,13 +79,13 @@ export default function PermissionsScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       textAlign: "center" as const,
       marginBottom: theme.spacing.md,
     },
     subtitle: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       lineHeight: 20,
       marginBottom: theme.spacing.lg,

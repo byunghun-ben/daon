@@ -62,7 +62,7 @@ export const ChildRegistrationWidget = ({
       color: theme.colors.primary,
     },
     inactiveTabText: {
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     formContainer: {
       flex: 1,

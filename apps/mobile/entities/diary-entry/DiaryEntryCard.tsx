@@ -29,7 +29,7 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
     },
     date: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       fontWeight: "600" as const,
     },
     milestonesContainer: {
@@ -50,7 +50,7 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
     },
     content: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       lineHeight: theme.typography.body1.lineHeight,
       marginBottom: theme.spacing.sm,
     },
@@ -66,12 +66,12 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
     },
     photoCount: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       alignSelf: "center" as const,
     },
     userInfo: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
     },
     readMore: {

@@ -30,12 +30,12 @@ export default function OnboardingChildSetupScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       textAlign: "center" as const,
     },
     subtitle: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginTop: theme.spacing.sm,
       lineHeight: theme.typography.body1.lineHeight,
@@ -60,7 +60,7 @@ export default function OnboardingChildSetupScreen() {
     tabText: {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: "500" as const,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     activeTabText: {
       color: theme.colors.white,

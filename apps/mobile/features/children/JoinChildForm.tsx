@@ -32,7 +32,7 @@ export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
     },
     description: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.md,
     },

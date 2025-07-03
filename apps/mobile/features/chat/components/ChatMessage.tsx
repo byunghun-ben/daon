@@ -43,10 +43,10 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 4,
-    alignItems: "flex-start",
+    alignItems: "flex-start" as const,
   },
   userContainer: {
-    alignItems: "flex-end",
+    alignItems: "flex-end" as const,
   },
   bubble: {
     maxWidth: "80%",

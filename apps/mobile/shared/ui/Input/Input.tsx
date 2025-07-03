@@ -17,6 +17,8 @@ interface InputProps extends TextInputProps {
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
   errorStyle?: TextStyle;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export default function Input({
@@ -26,6 +28,8 @@ export default function Input({
   inputStyle,
   labelStyle,
   errorStyle,
+  accessibilityLabel,
+  accessibilityHint,
   ...props
 }: InputProps) {
   const styles = useThemedStyles((theme) => ({
@@ -35,7 +39,7 @@ export default function Input({
     label: {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: "500" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     input: {
@@ -45,9 +49,9 @@ export default function Input({
       borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.md,
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       backgroundColor: theme.colors.surface,
-      placeholderTextColor: theme.colors.text.muted,
+      placeholderTextColor: theme.colors.textMuted,
     },
     inputError: {
       borderColor: theme.colors.error,
@@ -65,6 +69,10 @@ export default function Input({
       <TextInput
         style={[styles.input, error && styles.inputError, inputStyle]}
         placeholderTextColor={styles.input.placeholderTextColor}
+        accessibilityLabel={accessibilityLabel || label}
+        accessibilityHint={accessibilityHint}
+        accessibilityRole="none"
+        accessible={true}
         {...props}
       />
       {error && <Text style={[styles.error, errorStyle]}>{error}</Text>}

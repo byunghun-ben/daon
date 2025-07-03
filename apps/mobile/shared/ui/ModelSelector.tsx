@@ -31,10 +31,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <View style={styles.header}>
-        <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+        <Text style={[styles.label, { color: theme.colors.text }]}>
           AI Model: {currentModel?.label || selectedModel}
         </Text>
-        <Text style={[styles.provider, { color: theme.colors.text.secondary }]}>
+        <Text style={[styles.provider, { color: theme.colors.textSecondary }]}>
           {PROVIDER_DISPLAY_NAMES[MODEL_PROVIDER_MAP[selectedModel]]}
         </Text>
       </View>
@@ -48,7 +48,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               onModelChange(value as AIModel);
             }
           }}
-          dropdownIconColor={theme.colors.text.primary}
+          dropdownIconColor={theme.colors.text}
           mode={Platform.OS === "android" ? "dropdown" : undefined}
           enabled={true}
         >
@@ -58,7 +58,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               label={model.label}
               value={model.value}
               color={
-                Platform.OS === "ios" ? theme.colors.text.primary : undefined
+                Platform.OS === "ios" ? theme.colors.text : undefined
               }
             />
           ))}
@@ -75,23 +75,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: "row" as const,
+    justifyContent: "space-between" as const,
+    alignItems: "center" as const,
     marginBottom: 4,
   },
   label: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "600" as const,
   },
   provider: {
     fontSize: 10,
-    fontWeight: "400",
+    fontWeight: "400" as const,
   },
   pickerContainer: {
     borderWidth: 1,
     borderRadius: 6,
-    overflow: "hidden",
+    overflow: "hidden" as const,
     backgroundColor: "white",
   },
   picker: {

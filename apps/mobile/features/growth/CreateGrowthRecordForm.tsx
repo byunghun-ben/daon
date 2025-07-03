@@ -50,7 +50,7 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     dateButton: {
@@ -63,7 +63,7 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     },
     dateText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     measurementCard: {
       backgroundColor: theme.colors.surface,
@@ -83,11 +83,11 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     measurementTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     measurementDescription: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.md,
     },
     inputRow: {
@@ -100,7 +100,7 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     },
     unitText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       paddingBottom: theme.spacing.md,
     },
     summaryCard: {
@@ -123,19 +123,19 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     },
     summaryLabel: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     summaryValue: {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     submitButton: {
       marginTop: theme.spacing.xl,
     },
     helpText: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.xs,
       fontStyle: "italic" as const,
     },

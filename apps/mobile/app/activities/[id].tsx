@@ -33,7 +33,7 @@ export default function ActivityDetailScreen() {
     },
     loadingText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     errorContainer: {
       flex: 1,

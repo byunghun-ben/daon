@@ -62,7 +62,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
     sectionTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     input: {
@@ -71,7 +71,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       borderRadius: 8,
       padding: theme.spacing.md,
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       backgroundColor: theme.colors.background,
       marginBottom: theme.spacing.md,
     },
@@ -97,7 +97,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
     },
     label: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
     },
   }));

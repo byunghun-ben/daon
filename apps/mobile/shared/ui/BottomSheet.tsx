@@ -68,7 +68,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       textAlign: "center" as const,
     },
     content: {

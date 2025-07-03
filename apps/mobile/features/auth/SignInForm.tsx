@@ -110,7 +110,7 @@ export const SignInForm = () => {
     },
     linkText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
     },
     linkButton: {
@@ -130,7 +130,7 @@ export const SignInForm = () => {
     dividerText: {
       paddingHorizontal: theme.spacing.md,
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
   }));
 

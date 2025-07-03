@@ -36,11 +36,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
     activityLabel: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     timestamp: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     details: {
       marginTop: theme.spacing.sm,
@@ -51,24 +51,24 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
     },
     detailLabel: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginRight: theme.spacing.sm,
       minWidth: 60,
     },
     detailValue: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       fontWeight: "500" as const,
     },
     notes: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       fontStyle: "italic" as const,
       marginTop: theme.spacing.sm,
     },
     userInfo: {
       fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       marginTop: theme.spacing.sm,
     },
   }));

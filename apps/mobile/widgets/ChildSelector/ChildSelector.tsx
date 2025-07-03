@@ -224,31 +224,31 @@ const styles = StyleSheet.create({
 
   childName: {
     fontSize: 14,
-    color: theme.colors.text.secondary,
+    color: theme.colors.textSecondary,
     fontWeight: "500",
   },
 
   activeChildName: {
     fontSize: 16,
-    color: theme.colors.text.primary,
+    color: theme.colors.text,
     fontWeight: "600",
   },
 
   childAge: {
     fontSize: 12,
-    color: theme.colors.text.secondary,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
 
   switchHint: {
     fontSize: 12,
-    color: theme.colors.text.secondary,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
 
   dropdownIcon: {
     fontSize: 12,
-    color: theme.colors.text.secondary,
+    color: theme.colors.textSecondary,
     marginLeft: 8,
   },
 
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: theme.colors.text.primary,
+    color: theme.colors.text,
   },
 
   closeButton: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
 
   closeButtonText: {
     fontSize: 20,
-    color: theme.colors.text.secondary,
+    color: theme.colors.textSecondary,
     fontWeight: "300",
   },
 

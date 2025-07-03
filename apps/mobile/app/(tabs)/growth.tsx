@@ -44,12 +44,12 @@ export default function GrowthScreen() {
     title: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     content: {
       flex: 1,
@@ -62,7 +62,7 @@ export default function GrowthScreen() {
     },
     emptyText: {
       fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       textAlign: "center" as const,
       marginBottom: theme.spacing.lg,
     },
@@ -85,7 +85,7 @@ export default function GrowthScreen() {
     },
     metricTabText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       fontWeight: "500" as const,
     },
     activeMetricTabText: {
@@ -97,7 +97,7 @@ export default function GrowthScreen() {
     chartTitle: {
       fontSize: theme.typography.subtitle.fontSize,
       fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
       textAlign: "center" as const,
     },
@@ -114,12 +114,12 @@ export default function GrowthScreen() {
     },
     recordDate: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     recordValue: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     latestRecord: {
       backgroundColor: theme.colors.primary + "10",
@@ -137,17 +137,17 @@ export default function GrowthScreen() {
     latestRecordValue: {
       fontSize: theme.typography.title.fontSize,
       fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     noDataText: {
       textAlign: "center" as const,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       padding: theme.spacing.lg,
       fontStyle: "italic" as const,
     },
     loadingText: {
       textAlign: "center" as const,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
       padding: theme.spacing.lg,
     },
     errorText: {

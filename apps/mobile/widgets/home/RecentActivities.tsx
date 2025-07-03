@@ -22,12 +22,12 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
     sectionTitle: {
       fontSize: 18,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     emptyText: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.muted,
+      color: theme.colors.textMuted,
       textAlign: "center" as const,
       paddingVertical: theme.spacing.lg,
     },
@@ -45,15 +45,15 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
     activityType: {
       fontSize: theme.typography.body1.fontSize,
       fontWeight: "600" as const,
-      color: theme.colors.text.primary,
+      color: theme.colors.text,
     },
     activityTime: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.secondary,
+      color: theme.colors.textSecondary,
     },
     activityNotes: {
       fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text.muted,
+      color: theme.colors.textMuted,
       marginTop: theme.spacing.xs,
     },
   }));

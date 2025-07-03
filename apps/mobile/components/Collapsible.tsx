@@ -39,8 +39,8 @@ export function Collapsible({
 
 const styles = StyleSheet.create({
   heading: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
     gap: 6,
   },
   content: {

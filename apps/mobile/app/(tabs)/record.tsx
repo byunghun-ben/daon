@@ -148,17 +148,6 @@ export default function RecordScreen() {
     { key: "tummy_time", label: "배밀이", icon: "🤸‍♀️" },
   ];
 
-  const getActivityLabel = (type: string) => {
-    const activity = activityTypes.find((a) => a.key === type);
-    return activity ? `${activity.icon} ${activity.label}` : type;
-  };
-
-  const formatTime = (date: string) => {
-    return new Date(date).toLocaleTimeString("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   if (!activeChild) {
     return (

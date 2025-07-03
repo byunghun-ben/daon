@@ -1,4 +1,4 @@
-import React from "react";
+import { Stack } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Stack } from "expo-router";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useThemeStore, ThemeMode } from "../../shared/store/theme.store";
-import Card from "../../shared/ui/Card";
 import { IconSymbol } from "../../components/ui/IconSymbol";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import type { ThemeMode } from "../../shared/store/theme.store";
+import { useThemeStore } from "../../shared/store/theme.store";
+import Card from "../../shared/ui/Card";
 
 export default function ThemeSettingsScreen() {
   const { mode, setMode } = useThemeStore();
@@ -78,17 +78,17 @@ export default function ThemeSettingsScreen() {
       backgroundColor: "#263238",
     },
     systemIcon: {
-      backgroundColor: theme.colors.primary + "20",
+      backgroundColor: `${theme.colors.primary}20`,
     },
   }));
 
-  const themeOptions: Array<{
+  const themeOptions: {
     mode: ThemeMode;
     title: string;
     description: string;
     icon: string;
-    iconStyle: any;
-  }> = [
+    iconStyle: object;
+  }[] = [
     {
       mode: "light",
       title: "라이트 모드",

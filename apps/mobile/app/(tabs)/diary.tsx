@@ -13,6 +13,7 @@ import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
+import type { DiaryEntry } from "@daon/shared";
 
 export default function DiaryScreen() {
   const router = useRouter();
@@ -96,7 +97,7 @@ export default function DiaryScreen() {
       color: theme.colors.textSecondary,
     },
     milestoneTag: {
-      backgroundColor: theme.colors.primary + "20",
+      backgroundColor: `${theme.colors.primary  }20`,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.borderRadius.sm,
@@ -145,20 +146,7 @@ export default function DiaryScreen() {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const truncateContent = (content: string, maxLength: number = 100) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + "...";
-  };
-
-  const renderDiaryItem = (diaryEntry: any) => (
+  const renderDiaryItem = (diaryEntry: DiaryEntry) => (
     <DiaryEntryCard
       key={diaryEntry.id}
       diaryEntry={diaryEntry}

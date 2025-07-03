@@ -21,6 +21,12 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  "sun.max.fill": "wb-sunny",
+  "moon.fill": "nights-stay",
+  "gear": "settings",
+  "checkmark.circle.fill": "check-circle",
+  "trash": "delete",
+  "pencil": "edit",
 } as IconMapping;
 
 /**
@@ -34,7 +40,7 @@ export function IconSymbol({
   color,
   style,
 }: {
-  name: IconSymbolName;
+  name: IconSymbolName | string;
   size?: number;
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
@@ -44,7 +50,7 @@ export function IconSymbol({
     <MaterialIcons
       color={color}
       size={size}
-      name={MAPPING[name]}
+      name={MAPPING[name as IconSymbolName] || "help-outline"}
       style={style}
     />
   );

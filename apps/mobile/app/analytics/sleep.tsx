@@ -5,6 +5,7 @@ import {
   Text,
   RefreshControl,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native";
 import { Stack } from "expo-router";
 import { BarChart, LineChart } from "../../shared/ui/charts";
@@ -26,7 +27,7 @@ export default function SleepAnalyticsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { activeChild } = useActiveChildStore();
 
-  const styles = useThemedStyles((theme) => ({
+  const styles = useThemedStyles((theme) => StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -171,7 +172,7 @@ export default function SleepAnalyticsScreen() {
     labels: ["월", "화", "수", "목", "금", "토", "일"],
     datasets: [
       {
-        data: sleepPattern?.sleepByDay?.map(day => day.totalMinutes / 60) || [0, 0, 0, 0, 0, 0, 0],
+        data: sleepPattern?.sleepByDay?.map(day => day.totalSleep / 60) || [0, 0, 0, 0, 0, 0, 0],
         color: () => "#2196F3",
         strokeWidth: 3,
       },
@@ -184,8 +185,8 @@ export default function SleepAnalyticsScreen() {
     datasets: [
       {
         data: [
-          sleepPattern?.totalNapTime ? sleepPattern.totalNapTime / 60 : 0,
-          sleepPattern?.totalNightSleep ? sleepPattern.totalNightSleep / 60 : 0,
+          sleepPattern?.dayNapTime ? sleepPattern.dayNapTime / 60 : 0,
+          sleepPattern?.nightSleepTime ? sleepPattern.nightSleepTime / 60 : 0,
         ],
       },
     ],
@@ -251,13 +252,13 @@ export default function SleepAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>총 낮잠 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.totalNapTime ? formatDuration(sleepPattern.totalNapTime) : "데이터 없음"}
+                    {sleepPattern?.dayNapTime ? formatDuration(sleepPattern.dayNapTime) : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>총 밤잠 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.totalNightSleep ? formatDuration(sleepPattern.totalNightSleep) : "데이터 없음"}
+                    {sleepPattern?.nightSleepTime ? formatDuration(sleepPattern.nightSleepTime) : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
@@ -298,25 +299,27 @@ export default function SleepAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 취침 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.averageBedtime || "데이터 없음"}
+                    {"데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 기상 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.averageWakeTime || "데이터 없음"}
+                    {"데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>낮잠 횟수</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.napCount ? `${sleepPattern.napCount}회` : "데이터 없음"}
+                    {"데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 낮잠 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.averageNapDuration ? formatDuration(sleepPattern.averageNapDuration) : "데이터 없음"}
+                    {sleepPattern?.dayNapTime && sleepPattern?.sleepSessions
+                      ? formatDuration(Math.round(sleepPattern.dayNapTime / Math.max(1, sleepPattern.sleepSessions - 1)))
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
@@ -329,7 +332,7 @@ export default function SleepAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>수면 효율성</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.sleepEfficiency ? `${sleepPattern.sleepEfficiency.toFixed(1)}%` : "데이터 없음"}
+                    {"데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>

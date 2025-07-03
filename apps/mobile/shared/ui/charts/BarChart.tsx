@@ -1,8 +1,6 @@
 import React from "react";
 import { Dimensions, View } from "react-native";
-import {
-  BarChart as RNBarChart,
-} from "react-native-chart-kit";
+import { BarChart as RNBarChart } from "react-native-chart-kit";
 import { useThemedStyles } from "../../lib/hooks/useTheme";
 
 const screenWidth = Dimensions.get("window").width;
@@ -65,7 +63,8 @@ export const BarChart: React.FC<BarChartProps> = ({
         withInnerLines={showGrid}
         withVerticalLabels={showXAxisLabel}
         withHorizontalLabels={showYAxisLabel}
-        formatYLabel={formatYLabel}
+        yAxisLabel=""
+        yAxisSuffix="시간"
         showValuesOnTopOfBars={true}
         style={{
           borderRadius: 16,

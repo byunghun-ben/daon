@@ -15,7 +15,7 @@ import { useIsPremium, useIsActive } from "../../shared/store/subscription.store
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import { IconSymbol } from "../../components/ui/IconSymbol";
-import { SubscriptionPlan } from "@daon/shared";
+import type { SubscriptionPlan } from "@daon/shared";
 
 type BillingInterval = "month" | "year";
 
@@ -158,7 +158,7 @@ export default function SubscriptionPlansScreen() {
       marginTop: theme.spacing.md,
     },
     trialInfo: {
-      backgroundColor: theme.colors.info + "20",
+      backgroundColor: `${theme.colors.info  }20`,
       padding: theme.spacing.md,
       borderRadius: theme.borderRadius.md,
       marginBottom: theme.spacing.lg,
@@ -249,7 +249,7 @@ export default function SubscriptionPlansScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert("오류", "구독 처리 중 오류가 발생했습니다.");
     }
   };
@@ -262,7 +262,7 @@ export default function SubscriptionPlansScreen() {
         "7일 무료 체험이 시작되었습니다!",
         [{ text: "확인", onPress: () => router.back() }]
       );
-    } catch (error) {
+    } catch {
       Alert.alert("오류", "체험 시작 중 오류가 발생했습니다.");
     }
   };
@@ -384,7 +384,7 @@ export default function SubscriptionPlansScreen() {
         </View>
 
         {/* Plans list */}
-        {plans.map((plan, index) => (
+        {plans.map((plan, _index) => (
           <TouchableOpacity
             key={plan.id}
             style={[

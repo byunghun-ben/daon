@@ -15,6 +15,7 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import type { GrowthRecord } from "@daon/shared";
 
 type MetricType = "weight" | "height" | "headCircumference";
 
@@ -122,7 +123,7 @@ export default function GrowthScreen() {
       color: theme.colors.text,
     },
     latestRecord: {
-      backgroundColor: theme.colors.primary + "10",
+      backgroundColor: `${theme.colors.primary  }10`,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.lg,
       borderRadius: theme.borderRadius.md,
@@ -189,12 +190,6 @@ export default function GrowthScreen() {
     { key: "headCircumference", label: "머리둘레", unit: "cm", icon: "👶" },
   ] as const;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-    });
-  };
 
   const formatFullDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
@@ -207,9 +202,9 @@ export default function GrowthScreen() {
   const getFilteredRecords = () => {
     const records = growthData?.growthRecords || [];
     return records
-      .filter((record: any) => record[selectedMetric] !== null)
+      .filter((record: GrowthRecord) => record[selectedMetric] !== null)
       .sort(
-        (a: any, b: any) =>
+        (a: GrowthRecord, b: GrowthRecord) =>
           new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
       );
   };
@@ -264,7 +259,7 @@ export default function GrowthScreen() {
           {currentMetric.icon} {currentMetric.label} 변화
         </Text>
         <View style={styles.recordsList}>
-          {records.slice(-10).map((record: any, index: number) => (
+          {records.slice(-10).map((record: GrowthRecord, _index: number) => (
             <View key={record.id} style={styles.recordItem}>
               <Text style={styles.recordDate}>
                 {formatFullDate(record.recordedAt)}
@@ -375,11 +370,11 @@ export default function GrowthScreen() {
             <Text style={styles.chartTitle}>모든 성장 기록</Text>
             {growthRecords
               .sort(
-                (a: any, b: any) =>
+                (a: GrowthRecord, b: GrowthRecord) =>
                   new Date(b.recordedAt).getTime() -
                   new Date(a.recordedAt).getTime(),
               )
-              .map((record: any) => (
+              .map((record: GrowthRecord) => (
                 <GrowthRecordCard
                   key={record.id}
                   growthRecord={record}

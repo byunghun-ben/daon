@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stack } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
-  Text,
-  View,
   Switch,
+  Text,
   TouchableOpacity,
-  Alert,
+  View,
 } from "react-native";
-import { Stack } from "expo-router";
+import { IconSymbol } from "../../components/ui/IconSymbol";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Card from "../../shared/ui/Card";
-import { IconSymbol } from "../../components/ui/IconSymbol";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type FontSize = "small" | "normal" | "large" | "extraLarge";
-type ContrastMode = "normal" | "high";
 
 interface AccessibilitySettings {
   reduceMotion: boolean;
@@ -106,7 +105,7 @@ export default function AccessibilitySettingsScreen() {
     },
     fontSizeOptionActive: {
       borderColor: theme.colors.primary,
-      backgroundColor: theme.colors.primary + "10",
+      backgroundColor: `${theme.colors.primary}10`,
     },
     fontSizeText: {
       fontSize: theme.typography.caption.fontSize,
@@ -118,11 +117,11 @@ export default function AccessibilitySettingsScreen() {
     },
   }));
 
-  const fontSizeOptions: Array<{
+  const fontSizeOptions: {
     value: FontSize;
     label: string;
     description: string;
-  }> = [
+  }[] = [
     { value: "small", label: "작게", description: "12pt" },
     { value: "normal", label: "보통", description: "16pt" },
     { value: "large", label: "크게", description: "20pt" },
@@ -135,7 +134,7 @@ export default function AccessibilitySettingsScreen() {
   ) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    
+
     try {
       await AsyncStorage.setItem(
         "accessibility-settings",
@@ -172,7 +171,8 @@ export default function AccessibilitySettingsScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>접근성</Text>
           <Text style={styles.subtitle}>
-            시각, 청각, 운동 능력에 관계없이 모든 사용자가 앱을 쉽게 사용할 수 있도록 도와주는 설정입니다.
+            시각, 청각, 운동 능력에 관계없이 모든 사용자가 앱을 쉽게 사용할 수
+            있도록 도와주는 설정입니다.
           </Text>
         </View>
 
@@ -182,9 +182,14 @@ export default function AccessibilitySettingsScreen() {
           <Card>
             <View style={styles.settingRow}>
               <View style={styles.settingContent}>
-                <View style={{ flexDirection: "row" as const, alignItems: "center" as const }}>
+                <View
+                  style={{
+                    flexDirection: "row" as const,
+                    alignItems: "center" as const,
+                  }}
+                >
                   <Text style={styles.settingTitle}>폰트 크기</Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={showFontSizeInfo}
                     accessibilityLabel="폰트 크기 설정 도움말"
                     accessibilityHint="폰트 크기 설정에 대한 자세한 정보를 확인합니다"
@@ -278,7 +283,9 @@ export default function AccessibilitySettingsScreen() {
               </View>
               <Switch
                 value={settings.hapticFeedback}
-                onValueChange={(value) => updateSetting("hapticFeedback", value)}
+                onValueChange={(value) =>
+                  updateSetting("hapticFeedback", value)
+                }
                 accessibilityLabel="햅틱 피드백"
                 accessibilityHint="터치 시 진동 피드백을 활성화합니다"
               />

@@ -1,18 +1,12 @@
 import React, { useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Animated,
-} from "react-native";
-import {
-  PanGestureHandler,
-  State,
+import { Animated, Text, TouchableOpacity, View } from "react-native";
+import type {
   PanGestureHandlerGestureEvent,
   PanGestureHandlerStateChangeEvent,
 } from "react-native-gesture-handler";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { IconSymbol } from "../../../components/ui/IconSymbol";
+import { useThemedStyles } from "../../lib/hooks/useTheme";
 
 export interface SwipeAction {
   label: string;
@@ -86,16 +80,16 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
       useNativeDriver: true,
       listener: (event: PanGestureHandlerGestureEvent) => {
         const { translationX } = event.nativeEvent;
-        
+
         // Constrain swipe distance
         const maxLeftSwipe = leftActions.length * ACTION_WIDTH;
         const maxRightSwipe = rightActions.length * ACTION_WIDTH;
-        
+
         const clampedTranslationX = Math.max(
           -maxRightSwipe,
           Math.min(maxLeftSwipe, translationX + lastOffset.current)
         );
-        
+
         translateX.setValue(clampedTranslationX);
       },
     }
@@ -111,18 +105,27 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
       let finalPosition = 0;
 
       // Determine final position based on swipe distance and velocity
-      if (Math.abs(currentTranslateX) > SWIPE_THRESHOLD || Math.abs(velocityX) > 500) {
+      if (
+        Math.abs(currentTranslateX) > SWIPE_THRESHOLD ||
+        Math.abs(velocityX) > 500
+      ) {
         if (currentTranslateX > 0 && leftActions.length > 0) {
           // Swipe right - show left actions
-          finalPosition = Math.min(leftActions.length * ACTION_WIDTH, currentTranslateX);
+          finalPosition = Math.min(
+            leftActions.length * ACTION_WIDTH,
+            currentTranslateX
+          );
         } else if (currentTranslateX < 0 && rightActions.length > 0) {
           // Swipe left - show right actions
-          finalPosition = Math.max(-rightActions.length * ACTION_WIDTH, currentTranslateX);
+          finalPosition = Math.max(
+            -rightActions.length * ACTION_WIDTH,
+            currentTranslateX
+          );
         }
       }
 
       lastOffset.current = finalPosition;
-      
+
       Animated.spring(translateX, {
         toValue: finalPosition,
         useNativeDriver: true,
@@ -147,10 +150,7 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
         {actions.map((action, index) => (
           <TouchableOpacity
             key={index}
-            style={[
-              styles.action,
-              { backgroundColor: action.backgroundColor },
-            ]}
+            style={[styles.action, { backgroundColor: action.backgroundColor }]}
             onPress={() => {
               action.onPress();
               // Reset position after action
@@ -166,17 +166,8 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
             accessibilityLabel={action.accessibilityLabel || action.label}
             accessibilityHint={action.accessibilityHint}
           >
-            <IconSymbol
-              name={action.icon}
-              size={20}
-              color={action.color}
-            />
-            <Text
-              style={[
-                styles.actionText,
-                { color: action.color },
-              ]}
-            >
+            <IconSymbol name={action.icon} size={20} color={action.color} />
+            <Text style={[styles.actionText, { color: action.color }]}>
               {action.label}
             </Text>
           </TouchableOpacity>
@@ -199,7 +190,7 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = ({
     <View style={styles.container}>
       {renderActions(leftActions, "left")}
       {renderActions(rightActions, "right")}
-      
+
       <PanGestureHandler
         onGestureEvent={handleGestureEvent}
         onHandlerStateChange={handleStateChange}

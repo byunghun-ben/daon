@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  RefreshControl,
-  TouchableOpacity,
-} from "react-native";
 import { Stack } from "expo-router";
-import { LineChart, BarChart } from "../../shared/ui/charts";
-import Card from "../../shared/ui/Card";
+import { useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useGrowthAnalytics } from "../../shared/api/analytics/hooks";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChildStore } from "../../shared/store";
-import { useGrowthAnalytics } from "../../shared/api/analytics/hooks";
+import Card from "../../shared/ui/Card";
+import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "month" | "quarter" | "year";
 
@@ -140,8 +140,12 @@ export default function GrowthAnalyticsScreen() {
     {
       childId: activeChild?.id || "",
       period: {
-        startDate: new Date(Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
+        startDate: new Date(
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
         period: selectedPeriod,
       },
     },
@@ -180,10 +184,11 @@ export default function GrowthAnalyticsScreen() {
 
   // 신장 추이 차트 데이터
   const heightTrendData = {
-    labels: growthPattern?.heightTrend?.map((_, index) => `${index + 1}월`) || [],
+    labels:
+      growthPattern?.heightTrend?.map((_, index) => `${index + 1}월`) || [],
     datasets: [
       {
-        data: growthPattern?.heightTrend?.map(point => point.value) || [],
+        data: growthPattern?.heightTrend?.map((point) => point.value) || [],
         color: () => "#FF9800",
         strokeWidth: 3,
       },
@@ -192,10 +197,11 @@ export default function GrowthAnalyticsScreen() {
 
   // 체중 추이 차트 데이터
   const weightTrendData = {
-    labels: growthPattern?.weightTrend?.map((_, index) => `${index + 1}월`) || [],
+    labels:
+      growthPattern?.weightTrend?.map((_, index) => `${index + 1}월`) || [],
     datasets: [
       {
-        data: growthPattern?.weightTrend?.map(point => point.value) || [],
+        data: growthPattern?.weightTrend?.map((point) => point.value) || [],
         color: () => "#4CAF50",
         strokeWidth: 3,
       },
@@ -204,10 +210,15 @@ export default function GrowthAnalyticsScreen() {
 
   // 두위 추이 차트 데이터
   const headCircumferenceTrendData = {
-    labels: growthPattern?.headCircumferenceTrend?.map((_, index) => `${index + 1}월`) || [],
+    labels:
+      growthPattern?.headCircumferenceTrend?.map(
+        (_, index) => `${index + 1}월`
+      ) || [],
     datasets: [
       {
-        data: growthPattern?.headCircumferenceTrend?.map(point => point.value) || [],
+        data:
+          growthPattern?.headCircumferenceTrend?.map((point) => point.value) ||
+          [],
         color: () => "#9C27B0",
         strokeWidth: 3,
       },
@@ -231,7 +242,7 @@ export default function GrowthAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "성장 추세 분석" }} />
-      
+
       <ScrollView
         style={styles.content}
         refreshControl={
@@ -252,7 +263,8 @@ export default function GrowthAnalyticsScreen() {
               <Text
                 style={[
                   styles.periodButtonText,
-                  selectedPeriod === period.key && styles.periodButtonTextActive,
+                  selectedPeriod === period.key &&
+                    styles.periodButtonTextActive,
                 ]}
               >
                 {period.label}
@@ -276,45 +288,62 @@ export default function GrowthAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>현재 신장</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.currentHeight ? `${growthPattern.currentHeight}cm` : "데이터 없음"}
+                    {growthPattern?.currentHeight
+                      ? `${growthPattern.currentHeight}cm`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>현재 체중</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.currentWeight ? `${growthPattern.currentWeight}kg` : "데이터 없음"}
+                    {growthPattern?.currentWeight
+                      ? `${growthPattern.currentWeight}kg`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>현재 두위</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.currentHeadCircumference ? `${growthPattern.currentHeadCircumference}cm` : "데이터 없음"}
+                    {growthPattern?.currentHeadCircumference
+                      ? `${growthPattern.currentHeadCircumference}cm`
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
 
               {/* 백분위 정보 */}
               <Card>
-                <Text style={[styles.metricLabel, { textAlign: "center" as const, marginBottom: 12 }]}>
+                <Text
+                  style={[
+                    styles.metricLabel,
+                    { textAlign: "center" as const, marginBottom: 12 },
+                  ]}
+                >
                   성장 백분위
                 </Text>
                 <View style={styles.percentileInfo}>
                   <View style={styles.percentileItem}>
                     <Text style={styles.percentileLabel}>신장</Text>
                     <Text style={styles.percentileValue}>
-                      {growthPattern?.heightPercentile ? `${growthPattern.heightPercentile}%` : "-"}
+                      {growthPattern?.heightPercentile
+                        ? `${growthPattern.heightPercentile}%`
+                        : "-"}
                     </Text>
                   </View>
                   <View style={styles.percentileItem}>
                     <Text style={styles.percentileLabel}>체중</Text>
                     <Text style={styles.percentileValue}>
-                      {growthPattern?.weightPercentile ? `${growthPattern.weightPercentile}%` : "-"}
+                      {growthPattern?.weightPercentile
+                        ? `${growthPattern.weightPercentile}%`
+                        : "-"}
                     </Text>
                   </View>
                   <View style={styles.percentileItem}>
                     <Text style={styles.percentileLabel}>두위</Text>
                     <Text style={styles.percentileValue}>
-                      {growthPattern?.headCircumferencePercentile ? `${growthPattern.headCircumferencePercentile}%` : "-"}
+                      {growthPattern?.headCircumferencePercentile
+                        ? `${growthPattern.headCircumferencePercentile}%`
+                        : "-"}
                     </Text>
                   </View>
                 </View>
@@ -380,31 +409,41 @@ export default function GrowthAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>신장 성장률</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.heightGrowthRate ? `${growthPattern.heightGrowthRate.toFixed(1)}%` : "데이터 없음"}
+                    {growthPattern?.heightGrowthRate
+                      ? `${growthPattern.heightGrowthRate.toFixed(1)}%`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>체중 성장률</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.weightGrowthRate ? `${growthPattern.weightGrowthRate.toFixed(1)}%` : "데이터 없음"}
+                    {growthPattern?.weightGrowthRate
+                      ? `${growthPattern.weightGrowthRate.toFixed(1)}%`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>두위 성장률</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.headCircumferenceGrowthRate ? `${growthPattern.headCircumferenceGrowthRate.toFixed(1)}%` : "데이터 없음"}
+                    {growthPattern?.headCircumferenceGrowthRate
+                      ? `${growthPattern.headCircumferenceGrowthRate.toFixed(1)}%`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 월간 신장 증가</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.averageMonthlyHeightGain ? `${growthPattern.averageMonthlyHeightGain.toFixed(1)}cm` : "데이터 없음"}
+                    {growthPattern?.averageMonthlyHeightGain
+                      ? `${growthPattern.averageMonthlyHeightGain.toFixed(1)}cm`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 월간 체중 증가</Text>
                   <Text style={styles.metricValue}>
-                    {growthPattern?.averageMonthlyWeightGain ? `${growthPattern.averageMonthlyWeightGain.toFixed(1)}kg` : "데이터 없음"}
+                    {growthPattern?.averageMonthlyWeightGain
+                      ? `${growthPattern.averageMonthlyWeightGain.toFixed(1)}kg`
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>

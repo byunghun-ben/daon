@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import {
+import type {
   AnalyticsRequest,
   AnalyticsResponse,
   ComparisonAnalytics,
 } from "@daon/shared";
+import type { UseQueryOptions } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { analyticsApi } from "./index";
 
 // Query Keys
@@ -13,8 +14,17 @@ export const ANALYTICS_KEYS = {
   list: (params: AnalyticsRequest) =>
     [...ANALYTICS_KEYS.lists(), params] as const,
   comparisons: () => [...ANALYTICS_KEYS.all, "comparison"] as const,
-  comparison: (childId: string, currentPeriod: string, previousPeriod: string) =>
-    [...ANALYTICS_KEYS.comparisons(), childId, currentPeriod, previousPeriod] as const,
+  comparison: (
+    childId: string,
+    currentPeriod: string,
+    previousPeriod: string
+  ) =>
+    [
+      ...ANALYTICS_KEYS.comparisons(),
+      childId,
+      currentPeriod,
+      previousPeriod,
+    ] as const,
 };
 
 // Analytics 데이터 조회 훅
@@ -46,7 +56,11 @@ export function useComparisonAnalytics(
       `${previousPeriod.startDate}-${previousPeriod.endDate}`
     ),
     queryFn: () =>
-      analyticsApi.getComparisonAnalytics(childId, currentPeriod, previousPeriod),
+      analyticsApi.getComparisonAnalytics(
+        childId,
+        currentPeriod,
+        previousPeriod
+      ),
     enabled: !!childId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

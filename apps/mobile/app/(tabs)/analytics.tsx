@@ -1,5 +1,7 @@
+import type { Theme } from "@/shared/config/theme";
+import type { AnalyticsRequest } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   RefreshControl,
   SafeAreaView,
@@ -10,16 +12,18 @@ import {
   type DimensionValue,
 } from "react-native";
 import { useAnalytics } from "../../shared/api/analytics/hooks";
-import { useActiveChildStore } from "../../shared/store";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { useActiveChildStore } from "../../shared/store";
 import Button from "../../shared/ui/Button";
 
 export default function AnalyticsScreen() {
   const router = useRouter();
   const { activeChild } = useActiveChildStore();
-  const [selectedPeriod, setSelectedPeriod] = useState<"day" | "week" | "month" | "quarter">("week");
+  const [selectedPeriod, setSelectedPeriod] = useState<
+    "day" | "week" | "month" | "quarter"
+  >("week");
 
-  const analyticsParams = {
+  const analyticsParams: AnalyticsRequest = {
     childId: activeChild?.id || "",
     period: {
       startDate: getStartDate(selectedPeriod),
@@ -38,7 +42,7 @@ export default function AnalyticsScreen() {
     enabled: !!activeChild?.id,
   });
 
-  const styles = useThemedStyles((theme: import("../../shared/config/theme").Theme) => ({
+  const styles = useThemedStyles((theme: Theme) => ({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -200,7 +204,7 @@ export default function AnalyticsScreen() {
   ];
 
   const handleSectionPress = (route: string) => {
-    router.push(route as any);
+    router.push(route);
   };
 
   if (!activeChild) {
@@ -213,7 +217,8 @@ export default function AnalyticsScreen() {
         />
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>
-            아이를 선택해주세요.{"\n"}분석 데이터를 확인하려면 활성 아이가 필요합니다.
+            아이를 선택해주세요.{"\n"}분석 데이터를 확인하려면 활성 아이가
+            필요합니다.
           </Text>
           <Button
             title="아이 선택"
@@ -311,7 +316,7 @@ export default function AnalyticsScreen() {
               </Text>
               <Text style={styles.summaryLabel}>총 활동 기록</Text>
             </View>
-            
+
             {analytics.feedingPattern && (
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryValue}>
@@ -320,7 +325,7 @@ export default function AnalyticsScreen() {
                 <Text style={styles.summaryLabel}>수유 횟수</Text>
               </View>
             )}
-            
+
             {analytics.sleepPattern && (
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryValue}>
@@ -329,7 +334,7 @@ export default function AnalyticsScreen() {
                 <Text style={styles.summaryLabel}>평균 수면시간</Text>
               </View>
             )}
-            
+
             {analytics.diaperPattern && (
               <View style={styles.summaryCard}>
                 <Text style={styles.summaryValue}>

@@ -137,7 +137,7 @@ export default function SubscriptionPlansScreen() {
     originalPrice: {
       fontSize: theme.typography.body2.fontSize,
       color: theme.colors.textMuted,
-      textDecorationLine: "line-through",
+      textDecorationLine: "line-through" as const,
       marginTop: theme.spacing.xs,
     },
     featuresContainer: {

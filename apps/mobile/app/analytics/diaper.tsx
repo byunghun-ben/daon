@@ -1,17 +1,19 @@
-import React, { useState } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  RefreshControl,
-  TouchableOpacity,
-} from "react-native";
+import type { Theme } from "@/shared/config/theme";
 import { Stack } from "expo-router";
-import { BarChart, LineChart } from "../../shared/ui/charts";
-import Card from "../../shared/ui/Card";
+import { useState } from "react";
+import type { TextStyle, ViewStyle } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useDiaperAnalytics } from "../../shared/api/analytics/hooks";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChildStore } from "../../shared/store";
-import { useDiaperAnalytics } from "../../shared/api/analytics/hooks";
+import Card from "../../shared/ui/Card";
+import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "day" | "week" | "month";
 
@@ -26,7 +28,7 @@ export default function DiaperAnalyticsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { activeChild } = useActiveChildStore();
 
-  const styles = useThemedStyles((theme) => ({
+  const styles = useThemedStyles((theme: Theme) => ({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -140,8 +142,12 @@ export default function DiaperAnalyticsScreen() {
     {
       childId: activeChild?.id || "",
       period: {
-        startDate: new Date(Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
+        startDate: new Date(
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
         period: selectedPeriod,
       },
     },
@@ -185,10 +191,30 @@ export default function DiaperAnalyticsScreen() {
       {
         data: diaperPattern?.changesByHour
           ? [
-              diaperPattern.changesByHour.filter((h: any) => h.hour >= 0 && h.hour < 6).reduce((sum: any, h: any) => sum + h.count, 0),
-              diaperPattern.changesByHour.filter((h: any) => h.hour >= 6 && h.hour < 12).reduce((sum: any, h: any) => sum + h.count, 0),
-              diaperPattern.changesByHour.filter((h: any) => h.hour >= 12 && h.hour < 18).reduce((sum: any, h: any) => sum + h.count, 0),
-              diaperPattern.changesByHour.filter((h: any) => h.hour >= 18 && h.hour < 24).reduce((sum: any, h: any) => sum + h.count, 0),
+              diaperPattern.changesByHour
+                .filter((h: { hour: number }) => h.hour >= 0 && h.hour < 6)
+                .reduce(
+                  (sum: number, h: { count: number }) => sum + h.count,
+                  0
+                ),
+              diaperPattern.changesByHour
+                .filter((h: { hour: number }) => h.hour >= 6 && h.hour < 12)
+                .reduce(
+                  (sum: number, h: { count: number }) => sum + h.count,
+                  0
+                ),
+              diaperPattern.changesByHour
+                .filter((h: { hour: number }) => h.hour >= 12 && h.hour < 18)
+                .reduce(
+                  (sum: number, h: { count: number }) => sum + h.count,
+                  0
+                ),
+              diaperPattern.changesByHour
+                .filter((h: { hour: number }) => h.hour >= 18 && h.hour < 24)
+                .reduce(
+                  (sum: number, h: { count: number }) => sum + h.count,
+                  0
+                ),
             ]
           : [0, 0, 0, 0],
       },
@@ -201,9 +227,9 @@ export default function DiaperAnalyticsScreen() {
     datasets: [
       {
         data: [
-          diaperPattern?.wetDiapers || 0,
-          diaperPattern?.dirtyDiapers || 0,
-          diaperPattern?.mixedDiapers || 0,
+          diaperPattern?.changeTypes?.wet || 0,
+          diaperPattern?.changeTypes?.dirty || 0,
+          diaperPattern?.changeTypes?.both || 0,
         ],
       },
     ],
@@ -224,7 +250,7 @@ export default function DiaperAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "기저귀 패턴 분석" }} />
-      
+
       <ScrollView
         style={styles.content}
         refreshControl={
@@ -232,20 +258,23 @@ export default function DiaperAnalyticsScreen() {
         }
       >
         {/* 기간 선택 */}
-        <View style={styles.periodSelector}>
+        <View style={styles.periodSelector as ViewStyle}>
           {timePeriods.map((period) => (
             <TouchableOpacity
               key={period.key}
-              style={[
-                styles.periodButton,
-                selectedPeriod === period.key && styles.periodButtonActive,
-              ]}
+              style={
+                [
+                  styles.periodButton,
+                  selectedPeriod === period.key && styles.periodButtonActive,
+                ] as ViewStyle[]
+              }
               onPress={() => setSelectedPeriod(period.key)}
             >
               <Text
                 style={[
                   styles.periodButtonText,
-                  selectedPeriod === period.key && styles.periodButtonTextActive,
+                  selectedPeriod === period.key &&
+                    styles.periodButtonTextActive,
                 ]}
               >
                 {period.label}
@@ -264,56 +293,71 @@ export default function DiaperAnalyticsScreen() {
           <>
             {/* 기저귀 교체 통계 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>기저귀 교체 통계</Text>
+              <Text style={styles.sectionTitle as TextStyle}>
+                기저귀 교체 통계
+              </Text>
               <Card style={styles.metricCard}>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>총 교체 횟수</Text>
-                  <Text style={styles.metricValue}>
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    총 교체 횟수
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
                     {diaperPattern?.totalChanges || 0}회
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>일평균 교체 횟수</Text>
-                  <Text style={styles.metricValue}>
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    일평균 교체 횟수
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
                     {diaperPattern?.averageChangesPerDay?.toFixed(1) || 0}회
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>소변 기저귀</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.wetDiapers || 0}회
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    소변 기저귀
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.changeTypes?.wet || 0}회
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>대변 기저귀</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.dirtyDiapers || 0}회
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    대변 기저귀
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.changeTypes?.dirty || 0}회
                   </Text>
                 </View>
               </Card>
 
               {/* 유형별 분포 */}
               <Card>
-                <Text style={[styles.metricLabel, { textAlign: "center", marginBottom: 12 }]}>
+                <Text
+                  style={[
+                    styles.metricLabel as TextStyle,
+                    { textAlign: "center", marginBottom: 12 },
+                  ]}
+                >
                   기저귀 유형 분포
                 </Text>
-                <View style={styles.typeDistribution}>
-                  <View style={styles.typeItem}>
-                    <Text style={styles.typeLabel}>소변</Text>
-                    <Text style={styles.typeValue}>
-                      {diaperPattern?.wetDiapers || 0}회
+                <View style={styles.typeDistribution as ViewStyle}>
+                  <View style={styles.typeItem as ViewStyle}>
+                    <Text style={styles.typeLabel as TextStyle}>소변</Text>
+                    <Text style={styles.typeValue as TextStyle}>
+                      {diaperPattern?.changeTypes?.wet || 0}회
                     </Text>
                   </View>
-                  <View style={styles.typeItem}>
-                    <Text style={styles.typeLabel}>대변</Text>
-                    <Text style={styles.typeValue}>
-                      {diaperPattern?.dirtyDiapers || 0}회
+                  <View style={styles.typeItem as ViewStyle}>
+                    <Text style={styles.typeLabel as TextStyle}>대변</Text>
+                    <Text style={styles.typeValue as TextStyle}>
+                      {diaperPattern?.changeTypes?.dirty || 0}회
                     </Text>
                   </View>
-                  <View style={styles.typeItem}>
-                    <Text style={styles.typeLabel}>혼합</Text>
-                    <Text style={styles.typeValue}>
-                      {diaperPattern?.mixedDiapers || 0}회
+                  <View style={styles.typeItem as ViewStyle}>
+                    <Text style={styles.typeLabel as TextStyle}>혼합</Text>
+                    <Text style={styles.typeValue as TextStyle}>
+                      {diaperPattern?.changeTypes?.both || 0}회
                     </Text>
                   </View>
                 </View>
@@ -322,9 +366,13 @@ export default function DiaperAnalyticsScreen() {
 
             {/* 유형별 기저귀 교체 분포 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>유형별 교체 분포</Text>
+              <Text style={styles.sectionTitle as TextStyle}>
+                유형별 교체 분포
+              </Text>
               <View style={styles.chartContainer}>
-                <Text style={styles.chartTitle}>기저귀 유형별 교체 횟수</Text>
+                <Text style={styles.chartTitle as TextStyle}>
+                  기저귀 유형별 교체 횟수
+                </Text>
                 <BarChart
                   data={typeDistributionData}
                   height={200}
@@ -335,9 +383,13 @@ export default function DiaperAnalyticsScreen() {
 
             {/* 시간대별 교체 패턴 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>시간대별 교체 패턴</Text>
+              <Text style={styles.sectionTitle as TextStyle}>
+                시간대별 교체 패턴
+              </Text>
               <View style={styles.chartContainer}>
-                <Text style={styles.chartTitle}>시간대별 교체 횟수</Text>
+                <Text style={styles.chartTitle as TextStyle}>
+                  시간대별 교체 횟수
+                </Text>
                 <BarChart
                   data={hourlyChangeData}
                   height={200}
@@ -349,9 +401,13 @@ export default function DiaperAnalyticsScreen() {
             {/* 주간 교체 추이 */}
             {selectedPeriod === "week" && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>주간 교체 추이</Text>
+                <Text style={styles.sectionTitle as TextStyle}>
+                  주간 교체 추이
+                </Text>
                 <View style={styles.chartContainer}>
-                  <Text style={styles.chartTitle}>요일별 교체 횟수</Text>
+                  <Text style={styles.chartTitle as TextStyle}>
+                    요일별 교체 횟수
+                  </Text>
                   <LineChart
                     data={weeklyTrendData}
                     height={200}
@@ -363,59 +419,90 @@ export default function DiaperAnalyticsScreen() {
 
             {/* 교체 간격 분석 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>교체 간격 분석</Text>
+              <Text style={styles.sectionTitle as TextStyle}>
+                교체 간격 분석
+              </Text>
               <Card style={styles.metricCard}>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>평균 교체 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.averageInterval ? `${Math.round(diaperPattern.averageInterval / 60)}시간 ${diaperPattern.averageInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    평균 교체 간격
+                  </Text>
+                  {/* <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.averageInterval
+                      ? `${Math.round(diaperPattern.averageInterval / 60)}시간 ${diaperPattern.averageInterval % 60}분`
+                      : "데이터 없음"}
+                  </Text> */}
+                </View>
+                {/* <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    최단 교체 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.shortestInterval
+                      ? `${Math.round(diaperPattern.shortestInterval / 60)}시간 ${diaperPattern.shortestInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>최단 교체 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.shortestInterval ? `${Math.round(diaperPattern.shortestInterval / 60)}시간 ${diaperPattern.shortestInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    최장 교체 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.longestInterval
+                      ? `${Math.round(diaperPattern.longestInterval / 60)}시간 ${diaperPattern.longestInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>최장 교체 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.longestInterval ? `${Math.round(diaperPattern.longestInterval / 60)}시간 ${diaperPattern.longestInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    밤시간 교체 횟수
                   </Text>
-                </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>밤시간 교체 횟수</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.nightChanges !== undefined ? `${diaperPattern.nightChanges}회` : "데이터 없음"}
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.nightChanges !== undefined
+                      ? `${diaperPattern.nightChanges}회`
+                      : "데이터 없음"}
                   </Text>
-                </View>
+                </View> */}
               </Card>
             </View>
 
             {/* 대변 패턴 분석 */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>대변 패턴 분석</Text>
+            {/* <View style={styles.section}>
+              <Text style={styles.sectionTitle as TextStyle}>
+                대변 패턴 분석
+              </Text>
               <Card style={styles.metricCard}>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>일평균 대변 횟수</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.averageDirtyDiapersPerDay?.toFixed(1) || 0}회
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    일평균 대변 횟수
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.averageDirtyDiapersPerDay?.toFixed(1) || 0}
+                    회
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>대변 간격 평균</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.averageDirtyInterval ? `${Math.round(diaperPattern.averageDirtyInterval / 60)}시간 ${diaperPattern.averageDirtyInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    대변 간격 평균
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.averageDirtyInterval
+                      ? `${Math.round(diaperPattern.averageDirtyInterval / 60)}시간 ${diaperPattern.averageDirtyInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>최장 대변 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {diaperPattern?.longestDirtyInterval ? `${Math.round(diaperPattern.longestDirtyInterval / 60)}시간 ${diaperPattern.longestDirtyInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    최장 대변 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {diaperPattern?.longestDirtyInterval
+                      ? `${Math.round(diaperPattern.longestDirtyInterval / 60)}시간 ${diaperPattern.longestDirtyInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
-            </View>
+            </View> */}
           </>
         )}
       </ScrollView>

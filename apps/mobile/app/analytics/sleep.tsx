@@ -333,9 +333,9 @@ export default function SleepAnalyticsScreen() {
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>야간 깨는 횟수</Text>
+                  <Text style={styles.metricLabel}>수면 세션 수</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.nightWakeups !== undefined ? `${sleepPattern.nightWakeups}회` : "데이터 없음"}
+                    {sleepPattern?.sleepSessions !== undefined ? `${sleepPattern.sleepSessions}회` : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>

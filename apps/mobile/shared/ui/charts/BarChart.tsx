@@ -63,7 +63,6 @@ export const BarChart: React.FC<BarChartProps> = ({
         height={height}
         chartConfig={chartConfig}
         withInnerLines={showGrid}
-        withHorizontalLines={showGrid}
         withVerticalLabels={showXAxisLabel}
         withHorizontalLabels={showYAxisLabel}
         formatYLabel={formatYLabel}

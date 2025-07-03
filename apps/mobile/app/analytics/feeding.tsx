@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  RefreshControl,
-  TouchableOpacity,
-} from "react-native";
 import { Stack } from "expo-router";
-import { BarChart, LineChart } from "../../shared/ui/charts";
-import Card from "../../shared/ui/Card";
+import { useState } from "react";
+import type { TextStyle, ViewStyle } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useFeedingAnalytics } from "../../shared/api/analytics/hooks";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChildStore } from "../../shared/store";
-import { useFeedingAnalytics } from "../../shared/api/analytics/hooks";
+import Card from "../../shared/ui/Card";
+import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "day" | "week" | "month";
 
@@ -122,8 +123,12 @@ export default function FeedingAnalyticsScreen() {
     {
       childId: activeChild?.id || "",
       period: {
-        startDate: new Date(Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
+        startDate: new Date(
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
         period: selectedPeriod,
       },
     },
@@ -167,10 +172,18 @@ export default function FeedingAnalyticsScreen() {
       {
         data: feedingPattern?.feedingsByHour
           ? [
-              feedingPattern.feedingsByHour.filter(h => h.hour >= 0 && h.hour < 6).reduce((sum, h) => sum + h.count, 0),
-              feedingPattern.feedingsByHour.filter(h => h.hour >= 6 && h.hour < 12).reduce((sum, h) => sum + h.count, 0),
-              feedingPattern.feedingsByHour.filter(h => h.hour >= 12 && h.hour < 18).reduce((sum, h) => sum + h.count, 0),
-              feedingPattern.feedingsByHour.filter(h => h.hour >= 18 && h.hour < 24).reduce((sum, h) => sum + h.count, 0),
+              feedingPattern.feedingsByHour
+                .filter((h) => h.hour >= 0 && h.hour < 6)
+                .reduce((sum, h) => sum + h.count, 0),
+              feedingPattern.feedingsByHour
+                .filter((h) => h.hour >= 6 && h.hour < 12)
+                .reduce((sum, h) => sum + h.count, 0),
+              feedingPattern.feedingsByHour
+                .filter((h) => h.hour >= 12 && h.hour < 18)
+                .reduce((sum, h) => sum + h.count, 0),
+              feedingPattern.feedingsByHour
+                .filter((h) => h.hour >= 18 && h.hour < 24)
+                .reduce((sum, h) => sum + h.count, 0),
             ]
           : [0, 0, 0, 0],
       },
@@ -192,7 +205,7 @@ export default function FeedingAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "수유 패턴 분석" }} />
-      
+
       <ScrollView
         style={styles.content}
         refreshControl={
@@ -200,20 +213,23 @@ export default function FeedingAnalyticsScreen() {
         }
       >
         {/* 기간 선택 */}
-        <View style={styles.periodSelector}>
+        <View style={styles.periodSelector as ViewStyle}>
           {timePeriods.map((period) => (
             <TouchableOpacity
               key={period.key}
-              style={[
-                styles.periodButton,
-                selectedPeriod === period.key && styles.periodButtonActive,
-              ]}
+              style={
+                [
+                  styles.periodButton,
+                  selectedPeriod === period.key && styles.periodButtonActive,
+                ] as ViewStyle[]
+              }
               onPress={() => setSelectedPeriod(period.key)}
             >
               <Text
                 style={[
                   styles.periodButtonText,
-                  selectedPeriod === period.key && styles.periodButtonTextActive,
+                  selectedPeriod === period.key &&
+                    styles.periodButtonTextActive,
                 ]}
               >
                 {period.label}
@@ -232,32 +248,40 @@ export default function FeedingAnalyticsScreen() {
           <>
             {/* 수유 통계 요약 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>수유 통계</Text>
+              <Text style={styles.sectionTitle as TextStyle}>수유 통계</Text>
               <Card style={styles.metricCard}>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>총 수유 횟수</Text>
-                  <Text style={styles.metricValue}>
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    총 수유 횟수
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
                     {feedingPattern?.totalFeedings || 0}회
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>일평균 수유 횟수</Text>
-                  <Text style={styles.metricValue}>
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    일평균 수유 횟수
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
                     {feedingPattern?.averageFeedingsPerDay?.toFixed(1) || 0}회
                   </Text>
                 </View>
                 {feedingPattern?.totalVolume && (
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>총 수유량</Text>
-                    <Text style={styles.metricValue}>
+                  <View style={styles.metricRow as ViewStyle}>
+                    <Text style={styles.metricLabel as TextStyle}>
+                      총 수유량
+                    </Text>
+                    <Text style={styles.metricValue as TextStyle}>
                       {feedingPattern.totalVolume}ml
                     </Text>
                   </View>
                 )}
                 {feedingPattern?.averageVolumePerFeeding && (
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>회당 평균 수유량</Text>
-                    <Text style={styles.metricValue}>
+                  <View style={styles.metricRow as ViewStyle}>
+                    <Text style={styles.metricLabel as TextStyle}>
+                      회당 평균 수유량
+                    </Text>
+                    <Text style={styles.metricValue as TextStyle}>
                       {feedingPattern.averageVolumePerFeeding}ml
                     </Text>
                   </View>
@@ -267,9 +291,13 @@ export default function FeedingAnalyticsScreen() {
 
             {/* 시간대별 수유 패턴 */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>시간대별 수유 패턴</Text>
+              <Text style={styles.sectionTitle as TextStyle}>
+                시간대별 수유 패턴
+              </Text>
               <View style={styles.chartContainer}>
-                <Text style={styles.chartTitle}>시간대별 수유 횟수</Text>
+                <Text style={styles.chartTitle as TextStyle}>
+                  시간대별 수유 횟수
+                </Text>
                 <BarChart
                   data={hourlyFeedingData}
                   height={200}
@@ -281,9 +309,13 @@ export default function FeedingAnalyticsScreen() {
             {/* 주간 수유 추이 */}
             {selectedPeriod === "week" && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>주간 수유 추이</Text>
+                <Text style={styles.sectionTitle as TextStyle}>
+                  주간 수유 추이
+                </Text>
                 <View style={styles.chartContainer}>
-                  <Text style={styles.chartTitle}>요일별 수유 횟수</Text>
+                  <Text style={styles.chartTitle as TextStyle}>
+                    요일별 수유 횟수
+                  </Text>
                   <LineChart
                     data={weeklyTrendData}
                     height={200}
@@ -294,29 +326,43 @@ export default function FeedingAnalyticsScreen() {
             )}
 
             {/* 수유 간격 분석 */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>수유 간격 분석</Text>
+            {/* <View style={styles.section}>
+              <Text style={styles.sectionTitle as TextStyle}>
+                수유 간격 분석
+              </Text>
               <Card style={styles.metricCard}>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>평균 수유 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {feedingPattern?.averageInterval ? `${Math.round(feedingPattern.averageInterval / 60)}시간 ${feedingPattern.averageInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    평균 수유 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {feedingPattern?.averageInterval
+                      ? `${Math.round(feedingPattern.averageInterval / 60)}시간 ${feedingPattern.averageInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>최단 수유 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {feedingPattern?.shortestInterval ? `${Math.round(feedingPattern.shortestInterval / 60)}시간 ${feedingPattern.shortestInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    최단 수유 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {feedingPattern?.shortestInterval
+                      ? `${Math.round(feedingPattern.shortestInterval / 60)}시간 ${feedingPattern.shortestInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
-                <View style={styles.metricRow}>
-                  <Text style={styles.metricLabel}>최장 수유 간격</Text>
-                  <Text style={styles.metricValue}>
-                    {feedingPattern?.longestInterval ? `${Math.round(feedingPattern.longestInterval / 60)}시간 ${feedingPattern.longestInterval % 60}분` : "데이터 없음"}
+                <View style={styles.metricRow as ViewStyle}>
+                  <Text style={styles.metricLabel as TextStyle}>
+                    최장 수유 간격
+                  </Text>
+                  <Text style={styles.metricValue as TextStyle}>
+                    {feedingPattern?.longestInterval
+                      ? `${Math.round(feedingPattern.longestInterval / 60)}시간 ${feedingPattern.longestInterval % 60}분`
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
-            </View>
+            </View> */}
           </>
         )}
       </ScrollView>

@@ -1,21 +1,22 @@
-import React, { useState } from "react";
+import type { GrowthRecordApi } from "@daon/shared";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  View,
-  Text,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  RefreshControl,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { GrowthRecordCard } from "../../entities";
 import { useGrowthRecords } from "../../shared/api/growth/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { SCREEN_PADDING } from "../../shared/config/theme";
+import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import type { GrowthRecord } from "@daon/shared";
 
 type MetricType = "weight" | "height" | "headCircumference";
 
@@ -33,130 +34,132 @@ export default function GrowthScreen() {
     activeChild ? { childId: activeChild.id, limit: 50, offset: 0 } : undefined,
   );
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    header: {
-      padding: SCREEN_PADDING,
-      paddingBottom: theme.spacing.md,
-    },
-    title: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    subtitle: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    content: {
-      flex: 1,
-      padding: SCREEN_PADDING,
-    },
-    emptyState: {
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      padding: theme.spacing.xxl,
-    },
-    emptyText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-      marginBottom: theme.spacing.lg,
-    },
-    metricTabs: {
-      flexDirection: "row" as const,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.xs,
-      marginBottom: theme.spacing.lg,
-    },
-    metricTab: {
-      flex: 1,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      borderRadius: theme.borderRadius.sm,
-      alignItems: "center" as const,
-    },
-    activeMetricTab: {
-      backgroundColor: theme.colors.primary,
-    },
-    metricTabText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      fontWeight: "500" as const,
-    },
-    activeMetricTabText: {
-      color: theme.colors.white,
-    },
-    chartContainer: {
-      marginBottom: theme.spacing.lg,
-    },
-    chartTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-      textAlign: "center" as const,
-    },
-    recordsList: {
-      marginBottom: theme.spacing.lg,
-    },
-    recordItem: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "center" as const,
-      paddingVertical: theme.spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    recordDate: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    recordValue: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-    },
-    latestRecord: {
-      backgroundColor: `${theme.colors.primary  }10`,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.lg,
-      borderRadius: theme.borderRadius.md,
-      marginBottom: theme.spacing.lg,
-    },
-    latestRecordTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.primary,
-      marginBottom: theme.spacing.sm,
-    },
-    latestRecordValue: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text,
-    },
-    noDataText: {
-      textAlign: "center" as const,
-      color: theme.colors.textSecondary,
-      padding: theme.spacing.lg,
-      fontStyle: "italic" as const,
-    },
-    loadingText: {
-      textAlign: "center" as const,
-      color: theme.colors.textSecondary,
-      padding: theme.spacing.lg,
-    },
-    errorText: {
-      textAlign: "center" as const,
-      color: theme.colors.error,
-      padding: theme.spacing.lg,
-    },
-  }));
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+      },
+      header: {
+        padding: SCREEN_PADDING,
+        paddingBottom: theme.spacing.md,
+      },
+      title: {
+        fontSize: theme.typography.title.fontSize,
+        fontWeight: theme.typography.title.fontWeight,
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
+      },
+      subtitle: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      content: {
+        flex: 1,
+        padding: SCREEN_PADDING,
+      },
+      emptyState: {
+        alignItems: "center",
+        justifyContent: "center",
+        padding: theme.spacing.xxl,
+      },
+      emptyText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.textSecondary,
+        textAlign: "center",
+        marginBottom: theme.spacing.lg,
+      },
+      metricTabs: {
+        flexDirection: "row",
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.md,
+        padding: theme.spacing.xs,
+        marginBottom: theme.spacing.lg,
+      },
+      metricTab: {
+        flex: 1,
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.md,
+        borderRadius: theme.borderRadius.sm,
+        alignItems: "center",
+      },
+      activeMetricTab: {
+        backgroundColor: theme.colors.primary,
+      },
+      metricTabText: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+        fontWeight: "500",
+      },
+      activeMetricTabText: {
+        color: theme.colors.white,
+      },
+      chartContainer: {
+        marginBottom: theme.spacing.lg,
+      },
+      chartTitle: {
+        fontSize: theme.typography.subtitle.fontSize,
+        fontWeight: theme.typography.subtitle.fontWeight,
+        color: theme.colors.text,
+        marginBottom: theme.spacing.md,
+        textAlign: "center",
+      },
+      recordsList: {
+        marginBottom: theme.spacing.lg,
+      },
+      recordItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: theme.spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+      },
+      recordDate: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      recordValue: {
+        fontSize: theme.typography.body1.fontSize,
+        fontWeight: "600",
+        color: theme.colors.text,
+      },
+      latestRecord: {
+        backgroundColor: `${theme.colors.primary}10`,
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.lg,
+        borderRadius: theme.borderRadius.md,
+        marginBottom: theme.spacing.lg,
+      },
+      latestRecordTitle: {
+        fontSize: theme.typography.subtitle.fontSize,
+        fontWeight: theme.typography.subtitle.fontWeight,
+        color: theme.colors.primary,
+        marginBottom: theme.spacing.sm,
+      },
+      latestRecordValue: {
+        fontSize: theme.typography.title.fontSize,
+        fontWeight: theme.typography.title.fontWeight,
+        color: theme.colors.text,
+      },
+      noDataText: {
+        textAlign: "center",
+        color: theme.colors.textSecondary,
+        padding: theme.spacing.lg,
+        fontStyle: "italic",
+      },
+      loadingText: {
+        textAlign: "center",
+        color: theme.colors.textSecondary,
+        padding: theme.spacing.lg,
+      },
+      errorText: {
+        textAlign: "center",
+        color: theme.colors.error,
+        padding: theme.spacing.lg,
+      },
+    }),
+  );
 
   if (!activeChild) {
     return (
@@ -190,7 +193,6 @@ export default function GrowthScreen() {
     { key: "headCircumference", label: "머리둘레", unit: "cm", icon: "👶" },
   ] as const;
 
-
   const formatFullDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -202,9 +204,9 @@ export default function GrowthScreen() {
   const getFilteredRecords = () => {
     const records = growthData?.growthRecords || [];
     return records
-      .filter((record: GrowthRecord) => record[selectedMetric] !== null)
+      .filter((record: GrowthRecordApi) => record[selectedMetric] !== null)
       .sort(
-        (a: GrowthRecord, b: GrowthRecord) =>
+        (a: GrowthRecordApi, b: GrowthRecordApi) =>
           new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
       );
   };
@@ -259,7 +261,7 @@ export default function GrowthScreen() {
           {currentMetric.icon} {currentMetric.label} 변화
         </Text>
         <View style={styles.recordsList}>
-          {records.slice(-10).map((record: GrowthRecord, _index: number) => (
+          {records.slice(-10).map((record: GrowthRecordApi, _index: number) => (
             <View key={record.id} style={styles.recordItem}>
               <Text style={styles.recordDate}>
                 {formatFullDate(record.recordedAt)}
@@ -370,11 +372,11 @@ export default function GrowthScreen() {
             <Text style={styles.chartTitle}>모든 성장 기록</Text>
             {growthRecords
               .sort(
-                (a: GrowthRecord, b: GrowthRecord) =>
+                (a: GrowthRecordApi, b: GrowthRecordApi) =>
                   new Date(b.recordedAt).getTime() -
                   new Date(a.recordedAt).getTime(),
               )
-              .map((record: GrowthRecord) => (
+              .map((record: GrowthRecordApi) => (
                 <GrowthRecordCard
                   key={record.id}
                   growthRecord={record}

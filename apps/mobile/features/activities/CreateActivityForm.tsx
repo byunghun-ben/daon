@@ -10,13 +10,15 @@ import {
   Alert,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateActivity } from "../../shared/api/hooks/useActivities";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { createFormStyles } from "../../shared/styles/formStyles";
 import { Button, Input } from "../../shared/ui";
 
 type ActivityType = "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
@@ -45,100 +47,79 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     },
   });
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      padding: theme.spacing.lg,
-    },
-    section: {
-      marginBottom: theme.spacing.xl,
-    },
-    fieldGroup: {
-      marginBottom: theme.spacing.md,
-    },
-    sectionTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    activityTypeGrid: {
-      flexDirection: "row" as const,
-      flexWrap: "wrap" as const,
-      gap: theme.spacing.sm,
-    },
-    activityTypeButton: {
-      flex: 1,
-      minWidth: "45%",
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.sm,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      alignItems: "center" as const,
-      backgroundColor: theme.colors.surface,
-    },
-    activeActivityTypeButton: {
-      borderColor: theme.colors.primary,
-      backgroundColor: `${theme.colors.primary}20`,
-    },
-    activityTypeIcon: {
-      fontSize: 24,
-      marginBottom: theme.spacing.xs,
-    },
-    activityTypeText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text,
-      textAlign: "center" as const,
-    },
-    activeActivityTypeText: {
-      color: theme.colors.primary,
-      fontWeight: "600" as const,
-    },
-    buttonGroup: {
-      flexDirection: "row" as const,
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.md,
-    },
-    optionButton: {
-      flex: 1,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      alignItems: "center" as const,
-      backgroundColor: theme.colors.surface,
-    },
-    activeOptionButton: {
-      borderColor: theme.colors.primary,
-      backgroundColor: theme.colors.primary,
-    },
-    optionButtonText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text,
-    },
-    activeOptionButtonText: {
-      color: theme.colors.white,
-      fontWeight: "600" as const,
-    },
-    dateButton: {
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-      marginBottom: theme.spacing.md,
-    },
-    dateText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text,
-    },
-    submitButton: {
-      marginTop: theme.spacing.xl,
-    },
-  }));
+  const formStyles = useThemedStyles(createFormStyles);
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      ...formStyles,
+      fieldGroup: {
+        marginBottom: theme.spacing.md,
+      },
+      activityTypeGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: theme.spacing.sm,
+      },
+      activityTypeButton: {
+        flex: 1,
+        minWidth: "45%",
+        paddingVertical: theme.spacing.md,
+        paddingHorizontal: theme.spacing.sm,
+        borderRadius: theme.borderRadius.md,
+        borderWidth: 2,
+        borderColor: theme.colors.border,
+        alignItems: "center",
+        backgroundColor: theme.colors.surface,
+      },
+      activeActivityTypeButton: {
+        borderColor: theme.colors.primary,
+        backgroundColor: `${theme.colors.primary}20`,
+      },
+      activityTypeIcon: {
+        fontSize: 24,
+        marginBottom: theme.spacing.xs,
+      },
+      activityTypeText: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.text,
+        textAlign: "center",
+      },
+      activeActivityTypeText: {
+        color: theme.colors.primary,
+        fontWeight: "600",
+      },
+      buttonGroup: {
+        flexDirection: "row",
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.md,
+      },
+      optionButton: {
+        flex: 1,
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.md,
+        borderRadius: theme.borderRadius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        alignItems: "center",
+        backgroundColor: theme.colors.surface,
+      },
+      activeOptionButton: {
+        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.primary,
+      },
+      optionButtonText: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.text,
+      },
+      activeOptionButtonText: {
+        color: theme.colors.white,
+        fontWeight: "600",
+      },
+      dateText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.text,
+      },
+    }),
+  );
 
   const activityTypes = [
     { key: "feeding", label: "수유", icon: "🍼" },
@@ -152,7 +133,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     setSelectedActivityType(type);
     form.setValue("type", type);
     // 타입이 변경되면 data 초기화
-    form.setValue("data", {});
+    form.resetField("data");
   };
 
   const handleDateTimeChange = (_event: unknown, selectedDate?: Date) => {

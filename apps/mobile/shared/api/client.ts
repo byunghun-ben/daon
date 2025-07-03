@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // API base configuration
 const API_BASE_URL = __DEV__
@@ -39,7 +40,33 @@ class ApiClient {
       },
     });
 
+    this.setupRetry();
     this.setupInterceptors();
+  }
+
+  private setupRetry() {
+    // Configure retry logic
+    axiosRetry(this.client, {
+      retries: 3, // Number of retry attempts
+      retryDelay: (retryCount) => {
+        // Exponential backoff: 1s, 2s, 4s
+        return retryCount * 1000;
+      },
+      retryCondition: (error) => {
+        // Retry on network errors or 5xx errors
+        return (
+          !error.response ||
+          (error.response.status >= 500 && error.response.status <= 599) ||
+          error.code === "ECONNABORTED" ||
+          error.code === "ETIMEDOUT" ||
+          error.code === "ENOTFOUND" ||
+          error.code === "ENETUNREACH"
+        );
+      },
+      onRetry: (retryCount, error, requestConfig) => {
+        console.log(`Retrying request (${retryCount}):`, requestConfig.url);
+      },
+    });
   }
 
   private setupInterceptors() {

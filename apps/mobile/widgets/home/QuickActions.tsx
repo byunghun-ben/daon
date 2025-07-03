@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Button from "../../shared/ui/Button";
-import BottomSheet from "../../shared/ui/BottomSheet";
-import { QuickActivityRecord } from "../quick-record";
 import type { ActivityType } from "@daon/shared";
+import React, { useCallback, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import BottomSheet from "../../shared/ui/BottomSheet";
+import Button from "../../shared/ui/Button";
+import { QuickActivityRecord } from "../quick-record";
 
 interface QuickActionsProps {
   activeChildId: string;
@@ -19,62 +19,74 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     null,
   );
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      marginBottom: theme.spacing.xl,
-    },
-    actionButton: {
-      flex: 1,
-      marginHorizontal: theme.spacing.xs,
-    },
-  }));
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      container: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: theme.spacing.xl,
+      },
+      actionButton: {
+        flex: 1,
+        marginHorizontal: theme.spacing.xs,
+      },
+    }),
+  );
 
-  const handleActivityPress = (activityType: ActivityType) => {
+  const handleActivityPress = useCallback((activityType: ActivityType) => {
     setSelectedActivity(activityType);
     setIsBottomSheetVisible(true);
-  };
+  }, []);
 
-  const handleActivitySuccess = () => {
+  const handleActivitySuccess = useCallback(() => {
     setIsBottomSheetVisible(false);
     setSelectedActivity(null);
     onActivityComplete?.();
-  };
+  }, [onActivityComplete]);
 
-  const handleBottomSheetClose = () => {
+  const handleBottomSheetClose = useCallback(() => {
     setIsBottomSheetVisible(false);
     setSelectedActivity(null);
-  };
+  }, []);
 
-  const getActivityTitle = (activityType: ActivityType): string => {
-    const titleMap = {
+  const titleMap = useMemo(
+    () => ({
       feeding: "수유 기록",
       diaper: "기저귀 교체",
       sleep: "수면 기록",
       tummy_time: "배밀이 기록",
       custom: "사용자 정의",
-    };
-    return titleMap[activityType] || activityType;
-  };
+    }),
+    [],
+  );
 
-  const quickActionButtons = [
-    {
-      title: "수유 기록",
-      activityType: "feeding" as const,
-      variant: "primary" as const,
+  const getActivityTitle = useCallback(
+    (activityType: ActivityType): string => {
+      return titleMap[activityType] || activityType;
     },
-    {
-      title: "기저귀 교체",
-      activityType: "diaper" as const,
-      variant: "secondary" as const,
-    },
-    {
-      title: "수면 기록",
-      activityType: "sleep" as const,
-      variant: "outline" as const,
-    },
-  ];
+    [titleMap],
+  );
+
+  const quickActionButtons = useMemo(
+    () => [
+      {
+        title: "수유 기록",
+        activityType: "feeding" as const,
+        variant: "primary" as const,
+      },
+      {
+        title: "기저귀 교체",
+        activityType: "diaper" as const,
+        variant: "secondary" as const,
+      },
+      {
+        title: "수면 기록",
+        activityType: "sleep" as const,
+        variant: "outline" as const,
+      },
+    ],
+    [],
+  );
 
   return (
     <>
@@ -109,4 +121,4 @@ const QuickActions: React.FC<QuickActionsProps> = ({
   );
 };
 
-export default QuickActions;
+export default React.memo(QuickActions);

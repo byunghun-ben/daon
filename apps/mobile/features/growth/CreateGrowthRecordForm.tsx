@@ -3,6 +3,7 @@ import {
   type CreateGrowthRecordRequest,
 } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -10,13 +11,15 @@ import {
   Alert,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateGrowthRecord } from "../../shared/api/growth/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { createFormStyles } from "../../shared/styles/formStyles";
 import { Button, Input } from "../../shared/ui";
 
 interface CreateGrowthRecordFormProps {
@@ -39,109 +42,86 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     },
   });
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      padding: theme.spacing.lg,
-    },
-    section: {
-      marginBottom: theme.spacing.xl,
-    },
-    sectionTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    dateButton: {
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-    },
-    dateText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text,
-    },
-    measurementCard: {
-      backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      borderRadius: theme.borderRadius.lg,
-      marginBottom: theme.spacing.md,
-    },
-    measurementHeader: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      marginBottom: theme.spacing.md,
-    },
-    measurementIcon: {
-      fontSize: 24,
-      marginRight: theme.spacing.sm,
-    },
-    measurementTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-    },
-    measurementDescription: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      marginBottom: theme.spacing.md,
-    },
-    inputRow: {
-      flexDirection: "row" as const,
-      alignItems: "flex-end" as const,
-      gap: theme.spacing.sm,
-    },
-    inputContainer: {
-      flex: 1,
-    },
-    unitText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.textSecondary,
-      paddingBottom: theme.spacing.md,
-    },
-    summaryCard: {
-      backgroundColor: theme.colors.primary + "10",
-      padding: theme.spacing.lg,
-      borderRadius: theme.borderRadius.lg,
-      borderWidth: 1,
-      borderColor: theme.colors.primary + "30",
-    },
-    summaryTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.primary,
-      marginBottom: theme.spacing.sm,
-    },
-    summaryItem: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      marginBottom: theme.spacing.xs,
-    },
-    summaryLabel: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    summaryValue: {
-      fontSize: theme.typography.body2.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-    },
-    submitButton: {
-      marginTop: theme.spacing.xl,
-    },
-    helpText: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xs,
-      fontStyle: "italic" as const,
-    },
-  }));
+  const formStyles = useThemedStyles(createFormStyles);
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      ...formStyles,
+      dateText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.text,
+      },
+      measurementCard: {
+        backgroundColor: theme.colors.surface,
+        padding: theme.spacing.lg,
+        borderRadius: theme.borderRadius.lg,
+        marginBottom: theme.spacing.md,
+      },
+      measurementHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: theme.spacing.md,
+      },
+      measurementIcon: {
+        fontSize: 24,
+        marginRight: theme.spacing.sm,
+      },
+      measurementTitle: {
+        fontSize: theme.typography.subtitle.fontSize,
+        fontWeight: theme.typography.subtitle.fontWeight,
+        color: theme.colors.text,
+      },
+      measurementDescription: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+        marginBottom: theme.spacing.md,
+      },
+      inputRow: {
+        flexDirection: "row",
+        alignItems: "flex-end",
+        gap: theme.spacing.sm,
+      },
+      inputContainer: {
+        flex: 1,
+      },
+      unitText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.textSecondary,
+        paddingBottom: theme.spacing.md,
+      },
+      summaryCard: {
+        backgroundColor: `${theme.colors.primary}10`,
+        padding: theme.spacing.lg,
+        borderRadius: theme.borderRadius.lg,
+        borderWidth: 1,
+        borderColor: `${theme.colors.primary}30`,
+      },
+      summaryTitle: {
+        fontSize: theme.typography.subtitle.fontSize,
+        fontWeight: theme.typography.subtitle.fontWeight,
+        color: theme.colors.primary,
+        marginBottom: theme.spacing.sm,
+      },
+      summaryItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: theme.spacing.xs,
+      },
+      summaryLabel: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      summaryValue: {
+        fontSize: theme.typography.body2.fontSize,
+        fontWeight: "600",
+        color: theme.colors.text,
+      },
+    }),
+  );
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date,
+  ) => {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
     }

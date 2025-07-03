@@ -1,10 +1,12 @@
+import type { DiaryEntryApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import {
+  RefreshControl,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
   View,
-  RefreshControl,
 } from "react-native";
 import { DiaryEntryCard } from "../../entities";
 import { useDiaryEntries } from "../../shared/api/diary/hooks";
@@ -13,7 +15,6 @@ import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
-import type { DiaryEntry } from "@daon/shared";
 
 export default function DiaryScreen() {
   const router = useRouter();
@@ -28,97 +29,99 @@ export default function DiaryScreen() {
     activeChild ? { childId: activeChild.id, limit: 20, offset: 0 } : undefined,
   );
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    header: {
-      padding: SCREEN_PADDING,
-      paddingBottom: theme.spacing.md,
-    },
-    title: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    subtitle: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    content: {
-      flex: 1,
-      padding: SCREEN_PADDING,
-    },
-    emptyState: {
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      padding: theme.spacing.xxl,
-    },
-    emptyText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-      marginBottom: theme.spacing.lg,
-    },
-    diaryItem: {
-      marginBottom: theme.spacing.md,
-    },
-    diaryHeader: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "flex-start" as const,
-      marginBottom: theme.spacing.sm,
-    },
-    diaryDate: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      fontWeight: "600" as const,
-    },
-    diaryContent: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text,
-      lineHeight: theme.typography.body1.lineHeight,
-      marginBottom: theme.spacing.sm,
-    },
-    diaryPhotos: {
-      flexDirection: "row" as const,
-      gap: theme.spacing.xs,
-      marginBottom: theme.spacing.sm,
-    },
-    diaryPhoto: {
-      width: 60,
-      height: 60,
-      borderRadius: theme.borderRadius.sm,
-    },
-    photoCount: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    milestoneTag: {
-      backgroundColor: `${theme.colors.primary  }20`,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: theme.borderRadius.sm,
-      alignSelf: "flex-start" as const,
-    },
-    milestoneText: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.primary,
-      fontWeight: "600" as const,
-    },
-    loadingText: {
-      textAlign: "center" as const,
-      color: theme.colors.textSecondary,
-      padding: theme.spacing.lg,
-    },
-    errorText: {
-      textAlign: "center" as const,
-      color: theme.colors.error,
-      padding: theme.spacing.lg,
-    },
-  }));
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+      },
+      header: {
+        padding: SCREEN_PADDING,
+        paddingBottom: theme.spacing.md,
+      },
+      title: {
+        fontSize: theme.typography.title.fontSize,
+        fontWeight: theme.typography.title.fontWeight,
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
+      },
+      subtitle: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      content: {
+        flex: 1,
+        padding: SCREEN_PADDING,
+      },
+      emptyState: {
+        alignItems: "center",
+        justifyContent: "center",
+        padding: theme.spacing.xxl,
+      },
+      emptyText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.textSecondary,
+        textAlign: "center",
+        marginBottom: theme.spacing.lg,
+      },
+      diaryItem: {
+        marginBottom: theme.spacing.md,
+      },
+      diaryHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: theme.spacing.sm,
+      },
+      diaryDate: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+        fontWeight: "600",
+      },
+      diaryContent: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.text,
+        lineHeight: theme.typography.body1.lineHeight,
+        marginBottom: theme.spacing.sm,
+      },
+      diaryPhotos: {
+        flexDirection: "row",
+        gap: theme.spacing.xs,
+        marginBottom: theme.spacing.sm,
+      },
+      diaryPhoto: {
+        width: 60,
+        height: 60,
+        borderRadius: theme.borderRadius.sm,
+      },
+      photoCount: {
+        fontSize: theme.typography.caption.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      milestoneTag: {
+        backgroundColor: `${theme.colors.primary}20`,
+        paddingHorizontal: theme.spacing.sm,
+        paddingVertical: theme.spacing.xs,
+        borderRadius: theme.borderRadius.sm,
+        alignSelf: "flex-start",
+      },
+      milestoneText: {
+        fontSize: theme.typography.caption.fontSize,
+        color: theme.colors.primary,
+        fontWeight: "600",
+      },
+      loadingText: {
+        textAlign: "center",
+        color: theme.colors.textSecondary,
+        padding: theme.spacing.lg,
+      },
+      errorText: {
+        textAlign: "center",
+        color: theme.colors.error,
+        padding: theme.spacing.lg,
+      },
+    }),
+  );
 
   if (!activeChild) {
     return (
@@ -146,7 +149,7 @@ export default function DiaryScreen() {
     );
   }
 
-  const renderDiaryItem = (diaryEntry: DiaryEntry) => (
+  const renderDiaryItem = (diaryEntry: DiaryEntryApi) => (
     <DiaryEntryCard
       key={diaryEntry.id}
       diaryEntry={diaryEntry}

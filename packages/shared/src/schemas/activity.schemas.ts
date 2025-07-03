@@ -116,7 +116,6 @@ export const ActivityApiSchema = z.object({
     DiaperDataApiSchema,
     SleepDataApiSchema,
     TummyTimeDataApiSchema,
-    z.record(z.string(), z.unknown()), // custom 타입용
   ]),
   notes: z.string().nullable(),
   createdAt: z.iso.datetime(),
@@ -138,7 +137,6 @@ export const CreateActivityRequestSchema = z.object({
     CreateDiaperDataRequestSchema,
     CreateSleepDataRequestSchema,
     CreateTummyTimeDataRequestSchema,
-    z.record(z.string(), z.unknown()), // custom 타입용
   ]),
   notes: z.string().nullable().optional(),
 });
@@ -146,15 +144,12 @@ export const CreateActivityRequestSchema = z.object({
 export const UpdateActivityRequestSchema = z.object({
   type: ActivityTypeSchema.optional(),
   timestamp: z.iso.datetime().optional(),
-  data: z
-    .union([
-      CreateFeedingDataRequestSchema,
-      CreateDiaperDataRequestSchema,
-      CreateSleepDataRequestSchema,
-      CreateTummyTimeDataRequestSchema,
-      z.record(z.string(), z.unknown()),
-    ])
-    .optional(),
+  data: z.union([
+    CreateFeedingDataRequestSchema,
+    CreateDiaperDataRequestSchema,
+    CreateSleepDataRequestSchema,
+    CreateTummyTimeDataRequestSchema,
+  ]),
   notes: z.string().nullable().optional(),
 });
 

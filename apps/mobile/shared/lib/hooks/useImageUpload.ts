@@ -9,7 +9,7 @@ import {
 } from "expo-image-picker";
 import { useState } from "react";
 import { Alert } from "react-native";
-// import { PERMISSIONS, request, RESULTS } from "react-native-permissions";
+import { compressImage } from "../utils/imageCompression";
 
 interface UseImageUploadReturn {
   uploadImage: () => Promise<string | null>;
@@ -167,13 +167,21 @@ export const useImageUpload = (
         throw new Error("선택된 이미지가 없습니다.");
       }
 
+      // 이미지 압축
+      const compressedImage = await compressImage(asset.uri, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.8,
+        format: "jpeg",
+      });
+
       // R2에 업로드
       const fileName = asset.fileName || `image_${Date.now()}.jpg`;
-      const fileType = asset.type || "image/jpeg";
-      const fileSize = asset.fileSize;
+      const fileType = "image/jpeg"; // Always JPEG after compression
+      const fileSize = compressedImage.size || asset.fileSize;
 
       const uploadedUrl = await uploadToR2(
-        asset.uri,
+        compressedImage.uri,
         fileName,
         fileType,
         fileSize,

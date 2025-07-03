@@ -4,6 +4,7 @@ import {
   type CreateMilestoneRequest,
 } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -11,14 +12,16 @@ import {
   Alert,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateDiaryEntry } from "../../shared/api/diary/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { Button, Input, ImageUploader } from "../../shared/ui";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { createFormStyles } from "../../shared/styles/formStyles";
+import { Button, ImageUploader, Input } from "../../shared/ui";
 
 interface CreateDiaryFormProps {
   onSuccess: () => void;
@@ -32,7 +35,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [milestones, setMilestones] = useState<CreateMilestoneRequest[]>([]);
-  const [showMilestoneForm, setShowMilestoneForm] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(CreateDiaryEntryRequestSchema),
@@ -46,134 +48,120 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
   });
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      padding: theme.spacing.lg,
-    },
-    section: {
-      marginBottom: theme.spacing.xl,
-    },
-    sectionTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    dateButton: {
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-    },
-    dateText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text,
-    },
-    photoContainer: {
-      flexDirection: "row" as const,
-      flexWrap: "wrap" as const,
-      gap: theme.spacing.sm,
-    },
-    photoButton: {
-      width: 100,
-      height: 100,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 2,
-      borderStyle: "dashed" as const,
-      borderColor: theme.colors.border,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      backgroundColor: theme.colors.surface,
-    },
-    photoButtonText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-    },
-    photoPreview: {
-      width: 100,
-      height: 100,
-      borderRadius: theme.borderRadius.md,
-      position: "relative" as const,
-    },
-    photoImage: {
-      width: "100%",
-      height: "100%",
-      borderRadius: theme.borderRadius.md,
-    },
-    removePhotoButton: {
-      position: "absolute" as const,
-      top: -5,
-      right: -5,
-      width: 20,
-      height: 20,
-      borderRadius: 10,
-      backgroundColor: theme.colors.error,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-    },
-    removePhotoText: {
-      color: theme.colors.white,
-      fontSize: 12,
-      fontWeight: "bold" as const,
-    },
-    milestoneSection: {
-      backgroundColor: theme.colors.surface,
-      padding: theme.spacing.md,
-      borderRadius: theme.borderRadius.md,
-      marginBottom: theme.spacing.md,
-    },
-    milestoneHeader: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "center" as const,
-      marginBottom: theme.spacing.md,
-    },
-    milestoneTitle: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-    },
-    addMilestoneButton: {
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      borderRadius: theme.borderRadius.sm,
-      backgroundColor: theme.colors.primary,
-    },
-    addMilestoneText: {
-      color: theme.colors.white,
-      fontSize: theme.typography.body2.fontSize,
-      fontWeight: "600" as const,
-    },
-    milestoneItem: {
-      padding: theme.spacing.md,
-      backgroundColor: theme.colors.background,
-      borderRadius: theme.borderRadius.sm,
-      marginBottom: theme.spacing.sm,
-    },
-    milestoneItemTitle: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
-    },
-    milestoneItemDescription: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    submitButton: {
-      marginTop: theme.spacing.xl,
-    },
-    removeButton: {
-      color: theme.colors.error,
-      fontSize: 18,
-    },
-  }));
+  const formStyles = useThemedStyles(createFormStyles);
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      ...formStyles,
+      dateText: {
+        fontSize: theme.typography.body1.fontSize,
+        color: theme.colors.text,
+      },
+      photoContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: theme.spacing.sm,
+      },
+      photoButton: {
+        width: 100,
+        height: 100,
+        borderRadius: theme.borderRadius.md,
+        borderWidth: 2,
+        borderStyle: "dashed",
+        borderColor: theme.colors.border,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: theme.colors.surface,
+      },
+      photoButtonText: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+        textAlign: "center",
+      },
+      photoPreview: {
+        width: 100,
+        height: 100,
+        borderRadius: theme.borderRadius.md,
+        position: "relative",
+      },
+      photoImage: {
+        width: "100%",
+        height: "100%",
+        borderRadius: theme.borderRadius.md,
+      },
+      removePhotoButton: {
+        position: "absolute",
+        top: -5,
+        right: -5,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: theme.colors.error,
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      removePhotoText: {
+        color: theme.colors.white,
+        fontSize: 12,
+        fontWeight: "bold",
+      },
+      milestoneSection: {
+        backgroundColor: theme.colors.surface,
+        padding: theme.spacing.md,
+        borderRadius: theme.borderRadius.md,
+        marginBottom: theme.spacing.md,
+      },
+      milestoneHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: theme.spacing.md,
+      },
+      milestoneTitle: {
+        fontSize: theme.typography.subtitle.fontSize,
+        fontWeight: theme.typography.subtitle.fontWeight,
+        color: theme.colors.text,
+      },
+      addMilestoneButton: {
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.md,
+        borderRadius: theme.borderRadius.sm,
+        backgroundColor: theme.colors.primary,
+      },
+      addMilestoneText: {
+        color: theme.colors.white,
+        fontSize: theme.typography.body2.fontSize,
+        fontWeight: "600",
+      },
+      milestoneItem: {
+        padding: theme.spacing.md,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.borderRadius.sm,
+        marginBottom: theme.spacing.sm,
+      },
+      milestoneItemTitle: {
+        fontSize: theme.typography.body1.fontSize,
+        fontWeight: "600",
+        color: theme.colors.text,
+        marginBottom: theme.spacing.xs,
+      },
+      milestoneItemDescription: {
+        fontSize: theme.typography.body2.fontSize,
+        color: theme.colors.textSecondary,
+      },
+      submitButton: {
+        marginTop: theme.spacing.xl,
+      },
+      removeButton: {
+        color: theme.colors.error,
+        fontSize: 18,
+      },
+    }),
+  );
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date,
+  ) => {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
     }

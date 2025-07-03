@@ -1,20 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { activitiesApi } from "../activities";
-import {
+import type {
+  ActivityFilters,
   CreateActivityRequest,
   UpdateActivityRequest,
-  ActivityFilters,
 } from "@daon/shared";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { activitiesApi } from "../activities";
+import { createQueryKeys } from "./createCrudHooks";
 
 // Query Keys
-export const ACTIVITIES_KEYS = {
-  all: ["activities"] as const,
-  lists: () => [...ACTIVITIES_KEYS.all, "list"] as const,
-  list: (filters: ActivityFilters) =>
-    [...ACTIVITIES_KEYS.lists(), filters] as const,
-  details: () => [...ACTIVITIES_KEYS.all, "detail"] as const,
-  detail: (id: string) => [...ACTIVITIES_KEYS.details(), id] as const,
-};
+export const ACTIVITIES_KEYS = createQueryKeys("activities");
 
 // Hooks
 export function useActivities(params: ActivityFilters) {

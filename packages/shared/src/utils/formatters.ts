@@ -9,7 +9,6 @@ import type {
   ActivityApi,
   DiaperDataApi,
   FeedingDataApi,
-  SleepDataApi,
   TummyTimeDataApi,
 } from "../schemas";
 
@@ -181,7 +180,7 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
         typeof activity.data === "object" &&
         "startedAt" in activity.data
       ) {
-        const sleepData = activity.data as SleepDataApi;
+        const sleepData = activity.data;
         if (sleepData.endedAt) {
           const duration = Math.floor(
             (new Date(sleepData.endedAt).getTime() -

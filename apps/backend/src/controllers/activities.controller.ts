@@ -14,6 +14,13 @@ import { type RequestHandler } from "express";
 import { z } from "zod/v4";
 
 /**
+ * Helper function to safely convert data to Json type
+ */
+function toJson(data: unknown): Json {
+  return JSON.parse(JSON.stringify(data)) as Json;
+}
+
+/**
  * Create a new activity record
  */
 export const createActivity: RequestHandler = createAuthenticatedHandler(
@@ -44,11 +51,7 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
           user_id: req.user.id,
           type: validatedApiData.type,
           timestamp: validatedApiData.timestamp ?? new Date().toISOString(),
-          data: validatedApiData.data
-            ? (JSON.parse(
-                JSON.stringify(validatedApiData.data),
-              ) as unknown as Json)
-            : null,
+          data: validatedApiData.data ? toJson(validatedApiData.data) : null,
           notes: validatedApiData.notes,
         })
         .select(
@@ -300,9 +303,7 @@ export const updateActivity: RequestHandler = createAuthenticatedHandler(
         .from("activities")
         .update({
           ...dbData,
-          data: dbData.data
-            ? (JSON.parse(JSON.stringify(dbData.data)) as unknown as Json)
-            : null,
+          data: dbData.data ? toJson(dbData.data) : null,
         })
         .eq("id", id)
         .select(

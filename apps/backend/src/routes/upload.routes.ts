@@ -1,10 +1,12 @@
 import { UploadController } from "@/controllers/upload.controller.js";
 import { authenticateToken } from "@/middleware/auth.js";
+import { uploadLimiter } from "@/middleware/rateLimiter.js";
 import { Router } from "express";
 
 const router = Router();
 
 router.use(authenticateToken);
+router.use(uploadLimiter);
 
 const uploadController = new UploadController();
 

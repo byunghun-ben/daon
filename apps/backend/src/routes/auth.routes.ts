@@ -8,18 +8,19 @@ import {
 } from "@/controllers/auth.controller.js";
 import { KakaoAuthController } from "@/controllers/kakao-auth.controller.js";
 import { authenticateToken } from "@/middleware/auth.js";
+import { authLimiter } from "@/middleware/rateLimiter.js";
 import { Router } from "express";
 
 const router: Router = Router();
 const kakaoAuthController = new KakaoAuthController();
 
-// Public routes
-router.post("/signup", signUp);
-router.post("/signin", signIn);
+// Public routes with auth rate limiting
+router.post("/signup", authLimiter, signUp);
+router.post("/signin", authLimiter, signIn);
 
-// Kakao OAuth routes
-router.post("/kakao/url", kakaoAuthController.generateLoginUrl);
-router.get("/kakao/callback", kakaoAuthController.handleCallback);
+// Kakao OAuth routes with auth rate limiting
+router.post("/kakao/url", authLimiter, kakaoAuthController.generateLoginUrl);
+router.get("/kakao/callback", authLimiter, kakaoAuthController.handleCallback);
 
 // Protected routes
 router.post("/signout", authenticateToken, signOut);

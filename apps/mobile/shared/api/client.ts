@@ -4,9 +4,18 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 
 // API base configuration
-const API_BASE_URL = __DEV__
-  ? "http://localhost:3001/api/v1"
-  : "https://api.daon.app/v1"; // Replace with your production URL
+const getDevApiUrl = () => {
+  // Android emulator needs special IP to access localhost
+  if (__DEV__) {
+    // Android emulator
+    return "http://10.0.2.2:3001/api/v1";
+    // iOS simulator or web can use localhost
+    // return "http://localhost:3001/api/v1";
+  }
+  return "https://api.daon.app/v1"; // Replace with your production URL
+};
+
+const API_BASE_URL = getDevApiUrl();
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -178,6 +187,7 @@ export const apiClient = new ApiClient(API_BASE_URL);
 export const authUtils = {
   async saveTokens(accessToken: string, refreshToken?: string) {
     try {
+      console.log("[authUtils] saveTokens", accessToken, refreshToken);
       await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
       if (refreshToken) {
         await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);

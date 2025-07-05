@@ -1,8 +1,11 @@
 import { useAuthStore } from "@/shared/store";
+import { KakaoSdkLoginResultSchema } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { login } from "@react-native-kakao/user";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
+import { authApi } from "../../shared/api/auth";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { kakaoAuthService } from "../../shared/lib/kakao-auth";
 import {
@@ -92,6 +95,63 @@ export const SignInForm = () => {
       }
     } catch (error) {
       console.error("카카오톡 로그인 중 오류:", error);
+      Alert.alert(
+        "오류",
+        "카카오톡 로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
+      );
+    }
+  };
+
+  const handleKakaoSignInSdk = async () => {
+    try {
+      console.log("[SignInForm] 카카오 SDK 로그인 시도");
+
+      // Kakao SDK로 로그인
+      const kakaoResult = await login();
+      console.log("[SignInForm] 카카오 SDK 로그인 결과:", kakaoResult);
+
+      // 결과 검증
+      const validationResult = KakaoSdkLoginResultSchema.safeParse(kakaoResult);
+      if (!validationResult.success) {
+        console.error(
+          "[SignInForm] 카카오 SDK 응답 검증 실패:",
+          validationResult.error,
+        );
+        Alert.alert("오류", "카카오 로그인 응답이 올바르지 않습니다.");
+        return;
+      }
+
+      const { accessToken, refreshToken } = validationResult.data;
+
+      // 백엔드로 토큰 전송하여 인증 완료
+      const authResult = await authApi.signInWithKakaoSdk({
+        accessToken,
+        refreshToken,
+      });
+
+      if (authResult.success) {
+        console.log("[SignInForm] 카카오 SDK 로그인 성공");
+
+        // AuthStore에 사용자 정보 저장
+        const { setUser } = useAuthStore.getState();
+        setUser(authResult.data.user);
+
+        // 상태 동기화 대기
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // 적절한 화면으로 이동
+        if (authResult.data.needs_child_setup) {
+          console.log("[SignInForm] 온보딩으로 이동");
+          router.replace("/(onboarding)");
+        } else {
+          console.log("[SignInForm] 메인 화면으로 이동");
+          router.replace("/(tabs)");
+        }
+      } else {
+        Alert.alert("로그인 실패", authResult.error);
+      }
+    } catch (error) {
+      console.error("[SignInForm] 카카오 SDK 로그인 오류:", error);
       Alert.alert(
         "오류",
         "카카오톡 로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
@@ -191,8 +251,15 @@ export const SignInForm = () => {
 
       <KakaoButton
         onPress={handleKakaoSignIn}
-        accessibilityLabel="카카오톡으로 로그인"
-        accessibilityHint="카카오톡 계정으로 간편하게 로그인합니다"
+        title="카카오톡으로 로그인 (웹뷰)"
+        accessibilityLabel="카카오톡으로 로그인 (웹뷰)"
+        accessibilityHint="웹뷰를 통해 카카오톡 계정으로 로그인합니다"
+      />
+      <KakaoButton
+        onPress={handleKakaoSignInSdk}
+        title="카카오톡으로 로그인 (앱)"
+        accessibilityLabel="카카오톡으로 로그인 (앱)"
+        accessibilityHint="카카오톡 앱을 통해 간편하게 로그인합니다"
       />
     </View>
   );

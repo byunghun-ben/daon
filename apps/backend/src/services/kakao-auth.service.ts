@@ -170,7 +170,12 @@ export class KakaoAuthService {
   /**
    * 액세스 토큰으로 사용자 정보 조회
    */
-  private async getUserInfo(accessToken: string): Promise<KakaoUserInfo> {
+  async getUserInfo(accessToken: string): Promise<KakaoUserInfo> {
+    logger.debug("Requesting Kakao user info", {
+      tokenLength: accessToken.length,
+      tokenPreview: `${accessToken.substring(0, 10)}...`,
+    });
+
     const response = await fetch("https://kapi.kakao.com/v2/user/me", {
       method: "GET",
       headers: {
@@ -179,11 +184,22 @@ export class KakaoAuthService {
       },
     });
 
+    logger.debug("Kakao API response", {
+      status: response.status,
+      statusText: response.statusText,
+      headers: {
+        "content-type": response.headers.get("content-type"),
+        "x-rate-limit-remaining": response.headers.get("x-rate-limit-remaining"),
+      },
+    });
+
     if (!response.ok) {
       const errorText = await response.text();
-      logger.error("Failed to get user info", {
+      logger.error("Failed to get user info from Kakao", {
         status: response.status,
+        statusText: response.statusText,
         error: errorText,
+        tokenPreview: `${accessToken.substring(0, 10)}...`,
       });
       throw new Error(`Failed to get user info: ${response.status}`);
     }

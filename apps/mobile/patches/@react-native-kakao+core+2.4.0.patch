@@ -1,0 +1,14 @@
+diff --git a/node_modules/@react-native-kakao/core/dist/index.js b/node_modules/@react-native-kakao/core/dist/index.js
+index 1234567..2345678 100644
+--- a/node_modules/@react-native-kakao/core/dist/index.js
++++ b/node_modules/@react-native-kakao/core/dist/index.js
+@@ -1,1 +1,10 @@
++// Polyfill for query-string compatibility
++import * as queryString from 'query-string';
++if (!queryString.stringify && queryString.default) {
++  queryString.stringify = queryString.default.stringify || function(obj) {
++    return new URLSearchParams(obj).toString();
++  };
++}
++
+ // Original content follows...

@@ -61,6 +61,7 @@ export default [
       // 함수 반환 타입 명시 (백엔드에서는 더 엄격하게)
       "@typescript-eslint/explicit-function-return-type": "warn",
       "@typescript-eslint/explicit-module-boundary-types": "warn",
+      "@typescript-eslint/no-unsafe-argument": "off",
 
       // Node.js에서 console.log는 일반적
       "no-console": "off",

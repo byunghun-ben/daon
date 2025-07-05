@@ -22,6 +22,7 @@ router.post("/signin", authLimiter, signIn);
 // Kakao OAuth routes with auth rate limiting
 router.post("/kakao/url", authLimiter, kakaoAuthController.generateLoginUrl);
 router.get("/kakao/callback", authLimiter, kakaoAuthController.handleCallback);
+router.post("/kakao/sdk", authLimiter, kakaoAuthController.handleSdkLogin);
 
 // Protected routes
 router.post("/signout", authenticateToken, signOut);

@@ -1,35 +1,51 @@
-import {
+import type {
   AuthResponse,
+  KakaoSdkAuthRequest,
   SignInRequest,
   SignUpRequest,
   UserApi,
 } from "@daon/shared";
 import { apiClient, ApiError, authUtils } from "./client";
 
-type SignInSuccessResponse = {
+interface SignInSuccessResponse {
   success: true;
   data: AuthResponse;
   error?: never;
-};
-type SignInErrorResponse = {
+}
+interface SignInErrorResponse {
   success: false;
   data?: never;
   error: string;
-};
+}
 type SignInResponse = SignInSuccessResponse | SignInErrorResponse;
 
-type SignUpSuccessResponse = {
+interface SignUpSuccessResponse {
   success: true;
   data: AuthResponse;
   error?: never;
-};
+}
 
-type SignUpErrorResponse = {
+interface SignUpErrorResponse {
   success: false;
   data?: never;
   error: string;
-};
+}
 type SignUpResponse = SignUpSuccessResponse | SignUpErrorResponse;
+
+interface KakaoSdkAuthSuccessResponse {
+  success: true;
+  data: AuthResponse;
+  error?: never;
+}
+
+interface KakaoSdkAuthErrorResponse {
+  success: false;
+  data?: never;
+  error: string;
+}
+type KakaoSdkAuthResponse =
+  | KakaoSdkAuthSuccessResponse
+  | KakaoSdkAuthErrorResponse;
 
 // Auth API functions
 export const authApi = {
@@ -137,7 +153,67 @@ export const authApi = {
     return apiClient.put<{ user: UserApi }>("/auth/profile", data);
   },
 
-  async checkRegistrationStatus(): Promise<{ statusUpdated: boolean; user: UserApi }> {
-    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>("/auth/check-registration");
+  async checkRegistrationStatus(): Promise<{
+    statusUpdated: boolean;
+    user: UserApi;
+  }> {
+    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>(
+      "/auth/check-registration",
+    );
+  },
+
+  async signInWithKakaoSdk(
+    data: KakaoSdkAuthRequest,
+  ): Promise<KakaoSdkAuthResponse> {
+    try {
+      console.log("[authApi] signInWithKakaoSdk request", data);
+      const {
+        data: response,
+        success,
+        error,
+      } = await apiClient.post<KakaoSdkAuthResponse>("/auth/kakao/sdk", data);
+
+      if (!success) {
+        return {
+          success: false,
+          error,
+        };
+      }
+
+      console.log("[authApi] signInWithKakaoSdk response", response);
+
+      // Store tokens
+      await authUtils.saveTokens(
+        response.session.access_token,
+        response.session.refresh_token,
+      );
+
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error: unknown) {
+      let errorMessage = "카카오 로그인 중 오류가 발생했습니다.";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      if (error instanceof ApiError) {
+        if (error.status === 400) {
+          errorMessage = "잘못된 요청입니다.";
+        } else if (error.status === 401) {
+          errorMessage = "카카오 인증이 실패했습니다.";
+        } else if (error.status === 429) {
+          errorMessage =
+            "너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
+        }
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
   },
 };

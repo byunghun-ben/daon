@@ -5,6 +5,7 @@ import { logger } from "@/utils/logger.js";
 import {
   KakaoCallbackQuerySchema,
   KakaoLoginUrlRequestSchema,
+  KakaoSdkAuthRequestSchema,
   type KakaoUserInfo,
   type Session,
 } from "@daon/shared";
@@ -58,6 +59,101 @@ export class KakaoAuthController {
       res.status(500).json({
         success: false,
         error: "로그인 URL 생성에 실패했습니다",
+      });
+    }
+  };
+
+  /**
+   * 카카오 SDK 로그인 처리
+   * POST /auth/kakao/sdk
+   */
+  handleSdkLogin = async (req: Request, res: Response): Promise<void> => {
+    logger.info("Kakao SDK login attempt", {
+      bodyKeys: Object.keys(req.body),
+    });
+
+    try {
+      // 요청 데이터 검증
+      const validationResult = KakaoSdkAuthRequestSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        logger.error("Kakao SDK login validation failed", {
+          errors: validationResult.error.issues,
+          body: req.body,
+        });
+
+        res.status(400).json({
+          success: false,
+          error: "잘못된 요청 데이터입니다",
+          details: validationResult.error.issues,
+        });
+        return;
+      }
+
+      const { accessToken, refreshToken } = validationResult.data;
+      logger.debug("Kakao SDK tokens validated", {
+        accessTokenLength: accessToken.length,
+        refreshTokenLength: refreshToken.length,
+      });
+
+      // 카카오 액세스 토큰으로 사용자 정보 조회
+      logger.debug("Fetching Kakao user info with access token");
+      const kakaoUserInfo =
+        await this.kakaoAuthService.getUserInfo(accessToken);
+
+      logger.info("Kakao user info retrieved", {
+        kakaoId: kakaoUserInfo.id,
+        hasEmail: !!kakaoUserInfo.kakao_account.email,
+        hasProfile: !!kakaoUserInfo.kakao_account.profile,
+      });
+
+      // Supabase에서 사용자 처리 (로그인/회원가입)
+      const authResult = await this.handleKakaoUser(kakaoUserInfo);
+
+      logger.info("Kakao SDK login success", {
+        userId: authResult.user.id,
+        email: authResult.user.email,
+        isNewUser: authResult.isNewUser,
+        needsChildSetup: authResult.needs_child_setup,
+      });
+
+      // API 응답 (앱 리다이렉트 대신 JSON 응답)
+      res.status(200).json({
+        success: true,
+        data: {
+          session: authResult.session,
+          user: authResult.user,
+          needs_child_setup: authResult.needs_child_setup,
+        },
+      });
+    } catch (error) {
+      logger.error("Failed to handle Kakao SDK login", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        type: error?.constructor?.name,
+      });
+
+      // 더 구체적인 에러 메시지 제공
+      let errorMessage = "로그인 처리 중 오류가 발생했습니다";
+      let statusCode = 500;
+
+      if (error instanceof Error) {
+        if (
+          error.message.includes(
+            "카카오 계정에서 이메일 정보를 가져올 수 없습니다",
+          )
+        ) {
+          errorMessage = error.message;
+          statusCode = 400;
+        } else if (error.message.includes("Failed to get user info")) {
+          errorMessage =
+            "카카오 사용자 정보를 가져올 수 없습니다. 토큰이 유효한지 확인해주세요.";
+          statusCode = 401;
+        }
+      }
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
       });
     }
   };

@@ -1,13 +1,10 @@
-import {
-  GUARDIAN_ROLES,
-  JoinChildRequestSchema,
-  type JoinChildRequest,
-} from "@daon/shared";
+import { GUARDIAN_ROLES, JoinChildRequestSchema } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { useJoinChild } from "../../shared/api/children/hooks";
+import { ApiError } from "../../shared/api/client";
 import { Button, Input } from "../../shared/ui";
 
 interface JoinChildFormProps {
@@ -15,7 +12,7 @@ interface JoinChildFormProps {
 }
 
 export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const joinChild = useJoinChild();
 
   const form = useForm({
     resolver: zodResolver(JoinChildRequestSchema),
@@ -25,44 +22,47 @@ export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
     },
   });
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      gap: theme.spacing.lg,
-    },
-    description: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-      marginBottom: theme.spacing.md,
-    },
-    inputContainer: {
-      gap: theme.spacing.md,
-    },
-    buttonContainer: {
-      marginTop: theme.spacing.xl,
-    },
-  }));
+  const handleSubmit = form.handleSubmit((data) => {
+    joinChild.mutate(data, {
+      onSuccess: (response) => {
+        console.log("Successfully joined child:", response.child);
+        Alert.alert(
+          "참여 완료",
+          `${response.child.name}의 관리자로 성공적으로 추가되었습니다.`,
+          [
+            {
+              text: "확인",
+              onPress: onSuccess,
+            },
+          ],
+        );
+      },
+      onError: (error) => {
+        console.error("Join child error:", error);
 
-  const handleSubmit = form.handleSubmit(async (data: JoinChildRequest) => {
-    setIsLoading(true);
-    try {
-      // TODO: API 호출 구현
-      console.log("Join child with code:", data.inviteCode, "role:", data.role);
+        // 에러 메시지 한글 매핑
+        let errorMessage = "아이 참여 중 오류가 발생했습니다.";
 
-      // 임시 성공 처리
-      Alert.alert("참여 완료", "아이의 관리자로 성공적으로 추가되었습니다.", [
-        {
-          text: "확인",
-          onPress: onSuccess,
-        },
-      ]);
-    } catch (error) {
-      console.error("Join child error:", error);
-      Alert.alert("오류", "아이 참여 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
+        if (error instanceof ApiError) {
+          const message = error.message.toLowerCase();
+          console.log("message", message);
+
+          if (message.includes("invalid invite code")) {
+            errorMessage = "유효하지 않은 초대 코드입니다.";
+          } else if (message.includes("already connected to this child")) {
+            errorMessage = "이미 이 아이의 관리자로 등록되어 있습니다.";
+          } else if (error.status === 404) {
+            errorMessage = "유효하지 않은 초대 코드입니다.";
+          } else if (error.status === 400) {
+            errorMessage = "이미 이 아이의 관리자로 등록되어 있습니다.";
+          } else if (error.status === 0) {
+            errorMessage = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
+          }
+        }
+
+        Alert.alert("오류", errorMessage);
+      },
+    });
   });
 
   return (
@@ -94,12 +94,13 @@ export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
         />
       </View>
 
-      <View style={styles.buttonContainer}>
+      <View className="mt-6">
         <Button
           title="참여하기"
           onPress={handleSubmit}
           variant="primary"
-          loading={isLoading}
+          loading={joinChild.isPending}
+          disabled={!form.formState.isValid || joinChild.isPending}
         />
       </View>
     </View>

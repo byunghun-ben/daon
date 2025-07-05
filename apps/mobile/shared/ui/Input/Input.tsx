@@ -1,14 +1,7 @@
-import React from "react";
-import {
-  TextInput,
-  View,
-  Text,
-  TextInputProps,
-  ViewStyle,
-  TextStyle,
-} from "react-native";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import type { TextInputProps, TextStyle, ViewStyle } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { INPUT_HEIGHT } from "../../config/theme";
+import { useThemedStyles } from "../../lib/hooks/useTheme";
 
 interface InputProps extends TextInputProps {
   label?: string;

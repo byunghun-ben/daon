@@ -1,8 +1,10 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appearance, ColorSchemeName } from "react-native";
-import { lightTheme, darkTheme, Theme } from "../config/theme";
+import type { ColorSchemeName } from "react-native";
+import { Appearance } from "react-native";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import type { Theme } from "../config/theme";
+import { darkTheme, lightTheme } from "../config/theme";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -20,7 +22,10 @@ interface ThemeActions {
 
 export type ThemeStore = ThemeState & ThemeActions;
 
-const getInitialTheme = (mode: ThemeMode, systemColorScheme: ColorSchemeName): Theme => {
+const getInitialTheme = (
+  mode: ThemeMode,
+  systemColorScheme: ColorSchemeName,
+): Theme => {
   if (mode === "system") {
     return systemColorScheme === "dark" ? darkTheme : lightTheme;
   }
@@ -39,7 +44,7 @@ export const useThemeStore = create<ThemeStore>()(
       setMode: (mode: ThemeMode) => {
         const { systemColorScheme } = get();
         const newTheme = getInitialTheme(mode, systemColorScheme);
-        
+
         set({
           mode,
           theme: newTheme,
@@ -49,7 +54,7 @@ export const useThemeStore = create<ThemeStore>()(
       setSystemColorScheme: (colorScheme: ColorSchemeName) => {
         const { mode } = get();
         const newTheme = getInitialTheme(mode, colorScheme);
-        
+
         set({
           systemColorScheme: colorScheme,
           theme: newTheme,
@@ -67,8 +72,8 @@ export const useThemeStore = create<ThemeStore>()(
       partialize: (state) => ({
         mode: state.mode,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Initialize system color scheme listener

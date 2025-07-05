@@ -1,7 +1,7 @@
 import {
+  GUARDIAN_ROLES,
   JoinChildRequestSchema,
   type JoinChildRequest,
-  GUARDIAN_ROLES,
 } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
@@ -66,13 +66,13 @@ export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
   });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.description}>
+    <View className="flex-1 gap-4">
+      <Text className="text-base text-gray-500 text-center">
         이미 등록된 아이의 관리자로 참여하려면{"\n"}
         초대 코드를 입력해주세요
       </Text>
 
-      <View style={styles.inputContainer}>
+      <View className="gap-2">
         <Controller
           control={form.control}
           name="inviteCode"

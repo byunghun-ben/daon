@@ -25,6 +25,7 @@ import {
 } from "@/shared/store/theme.store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
+import "../global.css";
 
 const useNotificationObserver = () => {
   useEffect(() => {

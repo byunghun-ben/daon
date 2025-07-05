@@ -33,8 +33,13 @@ export const ChildApiSchema = z.object({
 
 // Request schemas (camelCase for frontend)
 export const CreateChildRequestSchema = z.object({
-  name: z.string().min(1).max(100),
-  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  name: z
+    .string()
+    .min(1, "이름은 필수 입력 항목입니다.")
+    .max(100, "이름은 최대 100자까지 입력할 수 있습니다."),
+  birthDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "올바른 날짜 형식이 아닙니다."),
   gender: z.enum(Object.values(GENDERS)).nullable(),
   photoUrl: z.url().nullable().optional(),
   birthWeight: z.number().positive().nullable().optional(),

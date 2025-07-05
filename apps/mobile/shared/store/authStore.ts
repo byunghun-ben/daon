@@ -1,6 +1,5 @@
 import type { UserApi } from "@daon/shared";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { authApi } from "../api/auth";
@@ -129,10 +128,6 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
             });
 
-            // Navigate to main app (tabs will handle child check)
-            console.log("[AuthStore] Redirecting to tabs");
-            router.replace("/(tabs)");
-
             return { success: true };
           } else {
             set({ isLoading: false });
@@ -168,10 +163,6 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
             });
 
-            // Navigate to onboarding for child setup
-            console.log("[AuthStore] Redirecting to onboarding");
-            router.replace("/(onboarding)");
-
             return { success: true };
           } else {
             set({ isLoading: false });
@@ -199,10 +190,6 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
           });
           authUtils.clearTokens();
-
-          // Navigate to auth screen
-          console.log("[AuthStore] Redirecting to sign-in");
-          router.replace("/(auth)/sign-in");
         }
       },
 

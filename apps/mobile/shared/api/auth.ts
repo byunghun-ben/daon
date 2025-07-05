@@ -1,4 +1,4 @@
-import {
+import type {
   AuthResponse,
   SignInRequest,
   SignUpRequest,
@@ -6,29 +6,29 @@ import {
 } from "@daon/shared";
 import { apiClient, ApiError, authUtils } from "./client";
 
-type SignInSuccessResponse = {
+interface SignInSuccessResponse {
   success: true;
   data: AuthResponse;
   error?: never;
-};
-type SignInErrorResponse = {
+}
+interface SignInErrorResponse {
   success: false;
   data?: never;
   error: string;
-};
+}
 type SignInResponse = SignInSuccessResponse | SignInErrorResponse;
 
-type SignUpSuccessResponse = {
+interface SignUpSuccessResponse {
   success: true;
   data: AuthResponse;
   error?: never;
-};
+}
 
-type SignUpErrorResponse = {
+interface SignUpErrorResponse {
   success: false;
   data?: never;
   error: string;
-};
+}
 type SignUpResponse = SignUpSuccessResponse | SignUpErrorResponse;
 
 // Auth API functions
@@ -36,8 +36,6 @@ export const authApi = {
   async signUp(data: SignUpRequest): Promise<SignUpResponse> {
     try {
       const response = await apiClient.post<AuthResponse>("/auth/signup", data);
-
-      console.log("[authApi] signUp response", response);
 
       // Store tokens
       await authUtils.saveTokens(
@@ -137,7 +135,12 @@ export const authApi = {
     return apiClient.put<{ user: UserApi }>("/auth/profile", data);
   },
 
-  async checkRegistrationStatus(): Promise<{ statusUpdated: boolean; user: UserApi }> {
-    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>("/auth/check-registration");
+  async checkRegistrationStatus(): Promise<{
+    statusUpdated: boolean;
+    user: UserApi;
+  }> {
+    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>(
+      "/auth/check-registration",
+    );
   },
 };

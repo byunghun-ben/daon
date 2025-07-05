@@ -1,15 +1,7 @@
-import React from "react";
-import {
-  TouchableOpacity,
-  Text,
-  TouchableOpacityProps,
-  TextStyle,
-  ViewStyle,
-  ActivityIndicator,
-  View,
-} from "react-native";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import type { TextStyle, TouchableOpacityProps, ViewStyle } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { BUTTON_HEIGHT } from "../../config/theme";
+import { useThemedStyles } from "../../lib/hooks/useTheme";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;

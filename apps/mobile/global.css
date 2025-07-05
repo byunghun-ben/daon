@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 라이트 테마 색상 */
+    --color-primary: #4CAF50;
+    --color-primary-dark: #388E3C;
+    --color-secondary: #6c757d;
+    --color-background: #f8f9fa;
+    --color-surface: #ffffff;
+    --color-surface-secondary: #f5f5f5;
+    --color-text: #212121;
+    --color-text-secondary: #757575;
+    --color-text-muted: #9E9E9E;
+    --color-border: #e0e0e0;
+    --color-success: #4CAF50;
+    --color-warning: #FF9800;
+    --color-error: #f44336;
+    --color-info: #2196F3;
+    
+    /* 베이비 테마 색상 */
+    --color-baby-pink: #FFB6C1;
+    --color-baby-blue: #ADD8E6;
+    --color-baby-yellow: #FFFFE0;
+    --color-baby-green: #98FB98;
+    --color-baby-purple: #DDA0DD;
+    
+    /* 활동 색상 */
+    --color-feeding: #4CAF50;
+    --color-diaper: #FF9800;
+    --color-sleep: #673AB7;
+    --color-tummy-time: #2196F3;
+    --color-custom: #9C27B0;
+  }
+  
+  .dark {
+    /* 다크 테마 색상 */
+    --color-primary: #4CAF50;
+    --color-primary-dark: #388E3C;
+    --color-secondary: #9E9E9E;
+    --color-background: #121212;
+    --color-surface: #1E1E1E;
+    --color-surface-secondary: #2D2D2D;
+    --color-text: #FFFFFF;
+    --color-text-secondary: #B3B3B3;
+    --color-text-muted: #757575;
+    --color-border: #333333;
+    --color-success: #66BB6A;
+    --color-warning: #FFB74D;
+    --color-error: #F48FB1;
+    --color-info: #64B5F6;
+  }
+}
+
+@layer components {
+  /* 타이포그래피 컴포넌트 */
+  .text-title {
+    @apply text-[28px] font-bold;
+  }
+  
+  .text-subtitle {
+    @apply text-base font-normal leading-5;
+  }
+  
+  .text-h3 {
+    @apply text-xl font-bold;
+  }
+  
+  .text-body1 {
+    @apply text-base font-normal leading-[22px];
+  }
+  
+  .text-body2 {
+    @apply text-sm font-normal;
+  }
+  
+  .text-caption {
+    @apply text-xs font-normal;
+  }
+  
+  .text-button {
+    @apply text-base font-bold;
+  }
+  
+  /* 카드 컴포넌트 */
+  .card {
+    @apply bg-surface rounded-lg p-4 border border-border;
+  }
+  
+  .card-shadow-sm {
+    @apply shadow-sm;
+  }
+  
+  .card-shadow-md {
+    @apply shadow-md;
+  }
+  
+  .card-shadow-lg {
+    @apply shadow-lg;
+  }
+  
+  /* 버튼 컴포넌트 */
+  .btn {
+    @apply h-12 px-4 rounded-lg flex items-center justify-center;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white;
+  }
+  
+  .btn-outline {
+    @apply border border-border bg-transparent;
+  }
+  
+  /* 입력 필드 컴포넌트 */
+  .input {
+    @apply h-11 px-3 rounded-lg border border-border bg-surface text-text;
+  }
+  
+  /* 활동 색상 유틸리티 */
+  .activity-feeding {
+    @apply bg-feeding;
+  }
+  
+  .activity-diaper {
+    @apply bg-diaper;
+  }
+  
+  .activity-sleep {
+    @apply bg-sleep;
+  }
+  
+  .activity-tummy-time {
+    @apply bg-tummy-time;
+  }
+  
+  .activity-custom {
+    @apply bg-custom;
+  }
+}
+
+@layer utilities {
+  /* 커스텀 색상 유틸리티 */
+  .bg-surface-secondary {
+    background-color: var(--color-surface-secondary);
+  }
+  
+  .text-text-secondary {
+    color: var(--color-text-secondary);
+  }
+  
+  .text-text-muted {
+    color: var(--color-text-muted);
+  }
+  
+  /* 베이비 테마 유틸리티 */
+  .bg-baby-pink {
+    background-color: var(--color-baby-pink);
+  }
+  
+  .bg-baby-blue {
+    background-color: var(--color-baby-blue);
+  }
+  
+  .bg-baby-yellow {
+    background-color: var(--color-baby-yellow);
+  }
+  
+  .bg-baby-green {
+    background-color: var(--color-baby-green);
+  }
+  
+  .bg-baby-purple {
+    background-color: var(--color-baby-purple);
+  }
+}

@@ -1,21 +1,13 @@
 import { useAuthStore } from "@/shared/store";
-import { Stack, router } from "expo-router";
-import { useEffect } from "react";
+import { Stack, Redirect } from "expo-router";
 
 export default function OnboardingLayout() {
   const { isAuthenticated } = useAuthStore();
 
   // Redirect to auth if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.log("[OnboardingLayout] Redirecting to sign-in");
-      router.replace("/(auth)/sign-in");
-    }
-  }, [isAuthenticated]);
-
-  // Don't render onboarding if not authenticated
   if (!isAuthenticated) {
-    return null;
+    console.log("[OnboardingLayout] Redirecting to sign-in");
+    return <Redirect href="/(auth)/sign-in" />;
   }
 
   return (

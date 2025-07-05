@@ -1,5 +1,4 @@
-import { Tabs, router } from "expo-router";
-import { useEffect } from "react";
+import { Redirect, Tabs } from "expo-router";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -7,57 +6,26 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { authApi } from "@/shared/api/auth";
 import { useAuthStore } from "@/shared/store";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isAuthenticated, user, setUser } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
-  // Check authentication and registration status
-  useEffect(() => {
+  console.log("[TabLayout] user", user);
+
+  // Check authentication
+  if (!isAuthenticated || !user) {
+    console.log("[TabLayout] Not authenticated, redirecting to sign-in");
+    return <Redirect href="/(auth)/sign-in" />;
+  }
+
+  // Redirect if registration incomplete
+  if (user?.registrationStatus === "incomplete") {
     console.log(
-      "[TabLayout] Auth check",
-      isAuthenticated,
-      user?.registrationStatus,
+      "[TabLayout] Registration incomplete, redirecting to onboarding",
     );
-
-    if (!isAuthenticated) {
-      console.log("[TabLayout] Not authenticated, redirecting to sign-in");
-      router.replace("/(auth)/sign-in");
-      return;
-    }
-
-    // Check registration status instead of making API call
-    if (user?.registrationStatus === "incomplete") {
-      console.log(
-        "[TabLayout] User registration incomplete, checking if has children...",
-      );
-      
-      // Check if user actually has children and auto-update status
-      authApi.checkRegistrationStatus()
-        .then((response) => {
-          if (response.statusUpdated) {
-            console.log("[TabLayout] Registration status auto-updated to completed");
-            setUser(response.user);
-          } else {
-            console.log("[TabLayout] Registration still incomplete, redirecting to onboarding");
-            router.replace("/(onboarding)");
-          }
-        })
-        .catch((error) => {
-          console.error("[TabLayout] Failed to check registration status:", error);
-          // On error, redirect to onboarding to be safe
-          router.replace("/(onboarding)");
-        });
-      
-      return;
-    }
-  }, [isAuthenticated, user, setUser]);
-
-  // Don't render tabs if not authenticated or registration incomplete
-  if (!isAuthenticated || !user || user.registrationStatus === "incomplete") {
-    return null;
+    return <Redirect href="/(onboarding)" />;
   }
 
   return (

@@ -1,6 +1,6 @@
+import { useAuthStore } from "@/shared/store";
 import { Stack, router } from "expo-router";
 import { useEffect } from "react";
-import { useAuthStore } from "@/shared/store";
 
 export default function AuthLayout() {
   const { isAuthenticated } = useAuthStore();
@@ -8,6 +8,7 @@ export default function AuthLayout() {
   // Redirect authenticated users to tabs (which will handle children check)
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("[AuthLayout] Redirecting to tabs");
       router.replace("/(tabs)");
     }
   }, [isAuthenticated]);

@@ -1,4 +1,5 @@
 import {
+  checkRegistrationStatus,
   createChild,
   getProfile,
   signIn,
@@ -26,6 +27,7 @@ router.get("/kakao/callback", authLimiter, kakaoAuthController.handleCallback);
 router.post("/signout", authenticateToken, signOut);
 router.get("/profile", authenticateToken, getProfile);
 router.put("/profile", authenticateToken, updateProfile);
+router.post("/check-registration", authenticateToken, checkRegistrationStatus);
 
 // Child management routes (Step 2 of registration)
 router.post("/create-child", authenticateToken, createChild);

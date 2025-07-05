@@ -136,4 +136,8 @@ export const authApi = {
   ): Promise<{ user: UserApi }> {
     return apiClient.put<{ user: UserApi }>("/auth/profile", data);
   },
+
+  async checkRegistrationStatus(): Promise<{ statusUpdated: boolean; user: UserApi }> {
+    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>("/auth/check-registration");
+  },
 };

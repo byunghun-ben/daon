@@ -18,6 +18,7 @@ export class KakaoAuthService {
   private isLoginInProgress = false;
   private loginPromiseResolve: ((result: KakaoLoginResult) => void) | null =
     null;
+  private processedUrls = new Set<string>();
 
   private constructor() {
     // 딥링크 리스너 설정
@@ -54,9 +55,19 @@ export class KakaoAuthService {
   private handleDeepLink(url: string) {
     console.log("🔗 Deep link received:", url);
 
+    // 이미 처리된 URL인지 확인
+    if (this.processedUrls.has(url)) {
+      console.log("⚠️ URL already processed, skipping:", url);
+      return;
+    }
+
     // 카카오 로그인 콜백인지 확인
     if (url.startsWith("daon://auth/kakao/callback")) {
       console.log("✅ Kakao callback detected");
+      
+      // 처리된 URL로 표시
+      this.processedUrls.add(url);
+      
       try {
         const result = parseKakaoCallback(url);
         console.log("📦 Parsed result:", result);
@@ -219,6 +230,11 @@ export class KakaoAuthService {
   public cleanup(): void {
     this.isLoginInProgress = false;
     this.loginPromiseResolve = null;
+    // 오래된 처리된 URL 정리 (최대 10개만 유지)
+    if (this.processedUrls.size > 10) {
+      const urlsArray = Array.from(this.processedUrls);
+      this.processedUrls = new Set(urlsArray.slice(-10));
+    }
   }
 }
 

@@ -370,3 +370,110 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+/**
+ * Check and update registration status
+ * If user has children but status is incomplete, update to complete
+ */
+export const checkRegistrationStatus = createAuthenticatedHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  // Check if user has any children
+  const { data: children, error: childrenError } = await supabaseAdmin
+    .from("child_guardians")
+    .select("child_id")
+    .eq("user_id", userId);
+
+  if (childrenError) {
+    logger.error("Failed to check children", {
+      userId,
+      error: childrenError,
+    });
+    res.status(500).json({ error: "Failed to check registration status" });
+    return;
+  }
+
+  const hasChildren = children && children.length > 0;
+  
+  // Get current user data from database
+  const { data: userData, error: userError } = await supabaseAdmin
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (userError || !userData) {
+    logger.error("Failed to fetch user data", {
+      userId,
+      error: userError,
+    });
+    res.status(500).json({ error: "Failed to fetch user data" });
+    return;
+  }
+
+  const currentStatus = userData.registration_status;
+
+  // If user has children but status is incomplete, update it
+  if (hasChildren && currentStatus === "incomplete") {
+    const { error: updateError } = await supabaseAdmin
+      .from("users")
+      .update({ registration_status: "completed" } as TablesUpdate<"users">)
+      .eq("id", userId);
+
+    if (updateError) {
+      logger.error("Failed to update registration status", {
+        userId,
+        error: updateError,
+      });
+      res.status(500).json({ error: "Failed to update registration status" });
+      return;
+    }
+
+    // Fetch updated user data
+    const { data: updatedUser, error: userError } = await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (userError || !updatedUser) {
+      logger.error("Failed to fetch updated user", {
+        userId,
+        error: userError,
+      });
+      res.status(500).json({ error: "Failed to fetch updated user" });
+      return;
+    }
+
+    logger.info("Registration status auto-updated to completed", {
+      userId,
+      hasChildren,
+    });
+
+    res.json({
+      statusUpdated: true,
+      user: dbToApi(updatedUser),
+    });
+  } else {
+    // Fetch full user data to return
+    const { data: currentUser, error: userError } = await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (userError || !currentUser) {
+      logger.error("Failed to fetch current user", {
+        userId,
+        error: userError,
+      });
+      res.status(500).json({ error: "Failed to fetch current user" });
+      return;
+    }
+
+    res.json({
+      statusUpdated: false,
+      user: dbToApi(currentUser),
+    });
+  }
+});

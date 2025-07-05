@@ -130,6 +130,7 @@ export const useAuthStore = create<AuthState>()(
             });
 
             // Navigate to main app (tabs will handle child check)
+            console.log("[AuthStore] Redirecting to tabs");
             router.replace("/(tabs)");
 
             return { success: true };
@@ -168,6 +169,7 @@ export const useAuthStore = create<AuthState>()(
             });
 
             // Navigate to onboarding for child setup
+            console.log("[AuthStore] Redirecting to onboarding");
             router.replace("/(onboarding)");
 
             return { success: true };
@@ -199,6 +201,7 @@ export const useAuthStore = create<AuthState>()(
           authUtils.clearTokens();
 
           // Navigate to auth screen
+          console.log("[AuthStore] Redirecting to sign-in");
           router.replace("/(auth)/sign-in");
         }
       },

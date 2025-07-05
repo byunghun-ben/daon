@@ -1,4 +1,4 @@
-import { useChildrenQuery } from "../../api/children";
+import { useAuthStore } from "../../store";
 
 interface OnboardingState {
   needsChildRegistration: boolean;
@@ -6,13 +6,11 @@ interface OnboardingState {
 }
 
 export const useOnboarding = () => {
-  // 아이 목록 조회
-  const { data: children, isLoading: isChildrenLoading } = useChildrenQuery();
+  const { user } = useAuthStore();
 
   const onboardingState: OnboardingState = {
-    needsChildRegistration:
-      !isChildrenLoading && (!children || children.children.length === 0),
-    isLoading: isChildrenLoading,
+    needsChildRegistration: user?.registrationStatus === "incomplete",
+    isLoading: false,
   };
 
   return {

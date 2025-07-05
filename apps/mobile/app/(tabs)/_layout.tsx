@@ -1,5 +1,5 @@
 import { Tabs, router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -7,54 +7,56 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { childrenApi } from "@/shared/api/children";
+import { authApi } from "@/shared/api/auth";
 import { useAuthStore } from "@/shared/store";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isAuthenticated, user } = useAuthStore();
-  const [hasChildren, setHasChildren] = useState<boolean | null>(null);
+  const { isAuthenticated, user, setUser } = useAuthStore();
 
-  // Check authentication and children
+  // Check authentication and registration status
   useEffect(() => {
-    const checkChildrenStatus = async () => {
-      console.log("[TabLayout] checkChildrenStatus", isAuthenticated, user);
-      if (!isAuthenticated) {
-        router.replace("/(auth)/sign-in");
-        return;
-      }
+    console.log(
+      "[TabLayout] Auth check",
+      isAuthenticated,
+      user?.registrationStatus,
+    );
 
-      if (!user) {
-        return;
-      }
+    if (!isAuthenticated) {
+      console.log("[TabLayout] Not authenticated, redirecting to sign-in");
+      router.replace("/(auth)/sign-in");
+      return;
+    }
 
-      try {
-        const response = await childrenApi.getChildren();
-        const childrenCount = response.children?.length || 0;
-
-        setHasChildren(childrenCount > 0);
-
-        if (childrenCount === 0) {
+    // Check registration status instead of making API call
+    if (user?.registrationStatus === "incomplete") {
+      console.log(
+        "[TabLayout] User registration incomplete, checking if has children...",
+      );
+      
+      // Check if user actually has children and auto-update status
+      authApi.checkRegistrationStatus()
+        .then((response) => {
+          if (response.statusUpdated) {
+            console.log("[TabLayout] Registration status auto-updated to completed");
+            setUser(response.user);
+          } else {
+            console.log("[TabLayout] Registration still incomplete, redirecting to onboarding");
+            router.replace("/(onboarding)");
+          }
+        })
+        .catch((error) => {
+          console.error("[TabLayout] Failed to check registration status:", error);
+          // On error, redirect to onboarding to be safe
           router.replace("/(onboarding)");
-        }
-      } catch (error) {
-        console.warn("[TabLayout] Failed to fetch children:", error);
-        // If can't fetch children, assume none and redirect to onboarding
-        setHasChildren(false);
-        router.replace("/(onboarding)");
-      }
-    };
+        });
+      
+      return;
+    }
+  }, [isAuthenticated, user, setUser]);
 
-    checkChildrenStatus();
-  }, [isAuthenticated, user]);
-
-  // Don't render tabs if not authenticated or no children
-  if (!isAuthenticated || !user || hasChildren === false) {
-    return null;
-  }
-
-  // Show loading while checking children status
-  if (hasChildren === null) {
+  // Don't render tabs if not authenticated or registration incomplete
+  if (!isAuthenticated || !user || user.registrationStatus === "incomplete") {
     return null;
   }
 

@@ -45,6 +45,7 @@ export const SignUpForm = () => {
             {
               text: "확인",
               onPress: () => {
+                console.log("[SignUpForm] Redirecting to onboarding");
                 router.replace("/(onboarding)");
               },
             },

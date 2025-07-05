@@ -8,6 +8,7 @@ export default function OnboardingLayout() {
   // Redirect to auth if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
+      console.log("[OnboardingLayout] Redirecting to sign-in");
       router.replace("/(auth)/sign-in");
     }
   }, [isAuthenticated]);

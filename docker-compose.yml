@@ -1,0 +1,41 @@
+services:
+  daon-api:
+    image: daon-api:latest
+    container_name: daon-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      # 환경 변수는 .env 파일에서 로드
+    env_file:
+      - .env.production
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.daon-api.rule=Host(`daon-api.dear-us.co.kr`)"
+      - "traefik.http.routers.daon-api.entrypoints=web,websecure"
+      - "traefik.http.routers.daon-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.daon-api.loadbalancer.server.port=3001" # Traefik은 컨테이너 내부 포트로 접근
+    ports:
+      - "3003:3001" # 호스트 3002 포트를 컨테이너 3001 포트로 매핑
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const http = require('http'); http.get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); });",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  traefik-network:
+    external: true

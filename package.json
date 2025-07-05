@@ -47,5 +47,8 @@
     "{apps,packages}/**/*.{js,jsx,json,md}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

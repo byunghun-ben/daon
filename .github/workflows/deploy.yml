@@ -1,0 +1,80 @@
+name: Deploy to Mac Mini
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env.production
+        run: |
+          cat > .env.production << EOF
+          NODE_ENV=production
+          PORT=3001
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}
+          R2_ENDPOINT=${{ secrets.R2_ENDPOINT }}
+          R2_TOKEN=${{ secrets.R2_TOKEN }}
+          R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME=${{ secrets.R2_BUCKET_NAME }}
+          R2_REGION=${{ secrets.R2_REGION }}
+          EOF
+
+      - name: Build Docker image
+        run: |
+          docker build -t yojeong-api:latest .
+          docker tag yojeong-api:latest yojeong-api:${{ github.sha }}
+
+      - name: Stop existing container
+        run: |
+          docker-compose down || true
+
+      - name: Start new container
+        run: |
+          docker-compose up -d
+
+      - name: Wait for service to be ready
+        run: |
+          echo "Waiting for service to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3003/health 2>/dev/null; then
+              echo "Service is ready!"
+              break
+            fi
+            echo "Attempt $i/30: Service not ready yet..."
+            sleep 2
+          done
+
+      - name: Verify deployment
+        run: |
+          if ! curl -f http://localhost:3003/health; then
+            echo "Health check failed!"
+            docker-compose logs yojeong-api
+            exit 1
+          fi
+          echo "Deployment successful!"
+
+      - name: Cleanup old images
+        run: |
+          # Remove dangling images
+          docker image prune -f
+
+          # Keep only last 3 tagged images
+          docker images yojeong-api --format "{{.Tag}}" |
+            grep -v latest |
+            sort -r |
+            tail -n +4 |
+            xargs -I {} docker rmi yojeong-api:{} 2>/dev/null || true

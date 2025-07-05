@@ -69,6 +69,29 @@
           "cameraPermission": "이 앱은 아이의 사진을 찍어 일기에 추가하기 위해 카메라 접근 권한이 필요합니다.",
           "isAccessMediaLocationEnabled": true
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://devrepo.kakao.com/nexus/content/groups/public/"
+            ]
+          }
+        }
+      ],
+      "expo-dev-client",
+      [
+        "@react-native-kakao/core",
+        {
+          "nativeAppKey": "474fcbe802a597f2c251b09a5709b90f",
+          "android": {
+            "authCodeHandlerActivity": true
+          },
+          "ios": {
+            "handleKakaoOpenUrl": true
+          }
+        }
       ]
     ],
     "experiments": {

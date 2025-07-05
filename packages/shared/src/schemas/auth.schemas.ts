@@ -132,6 +132,23 @@ export const KakaoTokenResponseSchema = z.object({
   scope: z.string().optional(),
 });
 
+// Kakao SDK Login Result Schema
+export const KakaoSdkLoginResultSchema = z.object({
+  accessToken: z.string(),
+  accessTokenExpiresAt: z.number(),
+  accessTokenExpiresIn: z.number(),
+  refreshToken: z.string(),
+  refreshTokenExpiresAt: z.number(),
+  refreshTokenExpiresIn: z.number(),
+  scopes: z.array(z.string()),
+});
+
+// Kakao SDK Auth Request Schema (for backend)
+export const KakaoSdkAuthRequestSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
 // Inferred types
 export type UserDb = z.infer<typeof UserDbSchema>;
 export type UserApi = z.infer<typeof UserApiSchema>;
@@ -146,3 +163,5 @@ export type KakaoLoginUrlResponse = z.infer<typeof KakaoLoginUrlResponseSchema>;
 export type KakaoCallbackQuery = z.infer<typeof KakaoCallbackQuerySchema>;
 export type KakaoUserInfo = z.infer<typeof KakaoUserInfoSchema>;
 export type KakaoTokenResponse = z.infer<typeof KakaoTokenResponseSchema>;
+export type KakaoSdkLoginResult = z.infer<typeof KakaoSdkLoginResultSchema>;
+export type KakaoSdkAuthRequest = z.infer<typeof KakaoSdkAuthRequestSchema>;

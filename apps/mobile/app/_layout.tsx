@@ -10,10 +10,13 @@ import {
   getLastNotificationResponseAsync,
 } from "expo-notifications";
 import type { RelativePathString } from "expo-router";
-import { Stack, router, usePathname, useSegments } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
+
+// Import query-string polyfill before Kakao SDK
+import "@/shared/lib/query-string-polyfill";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { kakaoAuthService } from "@/shared/lib/kakao-auth";
@@ -23,6 +26,7 @@ import {
   initializeThemeStore,
   useThemeStore,
 } from "@/shared/store/theme.store";
+import { initializeKakaoSDK } from "@react-native-kakao/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -72,16 +76,13 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  // 카카오 sdk 초기화
+  useEffect(() => {
+    initializeKakaoSDK("474fcbe802a597f2c251b09a5709b90f");
+  }, []);
+
   const { isLoading, isInitialized, initializeAuth } = useAuthStore();
   const { theme } = useThemeStore();
-  const pathname = usePathname();
-  const segments = useSegments();
-
-  // 현재 라우터 경로 출력
-  useEffect(() => {
-    console.log("[RootLayout] Current pathname:", pathname);
-    console.log("[RootLayout] Current segments:", segments);
-  }, [pathname, segments]);
 
   useNotificationObserver();
 

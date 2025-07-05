@@ -33,24 +33,32 @@ export default function TabLayout() {
       console.log(
         "[TabLayout] User registration incomplete, checking if has children...",
       );
-      
+
       // Check if user actually has children and auto-update status
-      authApi.checkRegistrationStatus()
+      authApi
+        .checkRegistrationStatus()
         .then((response) => {
           if (response.statusUpdated) {
-            console.log("[TabLayout] Registration status auto-updated to completed");
+            console.log(
+              "[TabLayout] Registration status auto-updated to completed",
+            );
             setUser(response.user);
           } else {
-            console.log("[TabLayout] Registration still incomplete, redirecting to onboarding");
+            console.log(
+              "[TabLayout] Registration still incomplete, redirecting to onboarding",
+            );
             router.replace("/(onboarding)");
           }
         })
         .catch((error) => {
-          console.error("[TabLayout] Failed to check registration status:", error);
+          console.error(
+            "[TabLayout] Failed to check registration status:",
+            error,
+          );
           // On error, redirect to onboarding to be safe
           router.replace("/(onboarding)");
         });
-      
+
       return;
     }
   }, [isAuthenticated, user, setUser]);
@@ -131,6 +139,15 @@ export default function TabLayout() {
           title: "설정",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="gearshape.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "챗",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="message.fill" color={color} />
           ),
         }}
       />

@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import { generalLimiter } from "@/middleware/rateLimiter.js";
+import { requestLogger } from "@/middleware/requestLogger.js";
 import apiRoutes from "@/routes/index.js";
 import { logger } from "@/utils/logger.js";
 import cors from "cors";
@@ -22,12 +23,35 @@ const PORT = process.env.PORT ?? 3001;
 app.use(helmet());
 
 // CORS configuration
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
-    credentials: true,
-  }),
-);
+const corsOptions: cors.CorsOptions = {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void,
+  ) => {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // In development, allow all origins
+    if (process.env.NODE_ENV === "development") {
+      return callback(null, true);
+    }
+
+    // In production, check against allowed origins
+    const allowedOrigins = process.env.CORS_ORIGIN?.split(",") ?? [
+      "http://localhost:3000",
+    ];
+    if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
@@ -36,17 +60,11 @@ app.use(express.urlencoded({ extended: true }));
 // Apply general rate limiting to all routes
 app.use(generalLimiter);
 
-// Request logging
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
-    ip: req.ip,
-    userAgent: req.get("User-Agent"),
-  });
-  next();
-});
+// Enhanced request and response logging
+app.use(requestLogger);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -55,7 +73,7 @@ app.get("/health", (req, res) => {
 });
 
 // Root endpoint
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({
     message: "Daon API Server",
     version: "1.0.0",
@@ -75,7 +93,7 @@ interface HttpError extends Error {
 app.use(
   (
     err: HttpError,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
@@ -96,7 +114,7 @@ app.use(
 );
 
 // 404 handler
-app.use("/*splat", (req, res) => {
+app.use("/*splat", (_req, res) => {
   res.status(404).json({ error: "Endpoint not found" });
 });
 

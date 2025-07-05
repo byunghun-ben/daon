@@ -23,10 +23,16 @@ const MAPPING = {
   "chevron.right": "chevron-right",
   "sun.max.fill": "wb-sunny",
   "moon.fill": "nights-stay",
-  "gear": "settings",
+  gear: "settings",
   "checkmark.circle.fill": "check-circle",
-  "trash": "delete",
-  "pencil": "edit",
+  trash: "delete",
+  pencil: "edit",
+  "plus.circle.fill": "add-circle",
+  "book.fill": "book",
+  "chart.line.uptrend.xyaxis": "bar-chart",
+  "chart.bar.fill": "bar-chart",
+  "gearshape.fill": "settings",
+  "message.fill": "chat",
 } as IconMapping;
 
 /**

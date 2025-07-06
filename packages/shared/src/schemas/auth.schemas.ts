@@ -46,7 +46,7 @@ export const UpdateUserProfileRequestSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Session schema
+// Session schema (Supabase Auth SDK returns snake_case)
 export const SessionSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string(),

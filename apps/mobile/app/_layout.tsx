@@ -73,10 +73,14 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  const { isLoading, isInitialized, initializeAuth } = useAuthStore();
+  const { isLoading, isInitialized, initializeAuth, user } = useAuthStore();
   const { theme } = useThemeStore();
   const pathname = usePathname();
   const segments = useSegments();
+
+  useEffect(() => {
+    console.log("[RootLayout] user", user);
+  }, [user]);
 
   // 현재 라우터 경로 출력
   useEffect(() => {

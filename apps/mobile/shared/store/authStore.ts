@@ -120,6 +120,7 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           const response = await authApi.signIn({ email, password });
+          console.log("[AuthStore] Sign in response:", response?.data?.user);
 
           if (response.success) {
             set({

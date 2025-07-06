@@ -1,9 +1,12 @@
-import type {
-  AuthResponse,
-  SignInRequest,
-  SignUpRequest,
-  UserApi,
+import {
+  AuthResponseSchema,
+  UserResponseSchema,
+  type AuthResponse,
+  type SignInRequest,
+  type SignUpRequest,
+  type UserApi,
 } from "@daon/shared";
+import { z } from "zod/v4";
 import { apiClient, ApiError, authUtils } from "./client";
 
 interface SignInSuccessResponse {
@@ -35,17 +38,20 @@ type SignUpResponse = SignUpSuccessResponse | SignUpErrorResponse;
 export const authApi = {
   async signUp(data: SignUpRequest): Promise<SignUpResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/signup", data);
+      const response = await apiClient.post("/auth/signup", data);
+      
+      // Validate response with Zod
+      const validatedResponse = AuthResponseSchema.parse(response);
 
       // Store tokens
       await authUtils.saveTokens(
-        response.session.access_token,
-        response.session.refresh_token,
+        validatedResponse.session.access_token,
+        validatedResponse.session.refresh_token,
       );
 
       return {
         success: true,
-        data: response,
+        data: validatedResponse,
       };
     } catch (error: unknown) {
       console.log("[authApi] signUp error", error);
@@ -58,19 +64,22 @@ export const authApi = {
 
   async signIn(data: SignInRequest): Promise<SignInResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/signin", data);
+      const response = await apiClient.post("/auth/signin", data);
 
       console.log("[authApi] signIn response", response);
+      
+      // Validate response with Zod
+      const validatedResponse = AuthResponseSchema.parse(response);
 
       // Store tokens
       await authUtils.saveTokens(
-        response.session.access_token,
-        response.session.refresh_token,
+        validatedResponse.session.access_token,
+        validatedResponse.session.refresh_token,
       );
 
       return {
         success: true,
-        data: response,
+        data: validatedResponse,
       };
     } catch (error: unknown) {
       let errorMessage = "로그인 중 오류가 발생했습니다.";
@@ -126,21 +135,32 @@ export const authApi = {
   },
 
   async getProfile(): Promise<{ user: UserApi }> {
-    return apiClient.get<{ user: UserApi }>("/auth/profile");
+    const response = await apiClient.get("/auth/profile");
+    // Validate response with Zod
+    const validatedResponse = UserResponseSchema.parse(response);
+    return validatedResponse;
   },
 
   async updateProfile(
     data: Partial<Pick<UserApi, "name">>,
   ): Promise<{ user: UserApi }> {
-    return apiClient.put<{ user: UserApi }>("/auth/profile", data);
+    const response = await apiClient.put("/auth/profile", data);
+    // Validate response with Zod
+    const validatedResponse = UserResponseSchema.parse(response);
+    return validatedResponse;
   },
 
   async checkRegistrationStatus(): Promise<{
     statusUpdated: boolean;
     user: UserApi;
   }> {
-    return apiClient.post<{ statusUpdated: boolean; user: UserApi }>(
-      "/auth/check-registration",
-    );
+    const response = await apiClient.post("/auth/check-registration");
+    // Define inline schema for this specific response
+    const CheckRegistrationResponseSchema = UserResponseSchema.extend({
+      statusUpdated: z.boolean(),
+    });
+    // Validate response with Zod
+    const validatedResponse = CheckRegistrationResponseSchema.parse(response);
+    return validatedResponse;
   },
 };

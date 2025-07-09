@@ -17,6 +17,7 @@ export const requestKakaoLoginUrl = async (
   }>("/auth/kakao/url", data);
 
   if (!response.success) {
+    console.error("[requestKakaoLoginUrl] error:", response.error);
     throw new Error(response.error || "카카오 로그인 URL 생성에 실패했습니다");
   }
 

@@ -27,6 +27,7 @@ import {
 } from "@/shared/store/theme.store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { GlobalBottomSheet } from "@/shared/ui/GlobalBottomSheet";
 import "../global.css";
 
 const useNotificationObserver = () => {
@@ -165,6 +166,7 @@ export default function RootLayout() {
               <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
+            <GlobalBottomSheet />
             <StatusBar
               style={theme.colors.background === "#121212" ? "light" : "dark"}
             />

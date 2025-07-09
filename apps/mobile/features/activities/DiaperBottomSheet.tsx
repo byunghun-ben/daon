@@ -1,22 +1,14 @@
-import { forwardRef, useState, useImperativeHandle, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import type { CreateActivityRequest } from "@daon/shared";
-import { z } from "zod/v4";
 import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import Input from "@/shared/ui/Input/Input";
-import { BottomSheet } from "@/shared/ui/BottomSheet/BottomSheet";
-import type { BottomSheetModal } from "@gorhom/bottom-sheet";
+import type { CreateActivityRequest } from "@daon/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { CustomDateTimePicker } from "@/shared/ui/DateTimePicker/DateTimePicker";
+import { z } from "zod/v4";
 
 // 기저귀 교체 폼 스키마
 const DiaperFormSchema = z.object({
@@ -30,18 +22,8 @@ interface DiaperBottomSheetProps {
   onComplete?: () => void;
 }
 
-export interface DiaperBottomSheetRef {
-  present: () => void;
-  dismiss: () => void;
-}
-
-export const DiaperBottomSheet = forwardRef<
-  DiaperBottomSheetRef,
-  DiaperBottomSheetProps
->(({ onComplete }, ref) => {
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+export function DiaperBottomSheet({ onComplete }: DiaperBottomSheetProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const { activeChild } = useActiveChild();
   const createActivityMutation = useCreateActivity();
@@ -53,15 +35,6 @@ export const DiaperBottomSheet = forwardRef<
       notes: "",
     },
   });
-
-  useImperativeHandle(ref, () => ({
-    present: () => bottomSheetRef.current?.present(),
-    dismiss: () => bottomSheetRef.current?.dismiss(),
-  }));
-
-  const handleClose = useCallback(() => {
-    bottomSheetRef.current?.dismiss();
-  }, []);
 
   const handleSubmit = async (data: DiaperFormData) => {
     if (!activeChild) {
@@ -88,7 +61,6 @@ export const DiaperBottomSheet = forwardRef<
           onPress: () => {
             form.reset();
             setSelectedDate(new Date());
-            handleClose();
             onComplete?.();
           },
         },
@@ -100,138 +72,109 @@ export const DiaperBottomSheet = forwardRef<
   };
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      snapPoints={["50%"]}
-      enablePanDownToClose
-      enableDynamicSizing={false}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-2 py-4">
-          <Text className="text-xl font-bold mb-4">기저귀 교체</Text>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View className="p-6">
+        <Text className="text-xl font-bold mb-4">기저귀 교체</Text>
 
-          {/* 시간 선택 */}
-          <View className="mb-4">
-            <Text className="text-base font-medium mb-2">시간</Text>
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              className="bg-gray-100 p-3 rounded-lg"
-            >
-              <Text>
-                {selectedDate.toLocaleString("ko-KR", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="datetime"
-                display="spinner"
-                onChange={(_event, date) => {
-                  setShowDatePicker(false);
-                  if (date) setSelectedDate(date);
-                }}
-              />
-            )}
-          </View>
+        {/* 시간 선택 */}
+        <View className="mb-4">
+          <CustomDateTimePicker
+            value={selectedDate}
+            onChange={setSelectedDate}
+            mode="datetime"
+            label="시간"
+          />
+        </View>
 
-          {/* 기저귀 상태 선택 */}
-          <View className="mb-4">
-            <Text className="text-base font-medium mb-2">기저귀 상태</Text>
-            <Controller
-              control={form.control}
-              name="type"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex-row gap-2">
-                  <TouchableOpacity
-                    onPress={() => onChange("wet")}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "wet" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "wet" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      소변 💧
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => onChange("dirty")}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "dirty" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "dirty" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      대변 💩
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => onChange("both")}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "both" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "both" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      둘 다 🌊
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          </View>
-
-          {/* 메모 */}
+        {/* 기저귀 상태 선택 */}
+        <View className="mb-4">
+          <Text className="text-base font-medium mb-2">기저귀 상태</Text>
           <Controller
             control={form.control}
-            name="notes"
+            name="type"
             render={({ field: { onChange, value } }) => (
-              <Input
-                label="메모 (선택사항)"
-                value={value || ""}
-                onChangeText={onChange}
-                placeholder="색상, 상태 등 특이사항을 입력하세요"
-                multiline
-                numberOfLines={3}
-                style={{ textAlignVertical: "top" }}
-              />
+              <View className="flex-row gap-2">
+                <TouchableOpacity
+                  onPress={() => onChange("wet")}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "wet" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "wet" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    소변 💧
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => onChange("dirty")}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "dirty" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "dirty" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    대변 💩
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => onChange("both")}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "both" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "both" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    둘 다 🌊
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
           />
-
-          {/* 버튼 */}
-          <View className="flex-row gap-3 mt-6">
-            <Button
-              title="취소"
-              variant="outline"
-              onPress={handleClose}
-              className="flex-1"
-            />
-            <Button
-              title={createActivityMutation.isPending ? "저장 중..." : "저장"}
-              variant="primary"
-              onPress={form.handleSubmit(handleSubmit)}
-              disabled={createActivityMutation.isPending}
-              className="flex-1"
-            />
-          </View>
         </View>
-      </ScrollView>
-    </BottomSheet>
-  );
-});
 
-DiaperBottomSheet.displayName = "DiaperBottomSheet";
+        {/* 메모 */}
+        <Controller
+          control={form.control}
+          name="notes"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              label="메모 (선택사항)"
+              value={value || ""}
+              onChangeText={onChange}
+              placeholder="색상, 상태 등 특이사항을 입력하세요"
+              multiline
+              numberOfLines={3}
+              style={{ textAlignVertical: "top" }}
+            />
+          )}
+        />
+
+        {/* 버튼 */}
+        <View className="flex-row gap-3 mt-6">
+          <Button
+            title="취소"
+            variant="outline"
+            onPress={() => onComplete?.()}
+            className="flex-1"
+          />
+          <Button
+            title={createActivityMutation.isPending ? "저장 중..." : "저장"}
+            variant="primary"
+            onPress={form.handleSubmit(handleSubmit)}
+            disabled={createActivityMutation.isPending}
+            className="flex-1"
+          />
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

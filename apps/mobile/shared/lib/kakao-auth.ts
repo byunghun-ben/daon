@@ -64,16 +64,16 @@ export class KakaoAuthService {
     // 카카오 로그인 콜백인지 확인
     if (url.startsWith("daon://auth/kakao/callback")) {
       console.log("✅ Kakao callback detected");
-      
+
       // 로그인이 진행 중이 아니라면 무시 (새로고침으로 인한 잘못된 호출)
       if (!this.isLoginInProgress) {
         console.log("⚠️ No login in progress, ignoring callback");
         return;
       }
-      
+
       // 처리된 URL로 표시
       this.processedUrls.add(url);
-      
+
       try {
         const result = parseKakaoCallback(url);
         console.log("📦 Parsed result:", result);
@@ -209,6 +209,7 @@ export class KakaoAuthService {
     } catch (error) {
       this.isLoginInProgress = false;
       this.loginPromiseResolve = null;
+      console.error("🌐 Login error:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "로그인에 실패했습니다",
@@ -224,13 +225,15 @@ export class KakaoAuthService {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {
         console.log("🔗 Initial URL found:", initialUrl);
-        
+
         // 카카오 콜백 URL이라면 로그인이 진행중이 아니므로 무시
         if (initialUrl.startsWith("daon://auth/kakao/callback")) {
-          console.log("⚠️ Ignoring initial Kakao callback URL (no login in progress)");
+          console.log(
+            "⚠️ Ignoring initial Kakao callback URL (no login in progress)",
+          );
           return;
         }
-        
+
         this.handleDeepLink(initialUrl);
       }
     } catch (error) {

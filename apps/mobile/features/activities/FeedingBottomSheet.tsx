@@ -1,21 +1,13 @@
 import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
-import { BottomSheet } from "@/shared/ui/BottomSheet/BottomSheet";
 import Button from "@/shared/ui/Button/Button";
 import Input from "@/shared/ui/Input/Input";
 import type { CreateActivityRequest } from "@daon/shared";
-import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { CustomDateTimePicker } from "@/shared/ui/DateTimePicker/DateTimePicker";
 import { z } from "zod/v4";
 
 // 수유 기록 폼 스키마
@@ -32,18 +24,8 @@ interface FeedingBottomSheetProps {
   onComplete?: () => void;
 }
 
-export interface FeedingBottomSheetRef {
-  present: () => void;
-  dismiss: () => void;
-}
-
-export const FeedingBottomSheet = forwardRef<
-  FeedingBottomSheetRef,
-  FeedingBottomSheetProps
->(({ onComplete }, ref) => {
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [feedingType, setFeedingType] = useState<"breast" | "bottle" | "solid">(
     "bottle",
   );
@@ -60,15 +42,6 @@ export const FeedingBottomSheet = forwardRef<
       notes: "",
     },
   });
-
-  useImperativeHandle(ref, () => ({
-    present: () => bottomSheetRef.current?.present(),
-    dismiss: () => bottomSheetRef.current?.dismiss(),
-  }));
-
-  const handleClose = useCallback(() => {
-    bottomSheetRef.current?.dismiss();
-  }, []);
 
   const handleSubmit = async (data: FeedingFormData) => {
     if (!activeChild) {
@@ -97,7 +70,6 @@ export const FeedingBottomSheet = forwardRef<
           onPress: () => {
             form.reset();
             setSelectedDate(new Date());
-            handleClose();
             onComplete?.();
           },
         },
@@ -109,46 +81,17 @@ export const FeedingBottomSheet = forwardRef<
   };
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      snapPoints={["75%"]}
-      enablePanDownToClose
-      enableDynamicSizing={false}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="p-6 gap-6">
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View className="p-6 gap-6">
           <Text className="text-xl font-bold mb-4">수유 기록</Text>
 
           {/* 시간 선택 */}
-          <View>
-            <Text className="text-base font-medium mb-2">시간</Text>
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              className="bg-gray-100 p-3 rounded-lg"
-            >
-              <Text>
-                {selectedDate.toLocaleString("ko-KR", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="datetime"
-                display="spinner"
-                onChange={(_event, date) => {
-                  setShowDatePicker(false);
-                  if (date) setSelectedDate(date);
-                }}
-                locale="ko-KR"
-              />
-            )}
-          </View>
+          <CustomDateTimePicker
+            value={selectedDate}
+            onChange={setSelectedDate}
+            mode="datetime"
+            label="시간"
+          />
 
           {/* 수유 유형 선택 */}
           <View className="mb-4">
@@ -278,7 +221,7 @@ export const FeedingBottomSheet = forwardRef<
             <Button
               title="취소"
               variant="outline"
-              onPress={handleClose}
+              onPress={() => onComplete?.()}
               className="flex-1"
             />
             <Button
@@ -291,8 +234,5 @@ export const FeedingBottomSheet = forwardRef<
           </View>
         </View>
       </ScrollView>
-    </BottomSheet>
   );
-});
-
-FeedingBottomSheet.displayName = "FeedingBottomSheet";
+}

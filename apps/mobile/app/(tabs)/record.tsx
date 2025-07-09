@@ -15,10 +15,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
+import { FeedingBottomSheet } from "@/features/activities/FeedingBottomSheet";
+import { DiaperBottomSheet } from "@/features/activities/DiaperBottomSheet";
+import { SleepBottomSheet } from "@/features/activities/SleepBottomSheet";
 
 export default function RecordScreen() {
   const router = useRouter();
   const { activeChild } = useActiveChild();
+  const { openBottomSheet, closeBottomSheet } = useBottomSheetStore();
 
   const { data: recentActivities, refetch } = useRecentActivities(
     activeChild?.id || null,
@@ -43,6 +48,32 @@ export default function RecordScreen() {
 
   const handleActivityPress = (activity: Activity) => {
     router.push(`/activities/${activity.id}`);
+  };
+
+  const handleActivityComplete = () => {
+    refetch();
+    closeBottomSheet();
+  };
+
+  const handleQuickRecord = (type: string) => {
+    if (type === "feeding") {
+      openBottomSheet({
+        content: <FeedingBottomSheet onComplete={handleActivityComplete} />,
+        snapPoints: ["50%", "90%"]
+      });
+    } else if (type === "diaper") {
+      openBottomSheet({
+        content: <DiaperBottomSheet onComplete={handleActivityComplete} />,
+        snapPoints: ["50%", "90%"]
+      });
+    } else if (type === "sleep") {
+      openBottomSheet({
+        content: <SleepBottomSheet onComplete={handleActivityComplete} />,
+        snapPoints: ["60%", "95%"]
+      });
+    } else {
+      router.push(`/record/new?type=${type}`);
+    }
   };
 
   console.log("[RecordScreen] recentActivities", recentActivities);
@@ -107,9 +138,7 @@ export default function RecordScreen() {
                 <TouchableOpacity
                   key={activity.key}
                   className="flex-1 bg-surface rounded-lg p-4 items-center"
-                  onPress={() =>
-                    router.push(`/record/new?type=${activity.key}`)
-                  }
+                  onPress={() => handleQuickRecord(activity.key)}
                 >
                   <Text className="text-2xl">{activity.icon}</Text>
                   <Text className="text-sm text-text-secondary">

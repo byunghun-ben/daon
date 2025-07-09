@@ -12,8 +12,6 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { isAuthenticated, user } = useAuthStore();
 
-  console.log("[TabLayout] user", user);
-
   // Check authentication
   if (!isAuthenticated || !user) {
     console.log("[TabLayout] Not authenticated, redirecting to sign-in");

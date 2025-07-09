@@ -1,8 +1,12 @@
+import { DiaperBottomSheet } from "@/features/activities/DiaperBottomSheet";
+import { FeedingBottomSheet } from "@/features/activities/FeedingBottomSheet";
+import { SleepBottomSheet } from "@/features/activities/SleepBottomSheet";
 import {
   useRecentActivities,
   useTodayActivities,
 } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
 import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
 import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
@@ -10,7 +14,6 @@ import RecentActivities from "@/widgets/home/RecentActivities";
 import TodaySummary from "@/widgets/home/TodaySummary";
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
-import { useRef } from "react";
 import {
   Alert,
   RefreshControl,
@@ -19,13 +22,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { FeedingBottomSheet, type FeedingBottomSheetRef } from "@/features/activities/FeedingBottomSheet";
-import { DiaperBottomSheet, type DiaperBottomSheetRef } from "@/features/activities/DiaperBottomSheet";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const feedingBottomSheetRef = useRef<FeedingBottomSheetRef>(null);
-  const diaperBottomSheetRef = useRef<DiaperBottomSheetRef>(null);
+  const { openBottomSheet, closeBottomSheet } = useBottomSheetStore();
 
   // Active child 관리
   const {
@@ -70,6 +70,7 @@ export default function HomeScreen() {
   const handleActivityComplete = () => {
     refetchToday();
     refetchRecent();
+    closeBottomSheet();
   };
 
   // 활성 아이가 없는 경우
@@ -130,21 +131,43 @@ export default function HomeScreen() {
               size="small"
               variant="primary"
               className="flex-1 mx-1"
-              onPress={() => feedingBottomSheetRef.current?.present()}
+              onPress={() => {
+                console.log("수유 기록");
+                openBottomSheet({
+                  content: (
+                    <FeedingBottomSheet onComplete={handleActivityComplete} />
+                  ),
+                  snapPoints: ["70%", "90%"],
+                });
+              }}
             />
             <Button
               title="기저귀 교체"
               size="small"
               variant="secondary"
               className="flex-1 mx-1"
-              onPress={() => diaperBottomSheetRef.current?.present()}
+              onPress={() =>
+                openBottomSheet({
+                  content: (
+                    <DiaperBottomSheet onComplete={handleActivityComplete} />
+                  ),
+                  snapPoints: ["70%", "90%"],
+                })
+              }
             />
             <Button
               title="수면 기록"
               size="small"
               variant="outline"
               className="flex-1 mx-1"
-              onPress={() => router.push("/(tabs)/record")}
+              onPress={() => {
+                openBottomSheet({
+                  content: (
+                    <SleepBottomSheet onComplete={handleActivityComplete} />
+                  ),
+                  snapPoints: ["75%", "95%"],
+                });
+              }}
             />
           </View>
         </View>
@@ -164,16 +187,6 @@ export default function HomeScreen() {
           />
         </View>
       </ScrollView>
-
-      {/* Bottom Sheets */}
-      <FeedingBottomSheet
-        ref={feedingBottomSheetRef}
-        onComplete={handleActivityComplete}
-      />
-      <DiaperBottomSheet
-        ref={diaperBottomSheetRef}
-        onComplete={handleActivityComplete}
-      />
     </SafeAreaView>
   );
 }

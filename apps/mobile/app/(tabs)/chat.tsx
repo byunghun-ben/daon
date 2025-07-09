@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  StyleSheet,
   View,
 } from "react-native";
 
@@ -77,13 +76,13 @@ export default function ChatScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <View style={styles.modelSelectorContainer}>
+        <View className="px-4 pt-2 bg-white">
           <ModelSelector
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
@@ -95,8 +94,8 @@ export default function ChatScreen() {
           data={messages}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
+          className="flex-1"
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: 8 }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => {
             flatListRef.current?.scrollToEnd({ animated: true });
@@ -114,24 +113,3 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  modelSelectorContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContent: {
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-});

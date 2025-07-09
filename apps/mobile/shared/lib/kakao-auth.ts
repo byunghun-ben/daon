@@ -65,6 +65,12 @@ export class KakaoAuthService {
     if (url.startsWith("daon://auth/kakao/callback")) {
       console.log("✅ Kakao callback detected");
       
+      // 로그인이 진행 중이 아니라면 무시 (새로고침으로 인한 잘못된 호출)
+      if (!this.isLoginInProgress) {
+        console.log("⚠️ No login in progress, ignoring callback");
+        return;
+      }
+      
       // 처리된 URL로 표시
       this.processedUrls.add(url);
       
@@ -217,6 +223,14 @@ export class KakaoAuthService {
     try {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {
+        console.log("🔗 Initial URL found:", initialUrl);
+        
+        // 카카오 콜백 URL이라면 로그인이 진행중이 아니므로 무시
+        if (initialUrl.startsWith("daon://auth/kakao/callback")) {
+          console.log("⚠️ Ignoring initial Kakao callback URL (no login in progress)");
+          return;
+        }
+        
         this.handleDeepLink(initialUrl);
       }
     } catch (error) {
@@ -235,6 +249,21 @@ export class KakaoAuthService {
       const urlsArray = Array.from(this.processedUrls);
       this.processedUrls = new Set(urlsArray.slice(-10));
     }
+  }
+
+  /**
+   * 딥링크 히스토리 완전 정리
+   */
+  public clearProcessedUrls(): void {
+    console.log("🔗 Clearing all processed URLs");
+    this.processedUrls.clear();
+  }
+
+  /**
+   * 현재 로그인 진행 상태 확인
+   */
+  public isLoginInProgressStatus(): boolean {
+    return this.isLoginInProgress;
   }
 }
 

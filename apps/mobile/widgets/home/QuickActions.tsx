@@ -1,7 +1,6 @@
 import type { ActivityType } from "@daon/shared";
 import React, { useCallback, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { View } from "react-native";
 import BottomSheet from "../../shared/ui/BottomSheet";
 import Button from "../../shared/ui/Button";
 import { QuickActivityRecord } from "../quick-record";
@@ -19,19 +18,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     null,
   );
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      container: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: theme.spacing.xl,
-      },
-      actionButton: {
-        flex: 1,
-        marginHorizontal: theme.spacing.xs,
-      },
-    }),
-  );
 
   const handleActivityPress = useCallback((activityType: ActivityType) => {
     setSelectedActivity(activityType);
@@ -90,14 +76,14 @@ const QuickActions: React.FC<QuickActionsProps> = ({
 
   return (
     <>
-      <View style={styles.container}>
+      <View className="flex-row justify-between mb-xl">
         {quickActionButtons.map((action) => (
           <Button
             key={action.activityType}
             title={action.title}
             size="small"
             variant={action.variant}
-            buttonStyle={styles.actionButton}
+            className="flex-1 mx-xs"
             onPress={() => handleActivityPress(action.activityType)}
           />
         ))}

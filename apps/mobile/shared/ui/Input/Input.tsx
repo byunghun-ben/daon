@@ -1,15 +1,14 @@
-import type { TextInputProps, TextStyle, ViewStyle } from "react-native";
+import type { TextInputProps } from "react-native";
 import { Text, TextInput, View } from "react-native";
-import { INPUT_HEIGHT } from "../../config/theme";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import { cn } from "../../lib/utils/cn";
 
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
-  containerStyle?: ViewStyle;
-  inputStyle?: TextStyle;
-  labelStyle?: TextStyle;
-  errorStyle?: TextStyle;
+  containerClassName?: string;
+  inputClassName?: string;
+  labelClassName?: string;
+  errorClassName?: string;
   accessibilityLabel?: string;
   accessibilityHint?: string;
 }
@@ -17,58 +16,39 @@ interface InputProps extends TextInputProps {
 export default function Input({
   label,
   error,
-  containerStyle,
-  inputStyle,
-  labelStyle,
-  errorStyle,
+  containerClassName,
+  inputClassName,
+  labelClassName,
+  errorClassName,
   accessibilityLabel,
   accessibilityHint,
   ...props
 }: InputProps) {
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      marginBottom: theme.spacing.md,
-    },
-    label: {
-      fontSize: theme.typography.body2.fontSize,
-      fontWeight: "500" as const,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
-    },
-    input: {
-      height: INPUT_HEIGHT,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.md,
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.text,
-      backgroundColor: theme.colors.surface,
-      placeholderTextColor: theme.colors.textMuted,
-    },
-    inputError: {
-      borderColor: theme.colors.error,
-    },
-    error: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.error,
-      marginTop: theme.spacing.xs,
-    },
-  }));
-
   return (
-    <View style={[styles.container, containerStyle]}>
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+    <View className={cn("mb-md", containerClassName)}>
+      {label && (
+        <Text className={cn("text-sm font-medium text-text mb-xs", labelClassName)}>
+          {label}
+        </Text>
+      )}
       <TextInput
-        style={[styles.input, error && styles.inputError, inputStyle]}
-        placeholderTextColor={styles.input.placeholderTextColor}
+        className={cn(
+          "h-11 border border-border rounded-md px-md text-base text-text bg-surface",
+          error && "border-error",
+          inputClassName
+        )}
+        placeholderTextColor="#9E9E9E"
         accessibilityLabel={accessibilityLabel || label}
         accessibilityHint={accessibilityHint}
         accessibilityRole="none"
         accessible={true}
         {...props}
       />
-      {error && <Text style={[styles.error, errorStyle]}>{error}</Text>}
+      {error && (
+        <Text className={cn("text-xs text-error mt-xs", errorClassName)}>
+          {error}
+        </Text>
+      )}
     </View>
   );
 }

@@ -1,33 +1,24 @@
 import React from "react";
-import { View, ViewStyle, ViewProps } from "react-native";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import { View, ViewProps } from "react-native";
+import { cn } from "../../lib/utils/cn";
 
 interface CardProps extends ViewProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  className?: string;
   accessibilityLabel?: string;
   accessibilityHint?: string;
 }
 
 export default function Card({ 
   children, 
-  style, 
+  className,
   accessibilityLabel,
   accessibilityHint,
   ...props 
 }: CardProps) {
-  const styles = useThemedStyles((theme) => ({
-    card: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.lg,
-      padding: theme.spacing.xl,
-      ...theme.shadows.md,
-    },
-  }));
-
   return (
     <View 
-      style={[styles.card, style]}
+      className={cn("bg-surface rounded-lg p-xl shadow-md", className)}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       {...props}

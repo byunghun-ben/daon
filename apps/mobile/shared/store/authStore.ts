@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { authApi } from "../api/auth";
 import { authUtils } from "../api/client";
+import { kakaoAuthService } from "../lib/kakao-auth";
 
 interface AuthState {
   user: UserApi | null;
@@ -191,6 +192,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
           });
           authUtils.clearTokens();
+          
+          // 카카오 딥링크 히스토리 정리 (로그아웃 시)
+          kakaoAuthService.clearProcessedUrls();
         }
       },
 
@@ -216,6 +220,9 @@ export const useAuthStore = create<AuthState>()(
           console.log(
             "[AuthStore] Successfully saved tokens and updated user profile",
           );
+
+          // 카카오 딥링크 히스토리 정리 (로그인 완료 후)
+          kakaoAuthService.clearProcessedUrls();
 
           // 상태 동기화를 위한 추가 지연
           await new Promise((resolve) => setTimeout(resolve, 100));

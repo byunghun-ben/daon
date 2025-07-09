@@ -1,77 +1,22 @@
 import { type ActivityApi } from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { cn } from "../../shared/lib/utils/cn";
 import Card from "../../shared/ui/Card";
 
 interface ActivityCardProps {
   activity: ActivityApi;
   onPress?: (activity: ActivityApi) => void;
   showUser?: boolean;
+  className?: string;
 }
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({
   activity,
   onPress,
   showUser = true,
+  className,
 }) => {
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      marginBottom: theme.spacing.sm,
-    },
-    header: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "flex-start" as const,
-      marginBottom: theme.spacing.sm,
-    },
-    activityType: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-    },
-    activityIcon: {
-      fontSize: 20,
-      marginRight: theme.spacing.xs,
-    },
-    activityLabel: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-    },
-    timestamp: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    details: {
-      marginTop: theme.spacing.sm,
-    },
-    detailItem: {
-      flexDirection: "row" as const,
-      marginBottom: theme.spacing.xs,
-    },
-    detailLabel: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      marginRight: theme.spacing.sm,
-      minWidth: 60,
-    },
-    detailValue: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text,
-      fontWeight: "500" as const,
-    },
-    notes: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      fontStyle: "italic" as const,
-      marginTop: theme.spacing.sm,
-    },
-    userInfo: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.sm,
-    },
-  }));
 
   const getActivityConfig = (type: string) => {
     const configs = {
@@ -120,11 +65,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
     switch (activity.type) {
       case "feeding":
         return (
-          <View style={styles.details}>
+          <View className="mt-sm">
             {data.type && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>방법:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">방법:</Text>
+                <Text className="text-sm text-text font-medium">
                   {data.type === "breast"
                     ? "모유"
                     : data.type === "bottle"
@@ -134,9 +79,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
               </View>
             )}
             {data.side && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>부위:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">부위:</Text>
+                <Text className="text-sm text-text font-medium">
                   {data.side === "left"
                     ? "왼쪽"
                     : data.side === "right"
@@ -146,15 +91,15 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
               </View>
             )}
             {data.amount && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>양:</Text>
-                <Text style={styles.detailValue}>{data.amount}ml</Text>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">양:</Text>
+                <Text className="text-sm text-text font-medium">{data.amount}ml</Text>
               </View>
             )}
             {data.duration && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>시간:</Text>
-                <Text style={styles.detailValue}>{data.duration}분</Text>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시간:</Text>
+                <Text className="text-sm text-text font-medium">{data.duration}분</Text>
               </View>
             )}
           </View>
@@ -162,11 +107,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
       case "diaper":
         return (
-          <View style={styles.details}>
+          <View className="mt-sm">
             {data.type && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>상태:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">상태:</Text>
+                <Text className="text-sm text-text font-medium">
                   {data.type === "wet"
                     ? "소변"
                     : data.type === "dirty"
@@ -180,27 +125,27 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
       case "sleep":
         return (
-          <View style={styles.details}>
+          <View className="mt-sm">
             {data.startedAt && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>시작:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시작:</Text>
+                <Text className="text-sm text-text font-medium">
                   {formatTime(data.startedAt)}
                 </Text>
               </View>
             )}
             {data.endedAt && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>종료:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">종료:</Text>
+                <Text className="text-sm text-text font-medium">
                   {formatTime(data.endedAt)}
                 </Text>
               </View>
             )}
             {data.quality && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>품질:</Text>
-                <Text style={styles.detailValue}>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">품질:</Text>
+                <Text className="text-sm text-text font-medium">
                   {data.quality === "good"
                     ? "좋음"
                     : data.quality === "fair"
@@ -214,11 +159,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
       case "tummy_time":
         return (
-          <View style={styles.details}>
+          <View className="mt-sm">
             {data.duration && (
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>시간:</Text>
-                <Text style={styles.detailValue}>{data.duration}분</Text>
+              <View className="flex-row mb-xs">
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시간:</Text>
+                <Text className="text-sm text-text font-medium">{data.duration}분</Text>
               </View>
             )}
           </View>
@@ -237,26 +182,30 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      className={cn("mb-sm", className)}
       onPress={handlePress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <Card>
-        <View style={styles.header}>
-          <View style={styles.activityType}>
-            <Text style={styles.activityIcon}>{config.icon}</Text>
-            <Text style={styles.activityLabel}>{config.label}</Text>
+        <View className="flex-row justify-between items-start mb-sm">
+          <View className="flex-row items-center">
+            <Text className="text-[20px] mr-xs">{config.icon}</Text>
+            <Text className="text-base font-semibold text-text">{config.label}</Text>
           </View>
-          <Text style={styles.timestamp}>{formatDate(activity.timestamp)}</Text>
+          <Text className="text-xs text-text-secondary">{formatDate(activity.timestamp)}</Text>
         </View>
 
         {renderActivityDetails()}
 
-        {activity.notes && <Text style={styles.notes}>"{activity.notes}"</Text>}
+        {activity.notes && (
+          <Text className="text-sm text-text-secondary italic mt-sm">
+            "{activity.notes}"
+          </Text>
+        )}
 
         {showUser && activity.user && (
-          <Text style={styles.userInfo}>
+          <Text className="text-xs text-text-secondary mt-sm">
             기록자: {activity.user.name || activity.user.email}
           </Text>
         )}

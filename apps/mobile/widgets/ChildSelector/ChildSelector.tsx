@@ -6,11 +6,10 @@ import {
   Modal,
   ScrollView,
   Image,
-  StyleSheet,
   Animated,
 } from "react-native";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { theme } from "../../shared/config/theme";
+import { cn } from "../../shared/lib/utils/cn";
 import type { ChildApi } from "@daon/shared";
 
 interface ChildSelectorProps {
@@ -56,19 +55,19 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
   };
 
   const renderChildAvatar = (child: ChildApi, size: number = 32) => (
-    <View style={[styles.avatar, { width: size, height: size }]}>
+    <View className="rounded-2xl mr-2" style={{ width: size, height: size }}>
       {child.photoUrl ? (
         <Image
           source={{ uri: child.photoUrl }}
+          className="rounded-2xl"
           style={{
             width: size,
             height: size,
-            borderRadius: 16,
           }}
         />
       ) : (
-        <View style={[styles.avatarPlaceholder, { width: size, height: size }]}>
-          <Text style={[styles.avatarText, { fontSize: size * 0.4 }]}>
+        <View className="bg-primary rounded-2xl justify-center items-center" style={{ width: size, height: size }}>
+          <Text className="text-white font-semibold" style={{ fontSize: size * 0.4 }}>
             {child.name.charAt(0).toUpperCase()}
           </Text>
         </View>
@@ -79,19 +78,25 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
   const renderChildItem = (child: ChildApi, isActive: boolean = false) => (
     <TouchableOpacity
       key={child.id}
-      style={[styles.childItem, isActive && styles.activeChildItem]}
+      className={cn(
+        "flex-row items-center p-4 border-b border-border",
+        isActive && "bg-surface"
+      )}
       onPress={() => handleChildSelect(child)}
     >
       {renderChildAvatar(child, 40)}
-      <View style={styles.childInfo}>
-        <Text style={[styles.childName, isActive && styles.activeChildName]}>
+      <View className="flex-1">
+        <Text className={cn(
+          "text-sm font-medium text-muted-foreground",
+          isActive && "text-base text-foreground font-semibold"
+        )}>
           {child.name}
         </Text>
-        <Text style={styles.childAge}>{calculateAge(child.birthDate)}</Text>
+        <Text className="text-xs text-muted-foreground mt-0.5">{calculateAge(child.birthDate)}</Text>
       </View>
       {isActive && (
-        <View style={styles.activeIndicator}>
-          <Text style={styles.checkmark}>✓</Text>
+        <View className="w-6 h-6 rounded-full bg-primary justify-center items-center">
+          <Text className="text-white text-sm font-semibold">✓</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -99,10 +104,10 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
 
   if (isLoading || !activeChild) {
     return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <View style={styles.skeletonAvatar} />
-          <View style={styles.skeletonText} />
+      <View className="flex-row items-center">
+        <View className="flex-row items-center py-2 px-3">
+          <View className="w-8 h-8 rounded-2xl bg-border mr-2" />
+          <View className="w-20 h-4 rounded bg-border" />
         </View>
       </View>
     );
@@ -111,21 +116,22 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
   return (
     <>
       <Animated.View
-        style={[styles.container, { transform: [{ scale: scaleAnim }] }]}
+        className="flex-row items-center"
+        style={{ transform: [{ scale: scaleAnim }] }}
       >
         <TouchableOpacity
-          style={styles.selector}
+          className="flex-row items-center py-2 px-3 bg-surface rounded-3xl border border-border"
           onPress={handleChildPress}
           disabled={!hasMultipleChildren}
         >
           {renderChildAvatar(activeChild)}
-          <View style={styles.childInfo}>
-            <Text style={styles.activeChildName}>{activeChild.name}</Text>
+          <View className="flex-1">
+            <Text className="text-base font-semibold text-foreground">{activeChild.name}</Text>
             {hasMultipleChildren && (
-              <Text style={styles.switchHint}>탭하여 전환</Text>
+              <Text className="text-xs text-muted-foreground mt-0.5">탭하여 전환</Text>
             )}
           </View>
-          {hasMultipleChildren && <Text style={styles.dropdownIcon}>▼</Text>}
+          {hasMultipleChildren && <Text className="text-xs text-muted-foreground ml-2">▼</Text>}
         </TouchableOpacity>
       </Animated.View>
 
@@ -136,22 +142,22 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
         onRequestClose={() => setIsModalVisible(false)}
       >
         <TouchableOpacity
-          style={styles.modalOverlay}
+          className="flex-1 bg-black/50 justify-center items-center"
           activeOpacity={1}
           onPress={() => setIsModalVisible(false)}
         >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>아이 선택</Text>
+          <View className="bg-surface rounded-2xl w-4/5 max-h-3/5 overflow-hidden">
+            <View className="flex-row justify-between items-center p-4 border-b border-border">
+              <Text className="text-lg font-semibold text-foreground">아이 선택</Text>
               <TouchableOpacity
-                style={styles.closeButton}
+                className="w-8 h-8 rounded-2xl bg-background justify-center items-center"
                 onPress={() => setIsModalVisible(false)}
               >
-                <Text style={styles.closeButtonText}>×</Text>
+                <Text className="text-xl text-muted-foreground font-light">×</Text>
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.childList}>
+            <ScrollView className="max-h-72">
               {availableChildren.map((child) =>
                 renderChildItem(child, child.id === activeChild.id),
               )}
@@ -180,177 +186,5 @@ const calculateAge = (birthDate: string): string => {
   }
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  selector: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: theme.colors.surface,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-
-  avatar: {
-    borderRadius: 16,
-    marginRight: 8,
-  },
-
-  avatarImage: {
-    borderRadius: 16,
-  },
-
-  avatarPlaceholder: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: 16,
-    justifyContent: "center" as const,
-    alignItems: "center" as const,
-  },
-
-  avatarText: {
-    color: theme.colors.surface,
-    fontWeight: "600",
-  },
-
-  childInfo: {
-    flex: 1,
-  },
-
-  childName: {
-    fontSize: 14,
-    color: theme.colors.textSecondary,
-    fontWeight: "500",
-  },
-
-  activeChildName: {
-    fontSize: 16,
-    color: theme.colors.text,
-    fontWeight: "600",
-  },
-
-  childAge: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-  },
-
-  switchHint: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-  },
-
-  dropdownIcon: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginLeft: 8,
-  },
-
-  // 로딩 상태
-  loadingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-
-  skeletonAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: theme.colors.border,
-    marginRight: 8,
-  },
-
-  skeletonText: {
-    width: 80,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: theme.colors.border,
-  },
-
-  // 모달 스타일
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: 16,
-    width: "80%",
-    maxHeight: "60%",
-    overflow: "hidden",
-  },
-
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: theme.colors.text,
-  },
-
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: theme.colors.background,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  closeButtonText: {
-    fontSize: 20,
-    color: theme.colors.textSecondary,
-    fontWeight: "300",
-  },
-
-  childList: {
-    maxHeight: 300,
-  },
-
-  childItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-
-  activeChildItem: {
-    backgroundColor: theme.colors.surface,
-  },
-
-  activeIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: theme.colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  checkmark: {
-    color: theme.colors.surface,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-});
 
 export default ChildSelector;

@@ -1,7 +1,7 @@
 import { type ChildApi } from "@daon/shared";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { cn } from "../../shared/lib/utils/cn";
 import Card from "../../shared/ui/Card";
 
 interface ChildCardProps {
@@ -9,6 +9,7 @@ interface ChildCardProps {
   onPress?: (child: ChildApi) => void;
   isSelected?: boolean;
   showDetails?: boolean;
+  className?: string;
 }
 
 export const ChildCard: React.FC<ChildCardProps> = ({
@@ -16,88 +17,8 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   onPress,
   isSelected = false,
   showDetails = true,
+  className,
 }) => {
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      marginBottom: theme.spacing.sm,
-    },
-    selectedContainer: {
-      borderWidth: 2,
-      borderColor: theme.colors.primary,
-    },
-    header: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      marginBottom: showDetails ? theme.spacing.sm : 0,
-    },
-    photo: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      backgroundColor: theme.colors.surface,
-      marginRight: theme.spacing.md,
-    },
-    photoPlaceholder: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      backgroundColor: theme.colors.surface,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      marginRight: theme.spacing.md,
-    },
-    photoPlaceholderText: {
-      fontSize: 24,
-    },
-    childInfo: {
-      flex: 1,
-    },
-    childName: {
-      fontSize: theme.typography.subtitle.fontSize,
-      fontWeight: theme.typography.subtitle.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
-    },
-    childAge: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    details: {
-      paddingTop: theme.spacing.sm,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.border,
-    },
-    detailRow: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      marginBottom: theme.spacing.xs,
-    },
-    detailLabel: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    detailValue: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.text,
-      fontWeight: "500" as const,
-    },
-    selectedIndicator: {
-      position: "absolute" as const,
-      top: theme.spacing.sm,
-      right: theme.spacing.sm,
-      backgroundColor: theme.colors.primary,
-      borderRadius: 12,
-      width: 24,
-      height: 24,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-    },
-    selectedIcon: {
-      color: theme.colors.white,
-      fontSize: 16,
-      fontWeight: "bold" as const,
-    },
-  }));
 
   const calculateAge = (birthDate: string) => {
     const birth = new Date(birthDate);
@@ -143,62 +64,69 @@ export const ChildCard: React.FC<ChildCardProps> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.container, isSelected && styles.selectedContainer]}
+      className={cn(
+        "mb-sm",
+        isSelected && "border-2 border-primary",
+        className
+      )}
       onPress={handlePress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <Card>
-        <View style={styles.header}>
+        <View className={cn("flex-row items-center", showDetails && "mb-sm")}>
           {child.photoUrl ? (
-            <Image source={{ uri: child.photoUrl }} style={styles.photo} />
+            <Image 
+              source={{ uri: child.photoUrl }} 
+              className="w-[60px] h-[60px] rounded-full bg-surface mr-md"
+            />
           ) : (
-            <View style={styles.photoPlaceholder}>
-              <Text style={styles.photoPlaceholderText}>👶</Text>
+            <View className="w-[60px] h-[60px] rounded-full bg-surface justify-center items-center mr-md">
+              <Text className="text-[24px]">👶</Text>
             </View>
           )}
 
-          <View style={styles.childInfo}>
-            <Text style={styles.childName}>{child.name}</Text>
-            <Text style={styles.childAge}>{calculateAge(child.birthDate)}</Text>
+          <View className="flex-1">
+            <Text className="text-subtitle mb-xs">{child.name}</Text>
+            <Text className="text-sm text-text-secondary">{calculateAge(child.birthDate)}</Text>
           </View>
         </View>
 
         {showDetails && (
-          <View style={styles.details}>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>생년월일</Text>
-              <Text style={styles.detailValue}>
+          <View className="pt-sm border-t border-border">
+            <View className="flex-row justify-between mb-xs">
+              <Text className="text-sm text-text-secondary">생년월일</Text>
+              <Text className="text-sm text-text font-medium">
                 {formatDate(child.birthDate)}
               </Text>
             </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>성별</Text>
-              <Text style={styles.detailValue}>
+            <View className="flex-row justify-between mb-xs">
+              <Text className="text-sm text-text-secondary">성별</Text>
+              <Text className="text-sm text-text font-medium">
                 {getGenderText(child.gender)}
               </Text>
             </View>
 
             {child.birthWeight && (
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>출생 체중</Text>
-                <Text style={styles.detailValue}>{child.birthWeight}kg</Text>
+              <View className="flex-row justify-between mb-xs">
+                <Text className="text-sm text-text-secondary">출생 체중</Text>
+                <Text className="text-sm text-text font-medium">{child.birthWeight}kg</Text>
               </View>
             )}
 
             {child.birthHeight && (
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>출생 신장</Text>
-                <Text style={styles.detailValue}>{child.birthHeight}cm</Text>
+              <View className="flex-row justify-between mb-xs">
+                <Text className="text-sm text-text-secondary">출생 신장</Text>
+                <Text className="text-sm text-text font-medium">{child.birthHeight}cm</Text>
               </View>
             )}
           </View>
         )}
 
         {isSelected && (
-          <View style={styles.selectedIndicator}>
-            <Text style={styles.selectedIcon}>✓</Text>
+          <View className="absolute top-sm right-sm bg-primary rounded-xl w-6 h-6 justify-center items-center">
+            <Text className="text-white text-base font-bold">✓</Text>
           </View>
         )}
       </Card>

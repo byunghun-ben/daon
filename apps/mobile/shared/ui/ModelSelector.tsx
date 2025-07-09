@@ -1,7 +1,7 @@
 import { AIModel, MODEL_PROVIDER_MAP } from "@daon/shared";
 import { Picker } from "@react-native-picker/picker";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { theme } from "../config/theme";
 
 interface ModelSelectorProps {
@@ -29,12 +29,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   const currentModel = AVAILABLE_MODELS.find((m) => m.value === selectedModel);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-      <View style={styles.header}>
-        <Text style={[styles.label, { color: theme.colors.text }]}>
+    <View className="p-3 rounded-lg mb-2 bg-surface">
+      <View className="flex-row justify-between items-center mb-1">
+        <Text className="text-xs font-semibold text-foreground">
           AI Model: {currentModel?.label || selectedModel}
         </Text>
-        <Text style={[styles.provider, { color: theme.colors.textSecondary }]}>
+        <Text className="text-xs text-muted-foreground">
           {PROVIDER_DISPLAY_NAMES[MODEL_PROVIDER_MAP[selectedModel]]}
         </Text>
       </View>
@@ -68,37 +68,3 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  header: {
-    flexDirection: "row" as const,
-    justifyContent: "space-between" as const,
-    alignItems: "center" as const,
-    marginBottom: 4,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: "600" as const,
-  },
-  provider: {
-    fontSize: 10,
-    fontWeight: "400" as const,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 6,
-    overflow: "hidden" as const,
-    backgroundColor: "white",
-  },
-  picker: {
-    height: Platform.OS === "ios" ? 120 : 50,
-    width: "100%",
-  },
-  iosPicker: {
-    backgroundColor: "transparent",
-  },
-});

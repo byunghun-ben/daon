@@ -11,15 +11,12 @@ import {
   Alert,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateGrowthRecord } from "../../shared/api/growth/hooks";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { createFormStyles } from "../../shared/styles/formStyles";
 import { Button, Input } from "../../shared/ui";
 
 interface CreateGrowthRecordFormProps {
@@ -42,81 +39,6 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
     },
   });
 
-  const formStyles = useThemedStyles(createFormStyles);
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      ...formStyles,
-      dateText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.text,
-      },
-      measurementCard: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.lg,
-        borderRadius: theme.borderRadius.lg,
-        marginBottom: theme.spacing.md,
-      },
-      measurementHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: theme.spacing.md,
-      },
-      measurementIcon: {
-        fontSize: 24,
-        marginRight: theme.spacing.sm,
-      },
-      measurementTitle: {
-        fontSize: theme.typography.subtitle.fontSize,
-        fontWeight: theme.typography.subtitle.fontWeight,
-        color: theme.colors.text,
-      },
-      measurementDescription: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-        marginBottom: theme.spacing.md,
-      },
-      inputRow: {
-        flexDirection: "row",
-        alignItems: "flex-end",
-        gap: theme.spacing.sm,
-      },
-      inputContainer: {
-        flex: 1,
-      },
-      unitText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.textSecondary,
-        paddingBottom: theme.spacing.md,
-      },
-      summaryCard: {
-        backgroundColor: `${theme.colors.primary}10`,
-        padding: theme.spacing.lg,
-        borderRadius: theme.borderRadius.lg,
-        borderWidth: 1,
-        borderColor: `${theme.colors.primary}30`,
-      },
-      summaryTitle: {
-        fontSize: theme.typography.subtitle.fontSize,
-        fontWeight: theme.typography.subtitle.fontWeight,
-        color: theme.colors.primary,
-        marginBottom: theme.spacing.sm,
-      },
-      summaryItem: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: theme.spacing.xs,
-      },
-      summaryLabel: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      summaryValue: {
-        fontSize: theme.typography.body2.fontSize,
-        fontWeight: "600",
-        color: theme.colors.text,
-      },
-    }),
-  );
 
   const handleDateChange = (
     event: DateTimePickerEvent,
@@ -212,15 +134,15 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
   const headCircumference = form.watch("headCircumference");
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
       {/* 날짜/시간 선택 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>측정 날짜</Text>
+      <View className="mb-6 pt-4">
+        <Text className="text-lg font-semibold text-foreground mb-3">측정 날짜</Text>
         <TouchableOpacity
-          style={styles.dateButton}
+          className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateText}>
+          <Text className="text-base text-foreground">
             📅 {formatDateTime(currentDateTime)}
           </Text>
         </TouchableOpacity>
@@ -228,34 +150,34 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
 
       {/* 아이 나이 정보 */}
       {activeChild && (
-        <View style={styles.section}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>측정 시점 정보</Text>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>아이 이름</Text>
-              <Text style={styles.summaryValue}>{activeChild.name}</Text>
+        <View className="mb-6">
+          <View className="bg-primary/10 p-6 rounded-lg border border-primary/20">
+            <Text className="text-base font-semibold text-primary mb-2">측정 시점 정보</Text>
+            <View className="flex-row justify-between mb-1">
+              <Text className="text-sm text-muted-foreground">아이 이름</Text>
+              <Text className="text-sm font-semibold text-foreground">{activeChild.name}</Text>
             </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>측정 시 나이</Text>
-              <Text style={styles.summaryValue}>{calculateAgeText()}</Text>
+            <View className="flex-row justify-between">
+              <Text className="text-sm text-muted-foreground">측정 시 나이</Text>
+              <Text className="text-sm font-semibold text-foreground">{calculateAgeText()}</Text>
             </View>
           </View>
         </View>
       )}
 
       {/* 몸무게 */}
-      <View style={styles.section}>
-        <View style={styles.measurementCard}>
-          <View style={styles.measurementHeader}>
-            <Text style={styles.measurementIcon}>⚖️</Text>
-            <Text style={styles.measurementTitle}>몸무게</Text>
+      <View className="mb-6">
+        <View className="bg-surface p-6 rounded-lg mb-4">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-2xl mr-2">⚖️</Text>
+            <Text className="text-base font-semibold text-foreground">몸무게</Text>
           </View>
-          <Text style={styles.measurementDescription}>
+          <Text className="text-sm text-muted-foreground mb-4">
             아이의 현재 몸무게를 kg 단위로 입력하세요
           </Text>
 
-          <View style={styles.inputRow}>
-            <View style={styles.inputContainer}>
+          <View className="flex-row items-end gap-2">
+            <View className="flex-1">
               <Controller
                 control={form.control}
                 name="weight"
@@ -277,27 +199,27 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
                 )}
               />
             </View>
-            <Text style={styles.unitText}>kg</Text>
+            <Text className="text-base text-muted-foreground pb-4">kg</Text>
           </View>
-          <Text style={styles.helpText}>
+          <Text className="text-xs text-muted-foreground mt-2">
             정확한 측정을 위해 기저귀를 벗긴 상태에서 측정하세요
           </Text>
         </View>
       </View>
 
       {/* 키 */}
-      <View style={styles.section}>
-        <View style={styles.measurementCard}>
-          <View style={styles.measurementHeader}>
-            <Text style={styles.measurementIcon}>📏</Text>
-            <Text style={styles.measurementTitle}>키</Text>
+      <View className="mb-6">
+        <View className="bg-surface p-6 rounded-lg mb-4">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-2xl mr-2">📏</Text>
+            <Text className="text-base font-semibold text-foreground">키</Text>
           </View>
-          <Text style={styles.measurementDescription}>
+          <Text className="text-sm text-muted-foreground mb-4">
             아이의 현재 키를 cm 단위로 입력하세요
           </Text>
 
-          <View style={styles.inputRow}>
-            <View style={styles.inputContainer}>
+          <View className="flex-row items-end gap-2">
+            <View className="flex-1">
               <Controller
                 control={form.control}
                 name="height"
@@ -319,27 +241,27 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
                 )}
               />
             </View>
-            <Text style={styles.unitText}>cm</Text>
+            <Text className="text-base text-muted-foreground pb-4">cm</Text>
           </View>
-          <Text style={styles.helpText}>
+          <Text className="text-xs text-muted-foreground mt-2">
             누워서 측정하거나 키 재는 도구를 사용하세요
           </Text>
         </View>
       </View>
 
       {/* 머리둘레 */}
-      <View style={styles.section}>
-        <View style={styles.measurementCard}>
-          <View style={styles.measurementHeader}>
-            <Text style={styles.measurementIcon}>👶</Text>
-            <Text style={styles.measurementTitle}>머리둘레</Text>
+      <View className="mb-6">
+        <View className="bg-surface p-6 rounded-lg mb-4">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-2xl mr-2">👶</Text>
+            <Text className="text-base font-semibold text-foreground">머리둘레</Text>
           </View>
-          <Text style={styles.measurementDescription}>
+          <Text className="text-sm text-muted-foreground mb-4">
             아이의 머리둘레를 cm 단위로 입력하세요
           </Text>
 
-          <View style={styles.inputRow}>
-            <View style={styles.inputContainer}>
+          <View className="flex-row items-end gap-2">
+            <View className="flex-1">
               <Controller
                 control={form.control}
                 name="headCircumference"
@@ -361,16 +283,16 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
                 )}
               />
             </View>
-            <Text style={styles.unitText}>cm</Text>
+            <Text className="text-base text-muted-foreground pb-4">cm</Text>
           </View>
-          <Text style={styles.helpText}>
+          <Text className="text-xs text-muted-foreground mt-2">
             머리의 가장 넓은 부분을 줄자로 측정하세요
           </Text>
         </View>
       </View>
 
       {/* 메모 */}
-      <View style={styles.section}>
+      <View className="mb-6">
         <Controller
           control={form.control}
           name="notes"
@@ -390,25 +312,25 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
 
       {/* 측정 요약 */}
       {hasAnyMeasurement() && (
-        <View style={styles.section}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>측정 요약</Text>
+        <View className="mb-6">
+          <View className="bg-primary/10 p-6 rounded-lg border border-primary/20">
+            <Text className="text-base font-semibold text-primary mb-2">측정 요약</Text>
             {weight && (
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>몸무게</Text>
-                <Text style={styles.summaryValue}>{weight} kg</Text>
+              <View className="flex-row justify-between mb-1">
+                <Text className="text-sm text-muted-foreground">몸무게</Text>
+                <Text className="text-sm font-semibold text-foreground">{weight} kg</Text>
               </View>
             )}
             {height && (
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>키</Text>
-                <Text style={styles.summaryValue}>{height} cm</Text>
+              <View className="flex-row justify-between mb-1">
+                <Text className="text-sm text-muted-foreground">키</Text>
+                <Text className="text-sm font-semibold text-foreground">{height} cm</Text>
               </View>
             )}
             {headCircumference && (
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>머리둘레</Text>
-                <Text style={styles.summaryValue}>{headCircumference} cm</Text>
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-muted-foreground">머리둘레</Text>
+                <Text className="text-sm font-semibold text-foreground">{headCircumference} cm</Text>
               </View>
             )}
           </View>
@@ -416,7 +338,7 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
       )}
 
       {/* 저장 버튼 */}
-      <View style={styles.submitButton}>
+      <View className="mb-8">
         <Button
           title="성장 기록 저장"
           onPress={form.handleSubmit(handleSubmit)}

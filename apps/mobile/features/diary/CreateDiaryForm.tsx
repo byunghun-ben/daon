@@ -12,15 +12,13 @@ import {
   Alert,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateDiaryEntry } from "../../shared/api/diary/hooks";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { createFormStyles } from "../../shared/styles/formStyles";
+import { cn } from "../../shared/lib/utils/cn";
 import { Button, ImageUploader, Input } from "../../shared/ui";
 
 interface CreateDiaryFormProps {
@@ -48,115 +46,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
   });
 
-  const formStyles = useThemedStyles(createFormStyles);
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      ...formStyles,
-      dateText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.text,
-      },
-      photoContainer: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: theme.spacing.sm,
-      },
-      photoButton: {
-        width: 100,
-        height: 100,
-        borderRadius: theme.borderRadius.md,
-        borderWidth: 2,
-        borderStyle: "dashed",
-        borderColor: theme.colors.border,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: theme.colors.surface,
-      },
-      photoButtonText: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-        textAlign: "center",
-      },
-      photoPreview: {
-        width: 100,
-        height: 100,
-        borderRadius: theme.borderRadius.md,
-        position: "relative",
-      },
-      photoImage: {
-        width: "100%",
-        height: "100%",
-        borderRadius: theme.borderRadius.md,
-      },
-      removePhotoButton: {
-        position: "absolute",
-        top: -5,
-        right: -5,
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: theme.colors.error,
-        justifyContent: "center",
-        alignItems: "center",
-      },
-      removePhotoText: {
-        color: theme.colors.white,
-        fontSize: 12,
-        fontWeight: "bold",
-      },
-      milestoneSection: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        marginBottom: theme.spacing.md,
-      },
-      milestoneHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: theme.spacing.md,
-      },
-      milestoneTitle: {
-        fontSize: theme.typography.subtitle.fontSize,
-        fontWeight: theme.typography.subtitle.fontWeight,
-        color: theme.colors.text,
-      },
-      addMilestoneButton: {
-        paddingVertical: theme.spacing.sm,
-        paddingHorizontal: theme.spacing.md,
-        borderRadius: theme.borderRadius.sm,
-        backgroundColor: theme.colors.primary,
-      },
-      addMilestoneText: {
-        color: theme.colors.white,
-        fontSize: theme.typography.body2.fontSize,
-        fontWeight: "600",
-      },
-      milestoneItem: {
-        padding: theme.spacing.md,
-        backgroundColor: theme.colors.background,
-        borderRadius: theme.borderRadius.sm,
-        marginBottom: theme.spacing.sm,
-      },
-      milestoneItemTitle: {
-        fontSize: theme.typography.body1.fontSize,
-        fontWeight: "600",
-        color: theme.colors.text,
-        marginBottom: theme.spacing.xs,
-      },
-      milestoneItemDescription: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      submitButton: {
-        marginTop: theme.spacing.xl,
-      },
-      removeButton: {
-        color: theme.colors.error,
-        fontSize: 18,
-      },
-    }),
-  );
 
   const handleDateChange = (
     event: DateTimePickerEvent,
@@ -245,20 +134,20 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   const currentDate = form.watch("date");
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
       {/* 날짜 선택 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>날짜</Text>
+      <View className="mb-6 pt-4">
+        <Text className="text-lg font-semibold text-foreground mb-3">날짜</Text>
         <TouchableOpacity
-          style={styles.dateButton}
+          className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateText}>📅 {formatDate(currentDate)}</Text>
+          <Text className="text-base text-foreground">📅 {formatDate(currentDate)}</Text>
         </TouchableOpacity>
       </View>
 
       {/* 일기 내용 */}
-      <View style={styles.section}>
+      <View className="mb-6">
         <Controller
           control={form.control}
           name="content"
@@ -283,7 +172,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       </View>
 
       {/* 사진 추가 */}
-      <View style={styles.section}>
+      <View className="mb-6">
         <ImageUploader
           images={selectedImages}
           onImagesChange={(images) => {
@@ -296,45 +185,40 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       </View>
 
       {/* 마일스톤 */}
-      <View style={styles.section}>
-        <View style={styles.milestoneSection}>
-          <View style={styles.milestoneHeader}>
-            <Text style={styles.milestoneTitle}>마일스톤</Text>
+      <View className="mb-6">
+        <View className="bg-surface p-4 rounded-lg mb-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-base font-semibold text-foreground">마일스톤</Text>
             <TouchableOpacity
-              style={styles.addMilestoneButton}
+              className="py-2 px-4 rounded bg-primary"
               onPress={addMilestone}
             >
-              <Text style={styles.addMilestoneText}>+ 추가</Text>
+              <Text className="text-white text-sm font-semibold">+ 추가</Text>
             </TouchableOpacity>
           </View>
 
           {milestones.map((milestone, index) => (
-            <View key={index} style={styles.milestoneItem}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.milestoneItemTitle}>
+            <View key={index} className="p-4 bg-background rounded mb-2">
+              <View className="flex-row justify-between">
+                <View className="flex-1">
+                  <Text className="text-base font-semibold text-foreground mb-1">
                     {milestone.title}
                   </Text>
                   {milestone.description && (
-                    <Text style={styles.milestoneItemDescription}>
+                    <Text className="text-sm text-muted-foreground">
                       {milestone.description}
                     </Text>
                   )}
                 </View>
                 <TouchableOpacity onPress={() => removeMilestone(index)}>
-                  <Text style={styles.removeButton}>×</Text>
+                  <Text className="text-destructive text-lg">×</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
 
           {milestones.length === 0 && (
-            <Text style={styles.photoButtonText}>
+            <Text className="text-sm text-muted-foreground text-center">
               특별한 순간이 있다면 마일스톤을 추가해보세요
             </Text>
           )}
@@ -342,7 +226,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       </View>
 
       {/* 저장 버튼 */}
-      <View style={styles.submitButton}>
+      <View className="mt-6 mb-8">
         <Button
           title="일기 저장"
           onPress={handleSubmit}

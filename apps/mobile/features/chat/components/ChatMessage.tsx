@@ -1,6 +1,7 @@
 import type { ChatMessage as ChatMessageType } from "@daon/shared";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { cn } from "../../../shared/lib/utils/cn";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -11,24 +12,30 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isAssistant = message.role === "assistant";
 
   return (
-    <View style={[styles.container, isUser && styles.userContainer]}>
+    <View className={cn(
+      "px-4 py-1 items-start",
+      isUser && "items-end"
+    )}>
       <View
-        style={[
-          styles.bubble,
-          isUser && styles.userBubble,
-          isAssistant && styles.assistantBubble,
-        ]}
+        className={cn(
+          "max-w-[80%] p-3 rounded-2xl min-w-[60px]",
+          isUser && "bg-blue-500 rounded-br-sm",
+          isAssistant && "bg-gray-200 rounded-bl-sm"
+        )}
       >
         <Text
-          style={[
-            styles.text,
-            isUser && styles.userText,
-            isAssistant && styles.assistantText,
-          ]}
+          className={cn(
+            "text-base leading-5",
+            isUser && "text-white",
+            isAssistant && "text-black"
+          )}
         >
           {message.content}
         </Text>
-        <Text style={[styles.timestamp, isUser && styles.userTimestamp]}>
+        <Text className={cn(
+          "text-xs mt-1 text-gray-600",
+          isUser && "text-white/50"
+        )}>
           {new Date(message.timestamp).toLocaleTimeString("ko-KR", {
             hour: "2-digit",
             minute: "2-digit",
@@ -39,45 +46,3 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    alignItems: "flex-start" as const,
-  },
-  userContainer: {
-    alignItems: "flex-end" as const,
-  },
-  bubble: {
-    maxWidth: "80%",
-    padding: 12,
-    borderRadius: 16,
-    minWidth: 60,
-  },
-  userBubble: {
-    backgroundColor: "#007AFF",
-    borderBottomRightRadius: 4,
-  },
-  assistantBubble: {
-    backgroundColor: "#E5E5EA",
-    borderBottomLeftRadius: 4,
-  },
-  text: {
-    fontSize: 16,
-    lineHeight: 20,
-  },
-  userText: {
-    color: "#FFFFFF",
-  },
-  assistantText: {
-    color: "#000000",
-  },
-  timestamp: {
-    fontSize: 11,
-    marginTop: 4,
-    color: "#666666",
-  },
-  userTimestamp: {
-    color: "#FFFFFF80",
-  },
-});

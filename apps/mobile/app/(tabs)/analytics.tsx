@@ -1,4 +1,3 @@
-import type { Theme } from "@/shared/config/theme";
 import type { AnalyticsRequest } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
@@ -9,10 +8,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  type DimensionValue,
 } from "react-native";
 import { useAnalytics } from "../../shared/api/analytics/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { useActiveChildStore } from "../../shared/store";
 import Button from "../../shared/ui/Button";
 
@@ -42,128 +39,128 @@ export default function AnalyticsScreen() {
     enabled: !!activeChild?.id,
   });
 
-  const styles = useThemedStyles((theme: Theme) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    content: {
-      padding: theme.spacing.lg,
-    },
-    header: {
-      marginBottom: theme.spacing.xl,
-    },
-    title: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    subtitle: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    periodSelector: {
-      flexDirection: "row" as const,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.lg,
-      padding: theme.spacing.xs,
-      marginBottom: theme.spacing.xl,
-    },
-    periodButton: {
-      flex: 1,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      borderRadius: theme.borderRadius.md,
-      alignItems: "center" as const,
-    },
-    periodButtonActive: {
-      backgroundColor: theme.colors.primary,
-    },
-    periodText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-      fontWeight: "500" as const,
-    },
-    periodTextActive: {
-      color: theme.colors.white,
-      fontWeight: "600" as const,
-    },
-    summaryGrid: {
-      flexDirection: "row" as const,
-      flexWrap: "wrap" as const,
-      gap: theme.spacing.md,
-      marginBottom: theme.spacing.xl,
-    },
-    summaryCard: {
-      flex: 1,
-      minWidth: "45%" as DimensionValue,
-      backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      borderRadius: theme.borderRadius.lg,
-      alignItems: "center" as const,
-    },
-    summaryValue: {
-      fontSize: theme.typography.h3.fontSize,
-      fontWeight: theme.typography.h3.fontWeight,
-      color: theme.colors.primary,
-      marginBottom: theme.spacing.xs,
-    },
-    summaryLabel: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-    },
-    sectionGrid: {
-      flexDirection: "row" as const,
-      flexWrap: "wrap" as const,
-      gap: theme.spacing.md,
-    },
-    sectionCard: {
-      flex: 1,
-      minWidth: "45%" as DimensionValue,
-      backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      borderRadius: theme.borderRadius.lg,
-      alignItems: "center" as const,
-    },
-    sectionIcon: {
-      fontSize: 32,
-      marginBottom: theme.spacing.sm,
-    },
-    sectionTitle: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
-    },
-    sectionDescription: {
-      fontSize: theme.typography.caption.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-    },
-    emptyState: {
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      padding: theme.spacing.xxl,
-    },
-    emptyText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-      marginBottom: theme.spacing.lg,
-    },
-    loadingText: {
-      textAlign: "center" as const,
-      color: theme.colors.textSecondary,
-      padding: theme.spacing.lg,
-    },
-    errorText: {
-      textAlign: "center" as const,
-      color: theme.colors.error,
-      padding: theme.spacing.lg,
-    },
-  }));
+  // const styles = useThemedStyles((theme: Theme) => ({
+  //   container: {
+  //     flex: 1,
+  //     backgroundColor: theme.colors.background,
+  //   },
+  //   content: {
+  //     padding: theme.spacing.lg,
+  //   },
+  //   header: {
+  //     marginBottom: theme.spacing.xl,
+  //   },
+  //   title: {
+  //     fontSize: theme.typography.title.fontSize,
+  //     fontWeight: theme.typography.title.fontWeight,
+  //     color: theme.colors.text,
+  //     marginBottom: theme.spacing.sm,
+  //   },
+  //   subtitle: {
+  //     fontSize: theme.typography.body2.fontSize,
+  //     color: theme.colors.textSecondary,
+  //   },
+  //   periodSelector: {
+  //     flexDirection: "row" as const,
+  //     backgroundColor: theme.colors.surface,
+  //     borderRadius: theme.borderRadius.lg,
+  //     padding: theme.spacing.xs,
+  //     marginBottom: theme.spacing.xl,
+  //   },
+  //   periodButton: {
+  //     flex: 1,
+  //     paddingVertical: theme.spacing.sm,
+  //     paddingHorizontal: theme.spacing.md,
+  //     borderRadius: theme.borderRadius.md,
+  //     alignItems: "center" as const,
+  //   },
+  //   periodButtonActive: {
+  //     backgroundColor: theme.colors.primary,
+  //   },
+  //   periodText: {
+  //     fontSize: theme.typography.body2.fontSize,
+  //     color: theme.colors.textSecondary,
+  //     fontWeight: "500" as const,
+  //   },
+  //   periodTextActive: {
+  //     color: theme.colors.white,
+  //     fontWeight: "600" as const,
+  //   },
+  //   summaryGrid: {
+  //     flexDirection: "row" as const,
+  //     flexWrap: "wrap" as const,
+  //     gap: theme.spacing.md,
+  //     marginBottom: theme.spacing.xl,
+  //   },
+  //   summaryCard: {
+  //     flex: 1,
+  //     minWidth: "45%" as DimensionValue,
+  //     backgroundColor: theme.colors.surface,
+  //     padding: theme.spacing.lg,
+  //     borderRadius: theme.borderRadius.lg,
+  //     alignItems: "center" as const,
+  //   },
+  //   summaryValue: {
+  //     fontSize: theme.typography.h3.fontSize,
+  //     fontWeight: theme.typography.h3.fontWeight,
+  //     color: theme.colors.primary,
+  //     marginBottom: theme.spacing.xs,
+  //   },
+  //   summaryLabel: {
+  //     fontSize: theme.typography.caption.fontSize,
+  //     color: theme.colors.textSecondary,
+  //     textAlign: "center" as const,
+  //   },
+  //   sectionGrid: {
+  //     flexDirection: "row" as const,
+  //     flexWrap: "wrap" as const,
+  //     gap: theme.spacing.md,
+  //   },
+  //   sectionCard: {
+  //     flex: 1,
+  //     minWidth: "45%" as DimensionValue,
+  //     backgroundColor: theme.colors.surface,
+  //     padding: theme.spacing.lg,
+  //     borderRadius: theme.borderRadius.lg,
+  //     alignItems: "center" as const,
+  //   },
+  //   sectionIcon: {
+  //     fontSize: 32,
+  //     marginBottom: theme.spacing.sm,
+  //   },
+  //   sectionTitle: {
+  //     fontSize: theme.typography.body1.fontSize,
+  //     fontWeight: "600" as const,
+  //     color: theme.colors.text,
+  //     marginBottom: theme.spacing.xs,
+  //   },
+  //   sectionDescription: {
+  //     fontSize: theme.typography.caption.fontSize,
+  //     color: theme.colors.textSecondary,
+  //     textAlign: "center" as const,
+  //   },
+  //   emptyState: {
+  //     alignItems: "center" as const,
+  //     justifyContent: "center" as const,
+  //     padding: theme.spacing.xxl,
+  //   },
+  //   emptyText: {
+  //     fontSize: theme.typography.body1.fontSize,
+  //     color: theme.colors.textSecondary,
+  //     textAlign: "center" as const,
+  //     marginBottom: theme.spacing.lg,
+  //   },
+  //   loadingText: {
+  //     textAlign: "center" as const,
+  //     color: theme.colors.textSecondary,
+  //     padding: theme.spacing.lg,
+  //   },
+  //   errorText: {
+  //     textAlign: "center" as const,
+  //     color: theme.colors.error,
+  //     padding: theme.spacing.lg,
+  //   },
+  // }));
 
   const periods = [
     { key: "day" as const, label: "일간" },
@@ -209,14 +206,14 @@ export default function AnalyticsScreen() {
 
   if (!activeChild) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-background">
         <Stack.Screen
           options={{
             title: "분석",
           }}
         />
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>
+        <View className="items-center justify-center">
+          <Text className="text-sm text-text-secondary">
             아이를 선택해주세요.{"\n"}분석 데이터를 확인하려면 활성 아이가
             필요합니다.
           </Text>
@@ -232,27 +229,29 @@ export default function AnalyticsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-background">
         <Stack.Screen
           options={{
             title: "분석",
           }}
         />
-        <Text style={styles.loadingText}>분석 데이터를 불러오는 중...</Text>
+        <Text className="text-sm text-text-secondary">
+          분석 데이터를 불러오는 중...
+        </Text>
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-background">
         <Stack.Screen
           options={{
             title: "분석",
           }}
         />
-        <View style={styles.emptyState}>
-          <Text style={styles.errorText}>
+        <View className="items-center justify-center">
+          <Text className="text-sm text-text-secondary">
             분석 데이터를 불러오는 중 오류가 발생했습니다.
           </Text>
           <Button title="다시 시도" onPress={() => refetch()} />
@@ -262,7 +261,7 @@ export default function AnalyticsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
       <Stack.Screen
         options={{
           title: "분석",
@@ -270,36 +269,38 @@ export default function AnalyticsScreen() {
       />
 
       <ScrollView
-        style={styles.content}
+        className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
         }
       >
         {/* 헤더 */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{activeChild.name}의 활동 분석</Text>
-          <Text style={styles.subtitle}>
+        <View className="mb-4">
+          <Text className="text-2xl font-bold">
+            {activeChild.name}의 활동 분석
+          </Text>
+          <Text className="text-sm text-text-secondary">
             패턴을 분석하여 더 나은 육아를 도와드립니다
           </Text>
         </View>
 
         {/* 기간 선택 */}
-        <View style={styles.periodSelector}>
+        <View className="mb-4">
           {periods.map((period) => (
             <TouchableOpacity
               key={period.key}
-              style={[
-                styles.periodButton,
-                selectedPeriod === period.key && styles.periodButtonActive,
-              ]}
+              className={`flex-1 p-2 rounded-lg ${
+                selectedPeriod === period.key ? "bg-primary" : "bg-background"
+              }`}
               onPress={() => setSelectedPeriod(period.key)}
             >
               <Text
-                style={[
-                  styles.periodText,
-                  selectedPeriod === period.key && styles.periodTextActive,
-                ]}
+                className={`text-sm ${
+                  selectedPeriod === period.key
+                    ? "text-white"
+                    : "text-text-secondary"
+                }`}
               >
                 {period.label}
               </Text>
@@ -309,55 +310,57 @@ export default function AnalyticsScreen() {
 
         {/* 요약 카드 */}
         {analytics && (
-          <View style={styles.summaryGrid}>
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>
+          <View className="flex-row flex-wrap gap-4 mb-4">
+            <View className="flex-1 bg-surface rounded-lg p-4 items-center">
+              <Text className="text-2xl font-bold">
                 {analytics.activitySummary?.totalActivities || 0}
               </Text>
-              <Text style={styles.summaryLabel}>총 활동 기록</Text>
+              <Text className="text-sm text-text-secondary">총 활동 기록</Text>
             </View>
 
             {analytics.feedingPattern && (
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>
+              <View className="flex-1 bg-surface rounded-lg p-4 items-center">
+                <Text className="text-2xl font-bold">
                   {analytics.feedingPattern.totalFeedings}
                 </Text>
-                <Text style={styles.summaryLabel}>수유 횟수</Text>
+                <Text className="text-sm text-text-secondary">수유 횟수</Text>
               </View>
             )}
 
             {analytics.sleepPattern && (
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>
+              <View className="flex-1 bg-surface rounded-lg p-4 items-center">
+                <Text className="text-2xl font-bold">
                   {Math.round(analytics.sleepPattern.averageSleepPerDay / 60)}h
                 </Text>
-                <Text style={styles.summaryLabel}>평균 수면시간</Text>
+                <Text className="text-sm text-text-secondary">
+                  평균 수면시간
+                </Text>
               </View>
             )}
 
             {analytics.diaperPattern && (
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>
+              <View className="flex-1 bg-surface rounded-lg p-4 items-center">
+                <Text className="text-2xl font-bold">
                   {analytics.diaperPattern.totalChanges}
                 </Text>
-                <Text style={styles.summaryLabel}>기저귀 교체</Text>
+                <Text className="text-sm text-text-secondary">기저귀 교체</Text>
               </View>
             )}
           </View>
         )}
 
         {/* 섹션 그리드 */}
-        <View style={styles.sectionGrid}>
+        <View className="flex-row flex-wrap gap-4 mb-4">
           {sections.map((section) => (
             <TouchableOpacity
               key={section.key}
-              style={styles.sectionCard}
+              className="flex-1 bg-surface rounded-lg p-4 items-center"
               onPress={() => handleSectionPress(section.route)}
               activeOpacity={0.7}
             >
-              <Text style={styles.sectionIcon}>{section.icon}</Text>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
-              <Text style={styles.sectionDescription}>
+              <Text className="text-2xl">{section.icon}</Text>
+              <Text className="text-lg font-bold">{section.title}</Text>
+              <Text className="text-sm text-text-secondary">
                 {section.description}
               </Text>
             </TouchableOpacity>

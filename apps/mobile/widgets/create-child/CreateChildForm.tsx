@@ -181,7 +181,7 @@ export const CreateChildForm = ({
                     title="남아"
                     variant={value === GENDERS.MALE ? "primary" : "outline"}
                     size="small"
-                    buttonStyle={styles.genderButton}
+                    className="flex-1 mx-1"
                     onPress={() => onChange(GENDERS.MALE)}
                     loading={isLoading}
                   />
@@ -189,7 +189,7 @@ export const CreateChildForm = ({
                     title="여아"
                     variant={value === GENDERS.FEMALE ? "primary" : "outline"}
                     size="small"
-                    buttonStyle={styles.genderButton}
+                    className="flex-1 mx-1"
                     onPress={() => onChange(GENDERS.FEMALE)}
                     loading={isLoading}
                   />

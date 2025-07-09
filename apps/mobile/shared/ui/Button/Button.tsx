@@ -1,14 +1,13 @@
-import type { TextStyle, TouchableOpacityProps, ViewStyle } from "react-native";
+import type { TouchableOpacityProps } from "react-native";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { BUTTON_HEIGHT } from "../../config/theme";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
+import { cn } from "../../lib/utils/cn";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
   variant?: "primary" | "secondary" | "outline";
   size?: "small" | "medium" | "large";
-  buttonStyle?: ViewStyle;
-  textStyle?: TextStyle;
+  className?: string;
+  textClassName?: string;
   loading?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -18,81 +17,61 @@ export default function Button({
   title,
   variant = "primary",
   size = "medium",
-  buttonStyle,
-  textStyle,
+  className,
+  textClassName,
   loading = false,
   disabled,
   accessibilityLabel,
   accessibilityHint,
   ...props
 }: ButtonProps) {
-  const styles = useThemedStyles((theme) => ({
-    button: {
-      borderRadius: theme.borderRadius.md,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      height: BUTTON_HEIGHT,
-    },
-    primary: {
-      backgroundColor: theme.colors.primary,
-    },
-    secondary: {
-      backgroundColor: theme.colors.secondary,
-    },
-    outline: {
-      backgroundColor: "transparent",
-      borderWidth: 1,
-      borderColor: theme.colors.primary,
-    },
-    small: {
-      paddingHorizontal: theme.spacing.md,
-      height: 36,
-    },
-    medium: {
-      paddingHorizontal: theme.spacing.lg,
-      height: BUTTON_HEIGHT,
-    },
-    large: {
-      paddingHorizontal: theme.spacing.xl,
-      height: 56,
-    },
-    text: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-    },
-    primaryText: {
-      color: theme.colors.surface,
-    },
-    secondaryText: {
-      color: theme.colors.surface,
-    },
-    outlineText: {
-      color: theme.colors.primary,
-    },
-    disabled: {
-      opacity: 0.6,
-    },
-    loadingContainer: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-    },
-    loadingText: {
-      marginLeft: theme.spacing.sm,
-    },
-  }));
-
   const isDisabled = disabled || loading;
+
+  const getButtonClasses = () => {
+    const baseClasses = "rounded-lg justify-center items-center";
+    
+    const variantClasses = {
+      primary: "bg-primary",
+      secondary: "bg-secondary", 
+      outline: "bg-transparent border border-primary",
+    };
+    
+    const sizeClasses = {
+      small: "px-md h-9",
+      medium: "px-lg h-12",
+      large: "px-xl h-14",
+    };
+    
+    const disabledClasses = isDisabled ? "opacity-60" : "";
+    
+    return cn(
+      baseClasses,
+      variantClasses[variant],
+      sizeClasses[size],
+      disabledClasses,
+      className
+    );
+  };
+
+  const getTextClasses = () => {
+    const baseClasses = "text-base font-semibold";
+    
+    const variantTextClasses = {
+      primary: "text-white",
+      secondary: "text-white",
+      outline: "text-primary",
+    };
+    
+    return cn(
+      baseClasses,
+      variantTextClasses[variant],
+      textClassName
+    );
+  };
 
   return (
     <TouchableOpacity
-      style={[
-        styles.button,
-        styles[variant],
-        styles[size],
-        isDisabled && styles.disabled,
-        buttonStyle,
-      ]}
+      className={getButtonClasses()}
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
@@ -104,24 +83,17 @@ export default function Button({
       {...props}
     >
       {loading ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-row items-center justify-center">
           <ActivityIndicator
             size="small"
             color={variant === "outline" ? "#007AFF" : "#FFFFFF"}
           />
-          <Text
-            style={[
-              styles.text,
-              styles[`${variant}Text`],
-              styles.loadingText,
-              textStyle,
-            ]}
-          >
+          <Text className={cn(getTextClasses(), "ml-sm")}>
             {title}
           </Text>
         </View>
       ) : (
-        <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
+        <Text className={getTextClasses()}>
           {title}
         </Text>
       )}

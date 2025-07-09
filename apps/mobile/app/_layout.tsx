@@ -82,11 +82,34 @@ export default function RootLayout() {
     console.log("[RootLayout] user", user);
   }, [user]);
 
-  // 현재 라우터 경로 출력
+  // 현재 라우터 경로 출력 및 잘못된 경로 리디렉션
   useEffect(() => {
     console.log("[RootLayout] Current pathname:", pathname);
     console.log("[RootLayout] Current segments:", segments);
-  }, [pathname, segments]);
+
+    // 초기화가 완료되고 폰트가 로드된 후에만 리디렉션 수행
+    if (!loaded || !isInitialized) {
+      return;
+    }
+
+    // +not-found 페이지에서 kakao 관련 경로인 경우에만 리디렉션
+    // (실제 /auth/kakao/callback 페이지가 있으므로 더 이상 필요 없지만, 다른 잘못된 경로를 위해 유지)
+    if (segments.includes("+not-found") && pathname.includes("auth/kakao")) {
+      console.log("[RootLayout] Redirecting from not-found kakao path");
+      
+      // setTimeout을 사용하여 다음 렌더링 사이클에서 실행
+      setTimeout(() => {
+        // 사용자가 로그인되어 있는지 확인 후 적절한 페이지로 리디렉션
+        if (user) {
+          // 로그인된 상태라면 홈으로
+          router.replace("/(tabs)/");
+        } else {
+          // 로그인되지 않은 상태라면 로그인 페이지로
+          router.replace("/(auth)/sign-in");
+        }
+      }, 0);
+    }
+  }, [pathname, segments, user, loaded, isInitialized]);
 
   useNotificationObserver();
 

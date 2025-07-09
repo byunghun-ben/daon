@@ -2,11 +2,11 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import React, { useState } from "react";
 import {
   Platform,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { cn } from "../../../shared/lib/utils/cn";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -32,10 +32,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const canSend = message.trim().length > 0 && !disabled;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
+    <View className="px-4 py-3 bg-white border-t border-gray-200">
+      <View className="flex-row items-end bg-gray-100 rounded-3xl px-4 py-2 min-h-[40px]">
         <TextInput
-          style={styles.textInput}
+          className={cn(
+            "flex-1 text-base leading-5 text-black max-h-[100px] mr-2",
+            Platform.OS === "ios" ? "pt-2 pb-2" : "pt-1 pb-1"
+          )}
           value={message}
           onChangeText={setMessage}
           placeholder={placeholder}
@@ -48,7 +51,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           blurOnSubmit={false}
         />
         <TouchableOpacity
-          style={[styles.sendButton, canSend && styles.sendButtonActive]}
+          className={cn(
+            "w-8 h-8 rounded-2xl items-center justify-center mb-0.5",
+            canSend ? "bg-blue-500" : "bg-gray-400"
+          )}
           onPress={handleSend}
           disabled={!canSend}
         >
@@ -63,51 +69,3 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-  },
-  inputContainer: {
-    flexDirection: "row" as const,
-    alignItems: "flex-end" as const,
-    backgroundColor: "#F2F2F7",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minHeight: 40,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 20,
-    color: "#000000",
-    maxHeight: 100,
-    marginRight: 8,
-    ...Platform.select({
-      ios: {
-        paddingTop: 8,
-        paddingBottom: 8,
-      },
-      android: {
-        paddingTop: 4,
-        paddingBottom: 4,
-      },
-    }),
-  },
-  sendButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#CCCCCC",
-    alignItems: "center" as const,
-    justifyContent: "center" as const,
-    marginBottom: 2,
-  },
-  sendButtonActive: {
-    backgroundColor: "#007AFF",
-  },
-});

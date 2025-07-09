@@ -4,15 +4,12 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import { DiaryEntryCard } from "../../entities";
 import { useDiaryEntries } from "../../shared/api/diary/hooks";
-import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
 
@@ -29,111 +26,18 @@ export default function DiaryScreen() {
     activeChild ? { childId: activeChild.id, limit: 20, offset: 0 } : undefined,
   );
 
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-      },
-      header: {
-        padding: SCREEN_PADDING,
-        paddingBottom: theme.spacing.md,
-      },
-      title: {
-        fontSize: theme.typography.title.fontSize,
-        fontWeight: theme.typography.title.fontWeight,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.sm,
-      },
-      subtitle: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      content: {
-        flex: 1,
-        padding: SCREEN_PADDING,
-      },
-      emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        padding: theme.spacing.xxl,
-      },
-      emptyText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.textSecondary,
-        textAlign: "center",
-        marginBottom: theme.spacing.lg,
-      },
-      diaryItem: {
-        marginBottom: theme.spacing.md,
-      },
-      diaryHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        marginBottom: theme.spacing.sm,
-      },
-      diaryDate: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-        fontWeight: "600",
-      },
-      diaryContent: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.text,
-        lineHeight: theme.typography.body1.lineHeight,
-        marginBottom: theme.spacing.sm,
-      },
-      diaryPhotos: {
-        flexDirection: "row",
-        gap: theme.spacing.xs,
-        marginBottom: theme.spacing.sm,
-      },
-      diaryPhoto: {
-        width: 60,
-        height: 60,
-        borderRadius: theme.borderRadius.sm,
-      },
-      photoCount: {
-        fontSize: theme.typography.caption.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      milestoneTag: {
-        backgroundColor: `${theme.colors.primary}20`,
-        paddingHorizontal: theme.spacing.sm,
-        paddingVertical: theme.spacing.xs,
-        borderRadius: theme.borderRadius.sm,
-        alignSelf: "flex-start",
-      },
-      milestoneText: {
-        fontSize: theme.typography.caption.fontSize,
-        color: theme.colors.primary,
-        fontWeight: "600",
-      },
-      loadingText: {
-        textAlign: "center",
-        color: theme.colors.textSecondary,
-        padding: theme.spacing.lg,
-      },
-      errorText: {
-        textAlign: "center",
-        color: theme.colors.error,
-        padding: theme.spacing.lg,
-      },
-    }),
-  );
 
   if (!activeChild) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 일기</Text>
-          <Text style={styles.subtitle}>아이를 먼저 등록해주세요</Text>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+          <Text className="text-sm text-muted-foreground">아이를 먼저 등록해주세요</Text>
         </View>
-        <View style={styles.content}>
+        <View className="flex-1 p-4">
           <Card>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
+            <View className="items-center justify-center p-8">
+              <Text className="text-base text-muted-foreground text-center mb-6">
                 등록된 아이가 없습니다.{"\n"}
                 먼저 아이를 등록해주세요.
               </Text>
@@ -161,28 +65,28 @@ export default function DiaryScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 일기</Text>
-          <Text style={styles.subtitle}>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+          <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 소중한 순간들을 기록해보세요
           </Text>
         </View>
-        <Text style={styles.loadingText}>일기를 불러오는 중...</Text>
+        <Text className="text-center text-muted-foreground p-6">일기를 불러오는 중...</Text>
       </SafeAreaView>
     );
   }
 
   if (isError) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 일기</Text>
-          <Text style={styles.subtitle}>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+          <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 소중한 순간들을 기록해보세요
           </Text>
         </View>
-        <Text style={styles.errorText}>
+        <Text className="text-center text-destructive p-6">
           일기를 불러오는 중 오류가 발생했습니다.
         </Text>
         <Button title="다시 시도" onPress={() => refetch()} variant="primary" />
@@ -193,19 +97,19 @@ export default function DiaryScreen() {
   const diaryEntries = diaryData?.diaryEntries || [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>성장 일기</Text>
-        <Text style={styles.subtitle}>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="p-4 pb-4">
+        <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+        <Text className="text-sm text-muted-foreground">
           {activeChild?.name}의 소중한 순간들을 기록해보세요
         </Text>
       </View>
 
       {diaryEntries.length === 0 ? (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
           <Card>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
+            <View className="items-center justify-center p-8">
+              <Text className="text-base text-muted-foreground text-center mb-6">
                 아직 작성된 일기가 없습니다.{"\n"}첫 번째 일기를 작성해보세요!
               </Text>
               <Button
@@ -218,7 +122,7 @@ export default function DiaryScreen() {
         </ScrollView>
       ) : (
         <ScrollView
-          style={styles.content}
+          className="flex-1 p-4"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={isLoading} onRefresh={refetch} />
@@ -226,7 +130,7 @@ export default function DiaryScreen() {
         >
           {diaryEntries.map(renderDiaryItem)}
 
-          <View style={{ marginTop: SCREEN_PADDING }}>
+          <View className="mt-4">
             <Button
               title="새 일기 작성"
               onPress={() => router.push("/diary/new")}

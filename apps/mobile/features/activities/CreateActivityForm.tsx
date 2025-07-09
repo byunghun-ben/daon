@@ -10,15 +10,13 @@ import {
   Alert,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useCreateActivity } from "../../shared/api/hooks/useActivities";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { createFormStyles } from "../../shared/styles/formStyles";
+import { cn } from "../../shared/lib/utils/cn";
 import { Button, Input } from "../../shared/ui";
 
 type ActivityType = "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
@@ -47,79 +45,6 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
     },
   });
 
-  const formStyles = useThemedStyles(createFormStyles);
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      ...formStyles,
-      fieldGroup: {
-        marginBottom: theme.spacing.md,
-      },
-      activityTypeGrid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: theme.spacing.sm,
-      },
-      activityTypeButton: {
-        flex: 1,
-        minWidth: "45%",
-        paddingVertical: theme.spacing.md,
-        paddingHorizontal: theme.spacing.sm,
-        borderRadius: theme.borderRadius.md,
-        borderWidth: 2,
-        borderColor: theme.colors.border,
-        alignItems: "center",
-        backgroundColor: theme.colors.surface,
-      },
-      activeActivityTypeButton: {
-        borderColor: theme.colors.primary,
-        backgroundColor: `${theme.colors.primary}20`,
-      },
-      activityTypeIcon: {
-        fontSize: 24,
-        marginBottom: theme.spacing.xs,
-      },
-      activityTypeText: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.text,
-        textAlign: "center",
-      },
-      activeActivityTypeText: {
-        color: theme.colors.primary,
-        fontWeight: "600",
-      },
-      buttonGroup: {
-        flexDirection: "row",
-        gap: theme.spacing.sm,
-        marginBottom: theme.spacing.md,
-      },
-      optionButton: {
-        flex: 1,
-        paddingVertical: theme.spacing.sm,
-        paddingHorizontal: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        alignItems: "center",
-        backgroundColor: theme.colors.surface,
-      },
-      activeOptionButton: {
-        borderColor: theme.colors.primary,
-        backgroundColor: theme.colors.primary,
-      },
-      optionButtonText: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.text,
-      },
-      activeOptionButtonText: {
-        color: theme.colors.white,
-        fontWeight: "600",
-      },
-      dateText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.text,
-      },
-    }),
-  );
 
   const activityTypes = [
     { key: "feeding", label: "수유", icon: "🍼" },
@@ -181,28 +106,26 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
   const currentTimestamp = form.watch("timestamp");
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
       {/* 활동 유형 선택 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>활동 유형</Text>
-        <View style={styles.activityTypeGrid}>
+      <View className="mb-6 pt-4">
+        <Text className="text-lg font-semibold text-foreground mb-3">활동 유형</Text>
+        <View className="flex-row flex-wrap gap-2">
           {activityTypes.map((activity) => (
             <TouchableOpacity
               key={activity.key}
-              style={[
-                styles.activityTypeButton,
-                selectedActivityType === activity.key &&
-                  styles.activeActivityTypeButton,
-              ]}
+              className={cn(
+                "flex-1 min-w-[45%] py-4 px-3 rounded-lg border-2 border-border items-center bg-surface",
+                selectedActivityType === activity.key && "border-primary bg-primary/10"
+              )}
               onPress={() => handleActivityTypeChange(activity.key)}
             >
-              <Text style={styles.activityTypeIcon}>{activity.icon}</Text>
+              <Text className="text-2xl mb-1">{activity.icon}</Text>
               <Text
-                style={[
-                  styles.activityTypeText,
-                  selectedActivityType === activity.key &&
-                    styles.activeActivityTypeText,
-                ]}
+                className={cn(
+                  "text-sm text-foreground text-center",
+                  selectedActivityType === activity.key && "text-primary font-semibold"
+                )}
               >
                 {activity.label}
               </Text>
@@ -212,20 +135,20 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       </View>
 
       {/* 날짜 및 시간 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>날짜 및 시간</Text>
+      <View className="mb-6">
+        <Text className="text-lg font-semibold text-foreground mb-3">날짜 및 시간</Text>
         <TouchableOpacity
-          style={styles.dateButton}
+          className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateText}>
+          <Text className="text-base text-foreground">
             📅 {formatDateTime(currentTimestamp || new Date().toISOString())}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* 메모 */}
-      <View style={styles.section}>
+      <View className="mb-6">
         <Controller
           control={form.control}
           name="notes"
@@ -249,7 +172,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       </View>
 
       {/* 저장 버튼 */}
-      <View style={styles.submitButton}>
+      <View className="mb-8">
         <Button
           title="활동 저장"
           onPress={form.handleSubmit(handleSubmit)}

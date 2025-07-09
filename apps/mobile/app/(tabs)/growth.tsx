@@ -5,16 +5,14 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { GrowthRecordCard } from "../../entities";
 import { useGrowthRecords } from "../../shared/api/growth/hooks";
-import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import { cn } from "../../shared/lib/utils/cn";
 import { Button } from "../../shared/ui";
 import Card from "../../shared/ui/Card";
 
@@ -34,144 +32,18 @@ export default function GrowthScreen() {
     activeChild ? { childId: activeChild.id, limit: 50, offset: 0 } : undefined,
   );
 
-  const styles = useThemedStyles((theme) =>
-    StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-      },
-      header: {
-        padding: SCREEN_PADDING,
-        paddingBottom: theme.spacing.md,
-      },
-      title: {
-        fontSize: theme.typography.title.fontSize,
-        fontWeight: theme.typography.title.fontWeight,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.sm,
-      },
-      subtitle: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      content: {
-        flex: 1,
-        padding: SCREEN_PADDING,
-      },
-      emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        padding: theme.spacing.xxl,
-      },
-      emptyText: {
-        fontSize: theme.typography.body1.fontSize,
-        color: theme.colors.textSecondary,
-        textAlign: "center",
-        marginBottom: theme.spacing.lg,
-      },
-      metricTabs: {
-        flexDirection: "row",
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.md,
-        padding: theme.spacing.xs,
-        marginBottom: theme.spacing.lg,
-      },
-      metricTab: {
-        flex: 1,
-        paddingVertical: theme.spacing.sm,
-        paddingHorizontal: theme.spacing.md,
-        borderRadius: theme.borderRadius.sm,
-        alignItems: "center",
-      },
-      activeMetricTab: {
-        backgroundColor: theme.colors.primary,
-      },
-      metricTabText: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-        fontWeight: "500",
-      },
-      activeMetricTabText: {
-        color: theme.colors.white,
-      },
-      chartContainer: {
-        marginBottom: theme.spacing.lg,
-      },
-      chartTitle: {
-        fontSize: theme.typography.subtitle.fontSize,
-        fontWeight: theme.typography.subtitle.fontWeight,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.md,
-        textAlign: "center",
-      },
-      recordsList: {
-        marginBottom: theme.spacing.lg,
-      },
-      recordItem: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingVertical: theme.spacing.md,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-      },
-      recordDate: {
-        fontSize: theme.typography.body2.fontSize,
-        color: theme.colors.textSecondary,
-      },
-      recordValue: {
-        fontSize: theme.typography.body1.fontSize,
-        fontWeight: "600",
-        color: theme.colors.text,
-      },
-      latestRecord: {
-        backgroundColor: `${theme.colors.primary}10`,
-        paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.lg,
-        borderRadius: theme.borderRadius.md,
-        marginBottom: theme.spacing.lg,
-      },
-      latestRecordTitle: {
-        fontSize: theme.typography.subtitle.fontSize,
-        fontWeight: theme.typography.subtitle.fontWeight,
-        color: theme.colors.primary,
-        marginBottom: theme.spacing.sm,
-      },
-      latestRecordValue: {
-        fontSize: theme.typography.title.fontSize,
-        fontWeight: theme.typography.title.fontWeight,
-        color: theme.colors.text,
-      },
-      noDataText: {
-        textAlign: "center",
-        color: theme.colors.textSecondary,
-        padding: theme.spacing.lg,
-        fontStyle: "italic",
-      },
-      loadingText: {
-        textAlign: "center",
-        color: theme.colors.textSecondary,
-        padding: theme.spacing.lg,
-      },
-      errorText: {
-        textAlign: "center",
-        color: theme.colors.error,
-        padding: theme.spacing.lg,
-      },
-    }),
-  );
 
   if (!activeChild) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 기록</Text>
-          <Text style={styles.subtitle}>아이를 먼저 등록해주세요</Text>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+          <Text className="text-sm text-muted-foreground">아이를 먼저 등록해주세요</Text>
         </View>
-        <View style={styles.content}>
+        <View className="flex-1 p-4">
           <Card>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
+            <View className="items-center justify-center p-8">
+              <Text className="text-base text-muted-foreground text-center mb-6">
                 등록된 아이가 없습니다.{"\n"}
                 먼저 아이를 등록해주세요.
               </Text>
@@ -217,21 +89,21 @@ export default function GrowthScreen() {
   };
 
   const renderMetricTabs = () => (
-    <View style={styles.metricTabs}>
+    <View className="flex-row bg-surface rounded-lg p-1 mb-6">
       {metrics.map((metric) => (
         <TouchableOpacity
           key={metric.key}
-          style={[
-            styles.metricTab,
-            selectedMetric === metric.key && styles.activeMetricTab,
-          ]}
+          className={cn(
+            "flex-1 py-2 px-4 rounded items-center",
+            selectedMetric === metric.key && "bg-primary"
+          )}
           onPress={() => setSelectedMetric(metric.key)}
         >
           <Text
-            style={[
-              styles.metricTabText,
-              selectedMetric === metric.key && styles.activeMetricTabText,
-            ]}
+            className={cn(
+              "text-sm text-muted-foreground font-medium",
+              selectedMetric === metric.key && "text-white"
+            )}
           >
             {metric.icon} {metric.label}
           </Text>
@@ -247,7 +119,7 @@ export default function GrowthScreen() {
     if (records.length === 0) {
       return (
         <Card>
-          <Text style={styles.noDataText}>
+          <Text className="text-center text-muted-foreground p-6 italic">
             {currentMetric.label} 데이터가 없습니다
           </Text>
         </Card>
@@ -257,16 +129,16 @@ export default function GrowthScreen() {
     // 간단한 차트 대신 데이터 포인트 표시
     return (
       <Card>
-        <Text style={styles.chartTitle}>
+        <Text className="text-base font-semibold text-foreground mb-4 text-center">
           {currentMetric.icon} {currentMetric.label} 변화
         </Text>
-        <View style={styles.recordsList}>
+        <View className="mb-6">
           {records.slice(-10).map((record: GrowthRecordApi, _index: number) => (
-            <View key={record.id} style={styles.recordItem}>
-              <Text style={styles.recordDate}>
+            <View key={record.id} className="flex-row justify-between items-center py-4 border-b border-border">
+              <Text className="text-sm text-muted-foreground">
                 {formatFullDate(record.recordedAt)}
               </Text>
-              <Text style={styles.recordValue}>
+              <Text className="text-base font-semibold text-foreground">
                 {record[selectedMetric]} {currentMetric.unit}
               </Text>
             </View>
@@ -283,12 +155,12 @@ export default function GrowthScreen() {
     if (!latestRecord) return null;
 
     return (
-      <View style={styles.latestRecord}>
-        <Text style={styles.latestRecordTitle}>최근 {currentMetric.label}</Text>
-        <Text style={styles.latestRecordValue}>
+      <View className="bg-primary/10 px-4 py-6 rounded-lg mb-6">
+        <Text className="text-base font-semibold text-primary mb-2">최근 {currentMetric.label}</Text>
+        <Text className="text-2xl font-bold text-foreground">
           {latestRecord[selectedMetric]} {currentMetric.unit}
         </Text>
-        <Text style={styles.recordDate}>
+        <Text className="text-sm text-muted-foreground">
           {formatFullDate(latestRecord.recordedAt)}
         </Text>
       </View>
@@ -297,28 +169,28 @@ export default function GrowthScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 기록</Text>
-          <Text style={styles.subtitle}>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+          <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 성장 과정을 확인해보세요
           </Text>
         </View>
-        <Text style={styles.loadingText}>성장 기록을 불러오는 중...</Text>
+        <Text className="text-center text-muted-foreground p-6">성장 기록을 불러오는 중...</Text>
       </SafeAreaView>
     );
   }
 
   if (isError) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>성장 기록</Text>
-          <Text style={styles.subtitle}>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="p-4 pb-4">
+          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+          <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 성장 과정을 확인해보세요
           </Text>
         </View>
-        <Text style={styles.errorText}>
+        <Text className="text-center text-destructive p-6">
           성장 기록을 불러오는 중 오류가 발생했습니다.
         </Text>
         <Button title="다시 시도" onPress={() => refetch()} variant="primary" />
@@ -329,19 +201,19 @@ export default function GrowthScreen() {
   const growthRecords = growthData?.growthRecords || [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>성장 기록</Text>
-        <Text style={styles.subtitle}>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="p-4 pb-4">
+        <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+        <Text className="text-sm text-muted-foreground">
           {activeChild?.name}의 성장 과정을 확인해보세요
         </Text>
       </View>
 
       {growthRecords.length === 0 ? (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
           <Card>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
+            <View className="items-center justify-center p-8">
+              <Text className="text-base text-muted-foreground text-center mb-6">
                 아직 기록된 성장 데이터가 없습니다.{"\n"}첫 번째 성장 기록을
                 추가해보세요!
               </Text>
@@ -355,7 +227,7 @@ export default function GrowthScreen() {
         </ScrollView>
       ) : (
         <ScrollView
-          style={styles.content}
+          className="flex-1 p-4"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={isLoading} onRefresh={refetch} />
@@ -368,8 +240,8 @@ export default function GrowthScreen() {
           {renderChart()}
 
           {/* All Growth Records */}
-          <View style={styles.recordsList}>
-            <Text style={styles.chartTitle}>모든 성장 기록</Text>
+          <View className="mb-6">
+            <Text className="text-base font-semibold text-foreground mb-4 text-center">모든 성장 기록</Text>
             {growthRecords
               .sort(
                 (a: GrowthRecordApi, b: GrowthRecordApi) =>
@@ -387,7 +259,7 @@ export default function GrowthScreen() {
               ))}
           </View>
 
-          <View style={{ marginTop: SCREEN_PADDING }}>
+          <View className="mt-4">
             <Button
               title="새 성장 기록 추가"
               onPress={() => router.push("/growth/new")}

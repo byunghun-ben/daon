@@ -419,3 +419,47 @@ pnpm submit:android   # Google Play 제출
 ---
 
 **다온(Daon)** - 한국어로 "함께 모이다"라는 뜻 - 공유된 육아 경험을 통해 가족을 하나로 모으는 서비스
+
+---
+
+1. 데이터베이스 스키마
+
+
+    - push_tokens - 사용자별 푸시 토큰 관리
+    - notification_settings - 알림 설정 (카테고리별, 방해금지시간 등)
+    - scheduled_notifications - 예약 알림
+    - notification_history - 알림 이력
+
+2. NotificationService 클래스
+
+
+    - 푸시 토큰 등록/관리
+    - 즉시 알림 발송
+    - 예약 알림 스케줄링
+    - 다국어 템플릿 지원 (한글/영어/일본어)
+    - 방해금지 시간 기능
+
+3. NotificationSchedulerService 클래스
+
+
+    - 크론 작업으로 자동 스케줄링
+    - 수유/수면 리마인더
+    - 일일/주간 요약 알림
+    - 실패한 알림 재시도 로직
+
+4. REST API 엔드포인트
+
+
+    - POST /notifications/tokens - 푸시 토큰 등록
+    - GET/PUT /notifications/settings - 알림 설정 관리
+    - POST /notifications/send - 즉시 알림 발송
+    - POST /notifications/schedule - 알림 예약
+    - GET /notifications/history - 알림 이력
+
+5. 기술 스택
+
+
+    - Expo Server SDK for push notifications
+    - node-cron for scheduling
+    - Supabase for database
+    - TypeScript type safety

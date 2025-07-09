@@ -9,6 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import { generalLimiter } from "@/middleware/rateLimiter.js";
 import apiRoutes from "@/routes/index.js";
+import { notificationScheduler } from "@/services/notification-scheduler.service.js";
 import { logger } from "@/utils/logger.js";
 import cors from "cors";
 import type { Express } from "express";
@@ -107,6 +108,27 @@ app.listen(PORT, () => {
   logger.info(
     `CORS Origin: ${process.env.CORS_ORIGIN ?? "http://localhost:3000"}`,
   );
+
+  // 알림 스케줄러 시작
+  try {
+    notificationScheduler.start();
+    logger.info("Notification scheduler initialized");
+  } catch (error) {
+    logger.error("Failed to start notification scheduler:", error);
+  }
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM received, shutting down gracefully");
+  notificationScheduler.stop();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  logger.info("SIGINT received, shutting down gracefully");
+  notificationScheduler.stop();
+  process.exit(0);
 });
 
 export default app;

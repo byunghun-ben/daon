@@ -307,6 +307,98 @@ export type Database = {
           },
         ]
       }
+      notification_history: {
+        Row: {
+          body: string
+          category: string
+          child_id: string | null
+          created_at: string | null
+          data: Json | null
+          expo_receipt_id: string | null
+          expo_ticket_id: string | null
+          id: string
+          sent_at: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category: string
+          child_id?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expo_receipt_id?: string | null
+          expo_ticket_id?: string | null
+          id?: string
+          sent_at: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          child_id?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expo_receipt_id?: string | null
+          expo_ticket_id?: string | null
+          id?: string
+          sent_at?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_history_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_settings: {
+        Row: {
+          categories: Json | null
+          created_at: string | null
+          enabled: boolean | null
+          frequency: Json | null
+          id: string
+          language: string | null
+          quiet_hours: Json | null
+          timezone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          categories?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: Json | null
+          id?: string
+          language?: string | null
+          quiet_hours?: Json | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          categories?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          frequency?: Json | null
+          id?: string
+          language?: string | null
+          quiet_hours?: Json | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       oauth_states: {
         Row: {
           created_at: string
@@ -327,6 +419,98 @@ export type Database = {
           state?: string
         }
         Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string | null
+          device_id: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_notifications: {
+        Row: {
+          attempts: number | null
+          category: string
+          child_id: string | null
+          created_at: string | null
+          error_message: string | null
+          expo_ticket_id: string | null
+          id: string
+          last_attempt_at: string | null
+          scheduled_at: string
+          status: string | null
+          template_data: Json | null
+          template_key: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number | null
+          category: string
+          child_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          expo_ticket_id?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          scheduled_at: string
+          status?: string | null
+          template_data?: Json | null
+          template_key: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number | null
+          category?: string
+          child_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          expo_ticket_id?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          scheduled_at?: string
+          status?: string | null
+          template_data?: Json | null
+          template_key?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_notifications_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {

@@ -42,6 +42,15 @@ export const aiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiter for API endpoints (moderate restrictions)
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per windowMs
+  message: "Too many API requests, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Create a custom rate limiter with specific options
 export const createRateLimiter = (options: {
   windowMs: number;

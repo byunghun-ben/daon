@@ -19,7 +19,7 @@ export default function Card({
 }: CardProps) {
   return (
     <View
-      className={cn("bg-surface rounded-lg p-xl", className)}
+      className={cn("bg-surface rounded-lg p-4", className)}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       {...props}

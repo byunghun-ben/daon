@@ -110,6 +110,7 @@ apps/mobile/
 - **HTTP 클라이언트**: Axios (인터셉터 기반 인증)
 - **폼 관리**: react-hook-form + Zod validation
 - **UI 시스템**: 커스텀 디자인 시스템 + 테마
+- **바텀시트**: @gorhom/bottom-sheet (제스처 기반)
 - **타입 검증**: Zod 스키마 + TypeScript strict
 - **빌드/배포**: EAS (Expo Application Services)
 

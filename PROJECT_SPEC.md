@@ -358,55 +358,60 @@ interface GrowthRecord {
 Phase 1: 핵심 화면 구현 (우선순위: HIGH)
 
 1. 새 활동 기록 화면 (/record/new)
-
-
-    - 수유, 기저귀, 수면, 배 누워 놀기 등 활동 타입별 폼
-    - 시간 선택기, 메모 입력, 사진 첨부
+   - 수유, 기저귀, 수면, 배 누워 놀기 등 활동 타입별 폼
+   - 시간 선택기, 메모 입력, 사진 첨부
 
 2. 새 일기 작성 화면 (/diary/new)
-
-
-    - 날짜 선택, 내용 작성
-    - 사진/동영상 다중 첨부
-    - 마일스톤 연결 기능
+   - 날짜 선택, 내용 작성
+   - 사진/동영상 다중 첨부
+   - 마일스톤 연결 기능
 
 3. 새 성장 기록 화면 (/growth/new)
-
-
-    - 키, 몸무게, 머리둘레 입력
-    - 차트 연동
+   - 키, 몸무게, 머리둘레 입력
+   - 차트 연동
 
 Phase 2: API 훅 및 데이터 표시 (우선순위: HIGH)
 
 4. API 훅들 구현
-
-
-    - useDiary* 훅들
-    - useGrowth* 훅들
-    - useUpload* 훅들
+   - useDiary\* 훅들
+   - useGrowth\* 훅들
+   - useUpload\* 훅들
 
 5. 데이터 표시 기능
-
-
-    - 일기 탭에서 일기 목록 표시
-    - 성장 탭에서 성장 차트 표시
-    - 활동 상세보기 화면
+   - 일기 탭에서 일기 목록 표시
+   - 성장 탭에서 성장 차트 표시
+   - 활동 상세보기 화면
 
 Phase 3: 아키텍처 개선 (우선순위: MEDIUM)
 
 6. Entities 레이어 구현
-
-
-    - Activity, Child, DiaryEntry, GrowthRecord 엔티티
-    - 비즈니스 로직 캡슐화
+   - Activity, Child, DiaryEntry, GrowthRecord 엔티티
+   - 비즈니스 로직 캡슐화
 
 7. 업로드 플로우 구현
-
-
-    - 이미지/동영상 선택 및 업로드
-    - 프로그레스 표시
+   - 이미지/동영상 선택 및 업로드
+   - 프로그레스 표시
 
 Phase 4: 마무리 작업 (우선순위: LOW)
 
 8. 설정 화면들 완성
 9. 테스트 및 빌드 검증
+
+## 📝 최근 변경사항 (2025-07-09)
+
+### 바텀시트 라이브러리 변경
+
+- 기존 커스텀 바텀시트 구현에서 @gorhom/bottom-sheet 라이브러리로 전환
+- FeedingBottomSheet, DiaperBottomSheet 컴포넌트를 ref 기반으로 리팩토링
+- GestureHandlerRootView와 BottomSheetModalProvider 추가
+- 제스처 기반 인터랙션과 부드러운 애니메이션 지원
+
+### 배럴 패턴 제거
+
+- 모든 index.ts 파일 제거 (번들 크기 증가, 트리 쉐이킹 문제 해결)
+- 직접 파일 import로 변경하여 번들 최적화
+
+### 데이터베이스 마이그레이션
+
+- 새로운 Supabase 인스턴스로 전체 스키마 마이그레이션 완료
+- RLS 정책, 함수, 트리거 모두 적용됨

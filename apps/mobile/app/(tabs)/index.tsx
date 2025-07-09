@@ -6,11 +6,11 @@ import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
 import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
-import QuickActions from "@/widgets/home/QuickActions";
 import RecentActivities from "@/widgets/home/RecentActivities";
 import TodaySummary from "@/widgets/home/TodaySummary";
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
+import { useRef } from "react";
 import {
   Alert,
   RefreshControl,
@@ -19,9 +19,13 @@ import {
   Text,
   View,
 } from "react-native";
+import { FeedingBottomSheet, type FeedingBottomSheetRef } from "@/features/activities/FeedingBottomSheet";
+import { DiaperBottomSheet, type DiaperBottomSheetRef } from "@/features/activities/DiaperBottomSheet";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const feedingBottomSheetRef = useRef<FeedingBottomSheetRef>(null);
+  const diaperBottomSheetRef = useRef<DiaperBottomSheetRef>(null);
 
   // Active child 관리
   const {
@@ -61,6 +65,11 @@ export default function HomeScreen() {
 
   const handleNavigateToActivity = (activity: ActivityApi) => {
     router.push(`/activities/${activity.id}`);
+  };
+
+  const handleActivityComplete = () => {
+    refetchToday();
+    refetchRecent();
   };
 
   // 활성 아이가 없는 경우
@@ -115,13 +124,29 @@ export default function HomeScreen() {
 
         {/* 빠른 기록 */}
         <View className="mb-4">
-          <QuickActions
-            activeChildId={activeChildId}
-            onActivityComplete={() => {
-              refetchToday();
-              refetchRecent();
-            }}
-          />
+          <View className="flex-row justify-between">
+            <Button
+              title="수유 기록"
+              size="small"
+              variant="primary"
+              className="flex-1 mx-1"
+              onPress={() => feedingBottomSheetRef.current?.present()}
+            />
+            <Button
+              title="기저귀 교체"
+              size="small"
+              variant="secondary"
+              className="flex-1 mx-1"
+              onPress={() => diaperBottomSheetRef.current?.present()}
+            />
+            <Button
+              title="수면 기록"
+              size="small"
+              variant="outline"
+              className="flex-1 mx-1"
+              onPress={() => router.push("/(tabs)/record")}
+            />
+          </View>
         </View>
 
         {/* 오늘의 요약 */}
@@ -139,6 +164,16 @@ export default function HomeScreen() {
           />
         </View>
       </ScrollView>
+
+      {/* Bottom Sheets */}
+      <FeedingBottomSheet
+        ref={feedingBottomSheetRef}
+        onComplete={handleActivityComplete}
+      />
+      <DiaperBottomSheet
+        ref={diaperBottomSheetRef}
+        onComplete={handleActivityComplete}
+      />
     </SafeAreaView>
   );
 }

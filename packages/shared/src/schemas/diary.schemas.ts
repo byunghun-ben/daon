@@ -13,7 +13,7 @@ export const MilestoneDbSchema = z.object({
   ]),
   title: z.string().min(1).max(100),
   description: z.string().optional(),
-  achieved_at: z.iso.datetime(),
+  achieved_at: z.iso.datetime({ offset: true }),
 });
 
 export const MilestoneApiSchema = z.object({
@@ -28,7 +28,7 @@ export const MilestoneApiSchema = z.object({
   ]),
   title: z.string().min(1).max(100),
   description: z.string().optional(),
-  achievedAt: z.iso.datetime(),
+  achievedAt: z.iso.datetime({ offset: true }),
 });
 
 export const CreateMilestoneRequestSchema = z.object({
@@ -41,7 +41,7 @@ export const CreateMilestoneRequestSchema = z.object({
   ]),
   title: z.string().min(1).max(100),
   description: z.string().optional(),
-  achievedAt: z.iso.datetime(),
+  achievedAt: z.iso.datetime({ offset: true }),
   childId: z.uuid(),
   diaryEntryId: z.uuid().optional(),
 });
@@ -55,8 +55,8 @@ export const DiaryEntryDbSchema = z.object({
   content: z.string(),
   photos: z.array(z.string()).nullable(), // TEXT[] 타입
   videos: z.array(z.string()).nullable(), // TEXT[] 타입
-  created_at: z.iso.datetime(),
-  updated_at: z.iso.datetime(),
+  created_at: z.iso.datetime({ offset: true }),
+  updated_at: z.iso.datetime({ offset: true }),
 });
 
 export const DiaryEntryApiSchema = z.object({
@@ -67,8 +67,8 @@ export const DiaryEntryApiSchema = z.object({
   content: z.string(),
   photos: z.array(z.string()).nullable(),
   videos: z.array(z.string()).nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
   user: z.object({
     id: z.uuid(),
     name: z.string().nullable(),

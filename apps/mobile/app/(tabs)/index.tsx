@@ -12,9 +12,7 @@ import {
   useRecentActivities,
   useTodayActivities,
 } from "../../shared/api/hooks/useActivities";
-import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button";
 import Card from "../../shared/ui/Card";
 import {
@@ -67,59 +65,23 @@ export default function HomeScreen() {
     router.push(`/activities/${activity.id}`);
   };
 
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    scrollContainer: {
-      flexGrow: 1,
-      padding: SCREEN_PADDING,
-    },
-    header: {
-      marginBottom: theme.spacing.lg,
-    },
-    title: {
-      fontSize: theme.typography.title.fontSize,
-      fontWeight: theme.typography.title.fontWeight,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    subtitle: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    section: {
-      marginBottom: theme.spacing.xl,
-    },
-    emptyState: {
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      padding: theme.spacing.xl,
-    },
-    emptyText: {
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.colors.textSecondary,
-      textAlign: "center" as const,
-      marginBottom: theme.spacing.lg,
-    },
-  }));
-
   // 활성 아이가 없는 경우
   if (!activeChildId || !activeChild) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.header}>
-            <Text style={styles.title}>다온에 오신 것을 환영합니다</Text>
-            <Text style={styles.subtitle}>
+      <SafeAreaView className="flex-1 bg-background">
+        <ScrollView className="flex-1 px-4">
+          <View className="">
+            <Text className="text-2xl font-bold">
+              다온에 오신 것을 환영합니다
+            </Text>
+            <Text className="text-sm text-text-secondary">
               아이의 성장을 기록하기 위해 먼저 아이를 등록해주세요
             </Text>
           </View>
 
           <Card>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
+            <View className="items-center justify-center">
+              <Text className="text-sm text-text-secondary">
                 아직 등록된 아이가 없습니다.{"\n"}첫 번째 아이를 등록해보세요!
               </Text>
               <Button
@@ -135,16 +97,16 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        className="flex-1 px-4"
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
         }
         showsVerticalScrollIndicator={false}
       >
         {/* 아이 선택기 */}
-        <View style={styles.section}>
+        <View className="mb-4">
           <ChildSelector
             onChildChange={() => {
               refetchToday();
@@ -154,7 +116,7 @@ export default function HomeScreen() {
         </View>
 
         {/* 빠른 기록 */}
-        <View style={styles.section}>
+        <View className="mb-4">
           <QuickActions
             activeChildId={activeChildId}
             onActivityComplete={() => {
@@ -165,12 +127,12 @@ export default function HomeScreen() {
         </View>
 
         {/* 오늘의 요약 */}
-        <View style={styles.section}>
+        <View className="mb-4">
           <TodaySummary todayActivities={todayData?.activities || []} />
         </View>
 
         {/* 최근 활동 */}
-        <View style={styles.section}>
+        <View className="mb-4">
           <RecentActivities
             activities={recentData?.activities || []}
             onActivityPress={handleNavigateToActivity}

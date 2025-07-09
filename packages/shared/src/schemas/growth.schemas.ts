@@ -8,10 +8,10 @@ export const GrowthRecordDbSchema = z.object({
   weight: z.number().positive().nullable(), // kg
   height: z.number().positive().nullable(), // cm
   head_circumference: z.number().positive().nullable(), // cm
-  recorded_at: z.iso.datetime(),
+  recorded_at: z.iso.datetime({ offset: true }),
   notes: z.string().nullable(),
-  created_at: z.iso.datetime(),
-  updated_at: z.iso.datetime(),
+  created_at: z.iso.datetime({ offset: true }),
+  updated_at: z.iso.datetime({ offset: true }),
 });
 
 export const GrowthRecordApiSchema = z.object({
@@ -21,10 +21,10 @@ export const GrowthRecordApiSchema = z.object({
   weight: z.number().positive().nullable(), // kg
   height: z.number().positive().nullable(), // cm
   headCircumference: z.number().positive().nullable(), // cm
-  recordedAt: z.iso.datetime(),
+  recordedAt: z.iso.datetime({ offset: true }),
   notes: z.string().nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
   user: z.object({
     id: z.uuid(),
     name: z.string().nullable(),
@@ -39,7 +39,7 @@ export const CreateGrowthRecordRequestSchema = z
     weight: z.number().positive().optional(),
     height: z.number().positive().optional(),
     headCircumference: z.number().positive().optional(),
-    recordedAt: z.iso.datetime(),
+    recordedAt: z.iso.datetime({ offset: true }),
     notes: z.string().optional(),
   })
   .refine((data) => data.weight ?? data.height ?? data.headCircumference, {
@@ -54,8 +54,8 @@ export const UpdateGrowthRecordRequestSchema =
 // Filter schemas
 export const GrowthFiltersSchema = z.object({
   childId: z.uuid().optional(),
-  startDate: z.iso.datetime().optional(),
-  endDate: z.iso.datetime().optional(),
+  startDate: z.iso.datetime({ offset: true }).optional(),
+  endDate: z.iso.datetime({ offset: true }).optional(),
   limit: z.number().positive().max(100).default(50),
   offset: z.number().nonnegative().default(0),
 });
@@ -75,12 +75,12 @@ export const GrowthChartDataSchema = z.object({
   childId: z.uuid(),
   records: z.array(
     z.object({
-      recordedAt: z.iso.datetime(),
+      recordedAt: z.iso.datetime({ offset: true }),
       weight: z.number().positive().optional(),
       height: z.number().positive().optional(),
       headCircumference: z.number().positive().optional(),
       ageInDays: z.number().nonnegative(),
-    })
+    }),
   ),
   whoPercentiles: z.object({
     weight: z
@@ -94,7 +94,7 @@ export const GrowthChartDataSchema = z.object({
           p75: z.number(),
           p90: z.number(),
           p97: z.number(),
-        })
+        }),
       )
       .optional(),
     height: z
@@ -108,7 +108,7 @@ export const GrowthChartDataSchema = z.object({
           p75: z.number(),
           p90: z.number(),
           p97: z.number(),
-        })
+        }),
       )
       .optional(),
     headCircumference: z
@@ -122,7 +122,7 @@ export const GrowthChartDataSchema = z.object({
           p75: z.number(),
           p90: z.number(),
           p97: z.number(),
-        })
+        }),
       )
       .optional(),
   }),

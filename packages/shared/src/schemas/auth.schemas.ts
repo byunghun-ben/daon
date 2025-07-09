@@ -8,8 +8,8 @@ export const UserDbSchema = z.object({
   avatar_url: z.url().nullable(),
   phone: z.string().nullable(),
   registration_status: z.string().default("incomplete"),
-  created_at: z.iso.datetime(),
-  updated_at: z.iso.datetime(),
+  created_at: z.iso.datetime({ offset: true }),
+  updated_at: z.iso.datetime({ offset: true }),
 });
 
 export const UserApiSchema = z.object({
@@ -19,8 +19,8 @@ export const UserApiSchema = z.object({
   avatarUrl: z.url().nullable(),
   phone: z.string().nullable(),
   registrationStatus: z.string().default("incomplete"),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
 });
 
 // Auth request schemas

@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
+import { ZodError } from "zod/v4";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import { kakaoAuthService } from "../../shared/lib/kakao-auth";
 import {
@@ -91,6 +92,11 @@ export const SignInForm = () => {
         );
       }
     } catch (error) {
+      if (error instanceof ZodError) {
+        console.error("유효성 검사 오류:", error);
+        Alert.alert("오류", error.message);
+        return;
+      }
       console.error("카카오톡 로그인 중 오류:", error);
       Alert.alert(
         "오류",

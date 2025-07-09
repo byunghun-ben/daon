@@ -56,22 +56,22 @@ export const CreateDiaperDataRequestSchema = z.object({
 export const SleepDataDbSchema = z.object({
   id: z.uuid(),
   activity_id: z.uuid(),
-  started_at: z.iso.datetime(),
-  ended_at: z.iso.datetime().optional(),
+  started_at: z.iso.datetime({ offset: true }),
+  ended_at: z.iso.datetime({ offset: true }).optional(),
   quality: z.enum(["good", "fair", "poor"]).optional(),
 });
 
 export const SleepDataApiSchema = z.object({
   id: z.uuid(),
   activityId: z.uuid(),
-  startedAt: z.iso.datetime(),
-  endedAt: z.iso.datetime().optional(),
+  startedAt: z.iso.datetime({ offset: true }),
+  endedAt: z.iso.datetime({ offset: true }).optional(),
   quality: z.enum(["good", "fair", "poor"]).optional(),
 });
 
 export const CreateSleepDataRequestSchema = z.object({
-  startedAt: z.iso.datetime(),
-  endedAt: z.iso.datetime().optional(),
+  startedAt: z.iso.datetime({ offset: true }),
+  endedAt: z.iso.datetime({ offset: true }).optional(),
   quality: z.enum(["good", "fair", "poor"]).optional(),
 });
 
@@ -98,11 +98,13 @@ export const ActivityDbSchema = z.object({
   child_id: z.uuid(),
   user_id: z.uuid(),
   type: ActivityTypeSchema,
-  timestamp: z.iso.datetime().default(() => new Date().toISOString()), // timestamp 필드 사용
+  timestamp: z.iso
+    .datetime({ offset: true })
+    .default(() => new Date().toISOString()), // timestamp 필드 사용
   data: z.record(z.string(), z.unknown()), // JSONB 타입으로 활동별 데이터 저장
   notes: z.string().nullable(),
-  created_at: z.iso.datetime(),
-  updated_at: z.iso.datetime(),
+  created_at: z.iso.datetime({ offset: true }),
+  updated_at: z.iso.datetime({ offset: true }),
 });
 
 export const ActivityApiSchema = z.object({
@@ -110,7 +112,7 @@ export const ActivityApiSchema = z.object({
   childId: z.uuid(),
   userId: z.uuid(),
   type: ActivityTypeSchema,
-  timestamp: z.iso.datetime(),
+  timestamp: z.iso.datetime({ offset: true }),
   data: z.union([
     FeedingDataApiSchema,
     DiaperDataApiSchema,
@@ -118,8 +120,8 @@ export const ActivityApiSchema = z.object({
     TummyTimeDataApiSchema,
   ]),
   notes: z.string().nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
   user: z.object({
     id: z.uuid(),
     name: z.string().nullable(),
@@ -131,7 +133,7 @@ export const ActivityApiSchema = z.object({
 export const CreateActivityRequestSchema = z.object({
   childId: z.uuid(),
   type: ActivityTypeSchema,
-  timestamp: z.iso.datetime().optional(), // 기본값은 서버에서 현재 시간
+  timestamp: z.iso.datetime({ offset: true }).optional(), // 기본값은 서버에서 현재 시간
   data: z.union([
     CreateFeedingDataRequestSchema,
     CreateDiaperDataRequestSchema,
@@ -143,7 +145,7 @@ export const CreateActivityRequestSchema = z.object({
 
 export const UpdateActivityRequestSchema = z.object({
   type: ActivityTypeSchema.optional(),
-  timestamp: z.iso.datetime().optional(),
+  timestamp: z.iso.datetime({ offset: true }).optional(),
   data: z.union([
     CreateFeedingDataRequestSchema,
     CreateDiaperDataRequestSchema,
@@ -157,8 +159,8 @@ export const UpdateActivityRequestSchema = z.object({
 export const ActivityFiltersSchema = z.object({
   childId: z.uuid().optional(),
   type: ActivityTypeSchema.optional(),
-  dateFrom: z.iso.datetime().optional(),
-  dateTo: z.iso.datetime().optional(),
+  dateFrom: z.iso.datetime({ offset: true }).optional(),
+  dateTo: z.iso.datetime({ offset: true }).optional(),
   limit: z.coerce.number().positive().max(100).default(20),
   offset: z.coerce.number().nonnegative().default(0),
 });

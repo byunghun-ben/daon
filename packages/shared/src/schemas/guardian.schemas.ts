@@ -6,9 +6,9 @@ export const ChildGuardianDbSchema = z.object({
   child_id: z.uuid(),
   user_id: z.uuid(),
   role: z.enum(["owner", "guardian", "viewer"]).default("guardian"),
-  invited_at: z.iso.datetime(),
-  accepted_at: z.iso.datetime().nullable(),
-  created_at: z.iso.datetime(),
+  invited_at: z.iso.datetime({ offset: true }),
+  accepted_at: z.iso.datetime({ offset: true }).nullable(),
+  created_at: z.iso.datetime({ offset: true }),
 });
 
 export const ChildGuardianApiSchema = z.object({
@@ -16,9 +16,9 @@ export const ChildGuardianApiSchema = z.object({
   childId: z.uuid(),
   userId: z.uuid(),
   role: z.enum(["owner", "guardian", "viewer"]).default("guardian"),
-  invitedAt: z.iso.datetime(),
-  acceptedAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
+  invitedAt: z.iso.datetime({ offset: true }),
+  acceptedAt: z.iso.datetime({ offset: true }).nullable(),
+  createdAt: z.iso.datetime({ offset: true }),
   user: z.object({
     id: z.uuid(),
     name: z.string().nullable(),

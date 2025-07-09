@@ -43,7 +43,7 @@ export const ChatMessageSchema = z.object({
   id: z.string(),
   role: ChatRoleEnum,
   content: z.string(),
-  timestamp: z.iso.datetime(),
+  timestamp: z.iso.datetime({ offset: true }),
 });
 
 // Chat message with metadata
@@ -61,8 +61,8 @@ export const ChatMessageWithMetaSchema = ChatMessageSchema.extend({
 export const ChatConversationSchema = z.object({
   id: z.string(),
   messages: z.array(ChatMessageSchema),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
 });
 
 // API request/response schemas

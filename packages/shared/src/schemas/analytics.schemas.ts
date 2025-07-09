@@ -19,14 +19,14 @@ export const FeedingPatternSchema = z.object({
     z.object({
       hour: z.number().min(0).max(23),
       count: z.number().nonnegative(),
-    })
+    }),
   ),
   feedingsByDay: z.array(
     z.object({
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       count: z.number().nonnegative(),
       totalVolume: z.number().nonnegative().nullable(),
-    })
+    }),
   ),
   breastSideBalance: z
     .object({
@@ -51,7 +51,7 @@ export const SleepPatternSchema = z.object({
     z.object({
       hour: z.number().min(0).max(23),
       sleepingPercentage: z.number().min(0).max(100),
-    })
+    }),
   ),
   sleepByDay: z.array(
     z.object({
@@ -60,7 +60,7 @@ export const SleepPatternSchema = z.object({
       nightSleep: z.number().nonnegative(),
       napTime: z.number().nonnegative(),
       quality: z.enum(["good", "fair", "poor"]).nullable(),
-    })
+    }),
   ),
 });
 
@@ -70,7 +70,7 @@ export const GrowthPatternSchema = z.object({
     weight: z.number().positive().nullable(),
     height: z.number().positive().nullable(),
     headCircumference: z.number().positive().nullable(),
-    recordedAt: z.iso.datetime(),
+    recordedAt: z.iso.datetime({ offset: true }),
     ageInDays: z.number().nonnegative(),
   }),
   growthTrend: z.object({
@@ -103,7 +103,7 @@ export const GrowthPatternSchema = z.object({
       height: z.number().positive().nullable(),
       headCircumference: z.number().positive().nullable(),
       ageInDays: z.number().nonnegative(),
-    })
+    }),
   ),
   whoPercentiles: z.object({
     weight: z
@@ -117,7 +117,7 @@ export const GrowthPatternSchema = z.object({
           p75: z.number(),
           p90: z.number(),
           p97: z.number(),
-        })
+        }),
       )
       .nullable(),
     height: z
@@ -131,7 +131,7 @@ export const GrowthPatternSchema = z.object({
           p75: z.number(),
           p90: z.number(),
           p97: z.number(),
-        })
+        }),
       )
       .nullable(),
   }),
@@ -146,7 +146,7 @@ export const DiaperPatternSchema = z.object({
     z.object({
       hour: z.number().min(0).max(23),
       count: z.number().nonnegative(),
-    })
+    }),
   ),
   changesByDay: z.array(
     z.object({
@@ -154,7 +154,7 @@ export const DiaperPatternSchema = z.object({
       count: z.number().nonnegative(),
       wetCount: z.number().nonnegative(),
       dirtyCount: z.number().nonnegative(),
-    })
+    }),
   ),
 });
 
@@ -167,13 +167,13 @@ export const ActivitySummarySchema = z.object({
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       count: z.number().nonnegative(),
       types: z.record(z.string(), z.number()),
-    })
+    }),
   ),
   mostActiveHours: z.array(
     z.object({
       hour: z.number().min(0).max(23),
       count: z.number().nonnegative(),
-    })
+    }),
   ),
 });
 
@@ -197,7 +197,7 @@ export const AnalyticsResponseSchema = z.object({
   diaperPattern: DiaperPatternSchema.nullable(),
   activitySummary: ActivitySummarySchema,
   insights: z.array(InsightSchema),
-  generatedAt: z.iso.datetime(),
+  generatedAt: z.iso.datetime({ offset: true }),
 });
 
 // Request 스키마
@@ -223,7 +223,7 @@ export const ComparisonAnalyticsSchema = z.object({
         change: z.number(),
         changeType: z.enum(["increase", "decrease"]),
         significance: z.enum(["minor", "moderate", "major"]),
-      })
+      }),
     ),
   }),
 });

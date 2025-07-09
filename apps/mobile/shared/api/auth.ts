@@ -39,7 +39,7 @@ export const authApi = {
   async signUp(data: SignUpRequest): Promise<SignUpResponse> {
     try {
       const response = await apiClient.post("/auth/signup", data);
-      
+
       // Validate response with Zod
       const validatedResponse = AuthResponseSchema.parse(response);
 
@@ -67,7 +67,7 @@ export const authApi = {
       const response = await apiClient.post("/auth/signin", data);
 
       console.log("[authApi] signIn response", response);
-      
+
       // Validate response with Zod
       const validatedResponse = AuthResponseSchema.parse(response);
 
@@ -137,6 +137,7 @@ export const authApi = {
   async getProfile(): Promise<{ user: UserApi }> {
     const response = await apiClient.get("/auth/profile");
     // Validate response with Zod
+    console.log("[authApi] getProfile response", response);
     const validatedResponse = UserResponseSchema.parse(response);
     return validatedResponse;
   },

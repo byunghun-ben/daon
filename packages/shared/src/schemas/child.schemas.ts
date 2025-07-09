@@ -12,8 +12,8 @@ export const ChildDbSchema = z.object({
   birth_height: z.number().positive().nullable(), // DECIMAL(5,2), cm 단위
   owner_id: z.uuid(), // 소유자 ID (NOT NULL)
   invite_code: z.string().nullable(), // 초대 코드
-  created_at: z.iso.datetime(),
-  updated_at: z.iso.datetime(),
+  created_at: z.iso.datetime({ offset: true }),
+  updated_at: z.iso.datetime({ offset: true }),
 });
 
 // API response schema with frontend fields (camelCase)
@@ -27,8 +27,8 @@ export const ChildApiSchema = z.object({
   birthHeight: z.number().positive().nullable(),
   ownerId: z.uuid(),
   inviteCode: z.string().nullable(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
 });
 
 // Request schemas (camelCase for frontend)

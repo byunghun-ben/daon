@@ -68,6 +68,19 @@ export const createChild = createAuthenticatedHandler(async (req, res) => {
       });
     }
 
+    // Update user registration status to completed
+    const { error: statusError } = await supabaseAdmin
+      .from("users")
+      .update({ registration_status: "completed" } as TablesUpdate<"users">)
+      .eq("id", req.user.id);
+
+    if (statusError) {
+      logger.error("Failed to update registration status", {
+        userId: req.user.id,
+        error: statusError,
+      });
+    }
+
     logger.info("Child created successfully", {
       childId: child.id,
       userId: req.user.id,

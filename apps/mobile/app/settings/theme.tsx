@@ -1,3 +1,8 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import type { ThemeMode } from "@/shared/store/theme.store";
+import { useThemeStore } from "@/shared/store/theme.store";
+import Card from "@/shared/ui/Card/Card";
 import { Stack } from "expo-router";
 import {
   SafeAreaView,
@@ -6,11 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { IconSymbol } from "../../components/ui/IconSymbol";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import type { ThemeMode } from "../../shared/store/theme.store";
-import { useThemeStore } from "../../shared/store/theme.store";
-import Card from "../../shared/ui/Card";
 
 export default function ThemeSettingsScreen() {
   const { mode, setMode } = useThemeStore();

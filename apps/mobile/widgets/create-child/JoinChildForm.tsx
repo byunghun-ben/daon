@@ -1,23 +1,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Text, View, TouchableOpacity, ScrollView } from "react-native";
-import { useJoinChild } from "../../shared/api/children";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useJoinChild } from "../../shared/api/children/hooks/useJoinChild";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import {
-  JoinChildFormData,
+  type JoinChildFormData,
   JoinChildFormSchema,
 } from "../../shared/types/forms";
-import Button from "../../shared/ui/Button";
-import Card from "../../shared/ui/Card";
-import Input from "../../shared/ui/Input";
+import Button from "../../shared/ui/Button/Button";
+import Card from "../../shared/ui/Card/Card";
+import Input from "../../shared/ui/Input/Input";
 
 type Role = "guardian" | "viewer";
 
 interface JoinChildFormProps {
-  onSuccess?: (childData: any) => void;
-  onError?: (error: any) => void;
+  onSuccess?: (childData: unknown) => void;
+  onError?: (error: unknown) => void;
   loading?: boolean;
   title?: string;
   subtitle?: string;
@@ -106,7 +106,7 @@ export const JoinChildForm = ({
     },
     roleOptionSelected: {
       borderColor: theme.colors.primary,
-      backgroundColor: theme.colors.primary + "10",
+      backgroundColor: `${theme.colors.primary}10`,
     },
     roleOptionUnselected: {
       borderColor: theme.colors.border,
@@ -158,7 +158,7 @@ export const JoinChildForm = ({
           );
         }
       },
-      onError: (error: any) => {
+      onError: (error) => {
         if (onError) {
           onError(error);
         } else {

@@ -1,3 +1,6 @@
+import { CreateChildForm } from "@/features/children/CreateChildForm";
+import { JoinChildForm } from "@/features/children/JoinChildForm";
+import { useAuthStore } from "@/shared/store/authStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -9,8 +12,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateChildForm, JoinChildForm } from "../../features/children";
-import { useAuthStore } from "../../shared/store";
 
 type TabType = "create" | "join";
 

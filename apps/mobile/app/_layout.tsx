@@ -18,7 +18,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 import { queryClient } from "@/shared/lib/queryClient";
-import { useAuthStore } from "@/shared/store";
+import { useAuthStore } from "@/shared/store/authStore";
 import {
   initializeThemeStore,
   useThemeStore,
@@ -96,7 +96,7 @@ export default function RootLayout() {
     // (실제 /auth/kakao/callback 페이지가 있으므로 더 이상 필요 없지만, 다른 잘못된 경로를 위해 유지)
     if (segments.includes("+not-found") && pathname.includes("auth/kakao")) {
       console.log("[RootLayout] Redirecting from not-found kakao path");
-      
+
       // setTimeout을 사용하여 다음 렌더링 사이클에서 실행
       setTimeout(() => {
         // 사용자가 로그인되어 있는지 확인 후 적절한 페이지로 리디렉션

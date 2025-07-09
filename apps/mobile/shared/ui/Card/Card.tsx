@@ -1,5 +1,6 @@
 import React from "react";
-import { View, ViewProps } from "react-native";
+import type { ViewProps } from "react-native";
+import { View } from "react-native";
 import { cn } from "../../lib/utils/cn";
 
 interface CardProps extends ViewProps {
@@ -9,16 +10,16 @@ interface CardProps extends ViewProps {
   accessibilityHint?: string;
 }
 
-export default function Card({ 
-  children, 
+export default function Card({
+  children,
   className,
   accessibilityLabel,
   accessibilityHint,
-  ...props 
+  ...props
 }: CardProps) {
   return (
-    <View 
-      className={cn("bg-surface rounded-lg p-xl shadow-md", className)}
+    <View
+      className={cn("bg-surface rounded-lg p-xl", className)}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       {...props}
@@ -27,4 +28,3 @@ export default function Card({
     </View>
   );
 }
-

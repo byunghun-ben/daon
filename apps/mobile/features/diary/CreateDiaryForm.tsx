@@ -1,3 +1,8 @@
+import { useCreateDiaryEntry } from "@/shared/api/diary/hooks/useCreateDiaryEntry";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import Button from "@/shared/ui/Button/Button";
+import { ImageUploader } from "@/shared/ui/ImageUploader";
+import Input from "@/shared/ui/Input/Input";
 import {
   CreateDiaryEntryRequestSchema,
   type CreateDiaryEntryRequest,
@@ -16,10 +21,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useCreateDiaryEntry } from "../../shared/api/diary/hooks";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { cn } from "../../shared/lib/utils/cn";
-import { Button, ImageUploader, Input } from "../../shared/ui";
 
 interface CreateDiaryFormProps {
   onSuccess: () => void;
@@ -45,7 +46,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       milestones: [],
     },
   });
-
 
   const handleDateChange = (
     event: DateTimePickerEvent,
@@ -134,7 +134,10 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   const currentDate = form.watch("date");
 
   return (
-    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
+    <ScrollView
+      className="flex-1 bg-background px-4"
+      showsVerticalScrollIndicator={false}
+    >
       {/* 날짜 선택 */}
       <View className="mb-6 pt-4">
         <Text className="text-lg font-semibold text-foreground mb-3">날짜</Text>
@@ -142,7 +145,9 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
           className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}
         >
-          <Text className="text-base text-foreground">📅 {formatDate(currentDate)}</Text>
+          <Text className="text-base text-foreground">
+            📅 {formatDate(currentDate)}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -188,7 +193,9 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       <View className="mb-6">
         <View className="bg-surface p-4 rounded-lg mb-4">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-base font-semibold text-foreground">마일스톤</Text>
+            <Text className="text-base font-semibold text-foreground">
+              마일스톤
+            </Text>
             <TouchableOpacity
               className="py-2 px-4 rounded bg-primary"
               onPress={addMilestone}

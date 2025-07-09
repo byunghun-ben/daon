@@ -1,12 +1,13 @@
-import { useAuthStore } from "@/shared/store";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useAuthStore } from "@/shared/store/authStore";
+import type { SignUpFormSchemaType } from "@/shared/types/auth.forms";
+import { SignUpFormSchema } from "@/shared/types/auth.forms";
+import Button from "@/shared/ui/Button/Button";
+import Input from "@/shared/ui/Input/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import type { SignUpFormSchemaType } from "../../shared/types";
-import { SignUpFormSchema } from "../../shared/types";
-import { Button, Input } from "../../shared/ui";
 
 const normalizePhoneNumber = (value: string) => {
   // 숫자만 추출 (하이픈 등 특수문자 제거)

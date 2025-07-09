@@ -1,19 +1,20 @@
-import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
+import type { NetInfoState } from "@react-native-community/netinfo";
+import NetInfo from "@react-native-community/netinfo";
+import { activitiesApi } from "../../api/activities";
+import { childrenApi } from "../../api/children/api";
+import { diaryApi } from "../../api/diary/api";
+import { growthApi } from "../../api/growth/api";
 import {
-  OfflineStorage,
   OFFLINE_STORAGE_KEYS,
+  OfflineStorage,
   type OfflineItem,
 } from "../storage/offlineStorage";
-import { activitiesApi } from "../../api/activities";
-import { diaryApi } from "../../api/diary";
-import { growthApi } from "../../api/growth";
-import { childrenApi } from "../../api/children";
 
 // Sync manager for handling offline operations
 export class SyncManager {
   private static instance: SyncManager;
   private isSyncing = false;
-  private syncListeners: Array<(isOnline: boolean) => void> = [];
+  private syncListeners: ((isOnline: boolean) => void)[] = [];
 
   static getInstance(): SyncManager {
     if (!SyncManager.instance) {

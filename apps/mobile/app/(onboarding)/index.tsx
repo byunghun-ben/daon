@@ -1,7 +1,7 @@
+import Button from "@/shared/ui/Button/Button";
 import { Stack, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button } from "../../shared/ui";
 
 export default function OnboardingWelcomeScreen() {
   const router = useRouter();

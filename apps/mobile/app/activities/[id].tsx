@@ -1,14 +1,13 @@
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import React from "react";
+import { ActivityCard } from "@/entities/activity/ActivityCard";
+import Button from "@/shared/ui/Button/Button";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ActivityCard } from "../../entities";
 import {
-  useDeleteActivity,
   useActivity,
+  useDeleteActivity,
 } from "../../shared/api/hooks/useActivities";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { Button } from "../../shared/ui";
 
 export default function ActivityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

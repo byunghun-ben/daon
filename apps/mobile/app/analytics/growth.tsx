@@ -1,3 +1,9 @@
+import { useGrowthAnalytics } from "@/shared/api/analytics/hooks";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useActiveChildStore } from "@/shared/store/activeChildStore";
+import Card from "@/shared/ui/Card/Card";
+import { BarChart } from "@/shared/ui/charts/BarChart";
+import { LineChart } from "@/shared/ui/charts/LineChart";
 import { Stack } from "expo-router";
 import { useState } from "react";
 import {
@@ -8,11 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useGrowthAnalytics } from "../../shared/api/analytics/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useActiveChildStore } from "../../shared/store";
-import Card from "../../shared/ui/Card";
-import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "month" | "quarter" | "year";
 
@@ -27,110 +28,112 @@ export default function GrowthAnalyticsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { activeChild } = useActiveChildStore();
 
-  const styles = useThemedStyles((theme) => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    content: {
-      padding: theme.spacing.md,
-    },
-    periodSelector: {
-      flexDirection: "row",
-      backgroundColor: theme.colors.surface,
-      borderRadius: 12,
-      padding: 4,
-      marginBottom: theme.spacing.lg,
-    },
-    periodButton: {
-      flex: 1,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-      alignItems: "center",
-    },
-    periodButtonActive: {
-      backgroundColor: theme.colors.primary,
-    },
-    periodButtonText: {
-      fontSize: 14,
-      fontWeight: "500",
-      color: theme.colors.text,
-    },
-    periodButtonTextActive: {
-      color: theme.colors.onPrimary,
-    },
-    section: {
-      marginBottom: theme.spacing.lg,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: "600",
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    metricCard: {
-      marginBottom: theme.spacing.md,
-    },
-    metricRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: 8,
-    },
-    metricLabel: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-    },
-    metricValue: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: theme.colors.text,
-    },
-    chartContainer: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 16,
-      padding: theme.spacing.md,
-      marginBottom: theme.spacing.md,
-    },
-    chartTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-      textAlign: "center" as const,
-    },
-    loadingText: {
-      textAlign: "center" as const,
-      fontSize: 16,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xl,
-    },
-    errorText: {
-      textAlign: "center" as const,
-      fontSize: 16,
-      color: theme.colors.error,
-      marginTop: theme.spacing.xl,
-    },
-    percentileInfo: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      marginTop: theme.spacing.sm,
-    },
-    percentileItem: {
-      alignItems: "center",
-    },
-    percentileLabel: {
-      fontSize: 12,
-      color: theme.colors.textSecondary,
-      marginBottom: 4,
-    },
-    percentileValue: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: theme.colors.primary,
-    },
-  }));
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+      },
+      content: {
+        padding: theme.spacing.md,
+      },
+      periodSelector: {
+        flexDirection: "row",
+        backgroundColor: theme.colors.surface,
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: theme.spacing.lg,
+      },
+      periodButton: {
+        flex: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        alignItems: "center",
+      },
+      periodButtonActive: {
+        backgroundColor: theme.colors.primary,
+      },
+      periodButtonText: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: theme.colors.text,
+      },
+      periodButtonTextActive: {
+        color: theme.colors.onPrimary,
+      },
+      section: {
+        marginBottom: theme.spacing.lg,
+      },
+      sectionTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: theme.colors.text,
+        marginBottom: theme.spacing.md,
+      },
+      metricCard: {
+        marginBottom: theme.spacing.md,
+      },
+      metricRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 8,
+      },
+      metricLabel: {
+        fontSize: 14,
+        color: theme.colors.textSecondary,
+      },
+      metricValue: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: theme.colors.text,
+      },
+      chartContainer: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: 16,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.md,
+      },
+      chartTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
+        textAlign: "center" as const,
+      },
+      loadingText: {
+        textAlign: "center" as const,
+        fontSize: 16,
+        color: theme.colors.textSecondary,
+        marginTop: theme.spacing.xl,
+      },
+      errorText: {
+        textAlign: "center" as const,
+        fontSize: 16,
+        color: theme.colors.error,
+        marginTop: theme.spacing.xl,
+      },
+      percentileInfo: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginTop: theme.spacing.sm,
+      },
+      percentileItem: {
+        alignItems: "center",
+      },
+      percentileLabel: {
+        fontSize: 12,
+        color: theme.colors.textSecondary,
+        marginBottom: 4,
+      },
+      percentileValue: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: theme.colors.primary,
+      },
+    }),
+  );
 
   const {
     data: analytics,
@@ -142,7 +145,7 @@ export default function GrowthAnalyticsScreen() {
       childId: activeChild?.id || "",
       period: {
         startDate: new Date(
-          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000,
         )
           .toISOString()
           .split("T")[0],
@@ -150,7 +153,7 @@ export default function GrowthAnalyticsScreen() {
         period: selectedPeriod,
       },
     },
-    { enabled: !!activeChild?.id }
+    { enabled: !!activeChild?.id },
   );
 
   function getPeriodDays(period: TimePeriod): number {
@@ -186,10 +189,14 @@ export default function GrowthAnalyticsScreen() {
   // 신장 추이 차트 데이터
   const heightTrendData = {
     labels:
-      growthPattern?.measurementHistory?.map((_, index) => `${index + 1}월`) || [],
+      growthPattern?.measurementHistory?.map((_, index) => `${index + 1}월`) ||
+      [],
     datasets: [
       {
-        data: growthPattern?.measurementHistory?.map((point) => point.height || 0) || [],
+        data:
+          growthPattern?.measurementHistory?.map(
+            (point) => point.height || 0,
+          ) || [],
         color: () => "#FF9800",
         strokeWidth: 3,
       },
@@ -199,10 +206,14 @@ export default function GrowthAnalyticsScreen() {
   // 체중 추이 차트 데이터
   const weightTrendData = {
     labels:
-      growthPattern?.measurementHistory?.map((_, index) => `${index + 1}월`) || [],
+      growthPattern?.measurementHistory?.map((_, index) => `${index + 1}월`) ||
+      [],
     datasets: [
       {
-        data: growthPattern?.measurementHistory?.map((point) => point.weight || 0) || [],
+        data:
+          growthPattern?.measurementHistory?.map(
+            (point) => point.weight || 0,
+          ) || [],
         color: () => "#4CAF50",
         strokeWidth: 3,
       },
@@ -212,14 +223,14 @@ export default function GrowthAnalyticsScreen() {
   // 두위 추이 차트 데이터
   const headCircumferenceTrendData = {
     labels:
-      growthPattern?.measurementHistory?.map(
-        (_, index) => `${index + 1}월`
-      ) || [],
+      growthPattern?.measurementHistory?.map((_, index) => `${index + 1}월`) ||
+      [],
     datasets: [
       {
         data:
-          growthPattern?.measurementHistory?.map((point) => point.headCircumference || 0) ||
-          [],
+          growthPattern?.measurementHistory?.map(
+            (point) => point.headCircumference || 0,
+          ) || [],
         color: () => "#9C27B0",
         strokeWidth: 3,
       },

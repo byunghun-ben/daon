@@ -1,4 +1,7 @@
-import React from "react";
+import { SignInForm } from "@/features/auth/SignInForm";
+import { SCREEN_PADDING } from "@/shared/config/theme";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { Link } from "expo-router";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,10 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { Link } from "expo-router";
-import { SignInForm } from "../../features/auth";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function SignInScreen() {
   const styles = useThemedStyles((theme) => ({

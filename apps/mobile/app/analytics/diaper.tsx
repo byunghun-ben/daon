@@ -1,4 +1,10 @@
+import { useDiaperAnalytics } from "@/shared/api/analytics/hooks";
 import type { Theme } from "@/shared/config/theme";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useActiveChildStore } from "@/shared/store/activeChildStore";
+import Card from "@/shared/ui/Card/Card";
+import { BarChart } from "@/shared/ui/charts/BarChart";
+import { LineChart } from "@/shared/ui/charts/LineChart";
 import { Stack } from "expo-router";
 import { useState } from "react";
 import type { TextStyle, ViewStyle } from "react-native";
@@ -9,11 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDiaperAnalytics } from "../../shared/api/analytics/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useActiveChildStore } from "../../shared/store";
-import Card from "../../shared/ui/Card";
-import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "day" | "week" | "month";
 
@@ -143,7 +144,7 @@ export default function DiaperAnalyticsScreen() {
       childId: activeChild?.id || "",
       period: {
         startDate: new Date(
-          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000,
         )
           .toISOString()
           .split("T")[0],
@@ -151,7 +152,7 @@ export default function DiaperAnalyticsScreen() {
         period: selectedPeriod,
       },
     },
-    { enabled: !!activeChild?.id }
+    { enabled: !!activeChild?.id },
   );
 
   function getPeriodDays(period: TimePeriod): number {
@@ -195,25 +196,25 @@ export default function DiaperAnalyticsScreen() {
                 .filter((h: { hour: number }) => h.hour >= 0 && h.hour < 6)
                 .reduce(
                   (sum: number, h: { count: number }) => sum + h.count,
-                  0
+                  0,
                 ),
               diaperPattern.changesByHour
                 .filter((h: { hour: number }) => h.hour >= 6 && h.hour < 12)
                 .reduce(
                   (sum: number, h: { count: number }) => sum + h.count,
-                  0
+                  0,
                 ),
               diaperPattern.changesByHour
                 .filter((h: { hour: number }) => h.hour >= 12 && h.hour < 18)
                 .reduce(
                   (sum: number, h: { count: number }) => sum + h.count,
-                  0
+                  0,
                 ),
               diaperPattern.changesByHour
                 .filter((h: { hour: number }) => h.hour >= 18 && h.hour < 24)
                 .reduce(
                   (sum: number, h: { count: number }) => sum + h.count,
-                  0
+                  0,
                 ),
             ]
           : [0, 0, 0, 0],

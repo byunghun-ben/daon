@@ -1,3 +1,9 @@
+import { GrowthRecordCard } from "@/entities/growth-record/GrowthRecordCard";
+import { useGrowthRecords } from "@/shared/api/growth/hooks/useGrowthRecords";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import { cn } from "@/shared/lib/utils/cn";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
 import type { GrowthRecordApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -9,12 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { GrowthRecordCard } from "../../entities";
-import { useGrowthRecords } from "../../shared/api/growth/hooks";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { cn } from "../../shared/lib/utils/cn";
-import { Button } from "../../shared/ui";
-import Card from "../../shared/ui/Card";
 
 type MetricType = "weight" | "height" | "headCircumference";
 
@@ -32,13 +32,16 @@ export default function GrowthScreen() {
     activeChild ? { childId: activeChild.id, limit: 50, offset: 0 } : undefined,
   );
 
-
   if (!activeChild) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
-          <Text className="text-sm text-muted-foreground">아이를 먼저 등록해주세요</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 기록
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            아이를 먼저 등록해주세요
+          </Text>
         </View>
         <View className="flex-1 p-4">
           <Card>
@@ -95,14 +98,14 @@ export default function GrowthScreen() {
           key={metric.key}
           className={cn(
             "flex-1 py-2 px-4 rounded items-center",
-            selectedMetric === metric.key && "bg-primary"
+            selectedMetric === metric.key && "bg-primary",
           )}
           onPress={() => setSelectedMetric(metric.key)}
         >
           <Text
             className={cn(
               "text-sm text-muted-foreground font-medium",
-              selectedMetric === metric.key && "text-white"
+              selectedMetric === metric.key && "text-white",
             )}
           >
             {metric.icon} {metric.label}
@@ -134,7 +137,10 @@ export default function GrowthScreen() {
         </Text>
         <View className="mb-6">
           {records.slice(-10).map((record: GrowthRecordApi, _index: number) => (
-            <View key={record.id} className="flex-row justify-between items-center py-4 border-b border-border">
+            <View
+              key={record.id}
+              className="flex-row justify-between items-center py-4 border-b border-border"
+            >
               <Text className="text-sm text-muted-foreground">
                 {formatFullDate(record.recordedAt)}
               </Text>
@@ -156,7 +162,9 @@ export default function GrowthScreen() {
 
     return (
       <View className="bg-primary/10 px-4 py-6 rounded-lg mb-6">
-        <Text className="text-base font-semibold text-primary mb-2">최근 {currentMetric.label}</Text>
+        <Text className="text-base font-semibold text-primary mb-2">
+          최근 {currentMetric.label}
+        </Text>
         <Text className="text-2xl font-bold text-foreground">
           {latestRecord[selectedMetric]} {currentMetric.unit}
         </Text>
@@ -171,12 +179,16 @@ export default function GrowthScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 기록
+          </Text>
           <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 성장 과정을 확인해보세요
           </Text>
         </View>
-        <Text className="text-center text-muted-foreground p-6">성장 기록을 불러오는 중...</Text>
+        <Text className="text-center text-muted-foreground p-6">
+          성장 기록을 불러오는 중...
+        </Text>
       </SafeAreaView>
     );
   }
@@ -185,7 +197,9 @@ export default function GrowthScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 기록
+          </Text>
           <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 성장 과정을 확인해보세요
           </Text>
@@ -203,7 +217,9 @@ export default function GrowthScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="p-4 pb-4">
-        <Text className="text-2xl font-bold text-foreground mb-2">성장 기록</Text>
+        <Text className="text-2xl font-bold text-foreground mb-2">
+          성장 기록
+        </Text>
         <Text className="text-sm text-muted-foreground">
           {activeChild?.name}의 성장 과정을 확인해보세요
         </Text>
@@ -241,7 +257,9 @@ export default function GrowthScreen() {
 
           {/* All Growth Records */}
           <View className="mb-6">
-            <Text className="text-base font-semibold text-foreground mb-4 text-center">모든 성장 기록</Text>
+            <Text className="text-base font-semibold text-foreground mb-4 text-center">
+              모든 성장 기록
+            </Text>
             {growthRecords
               .sort(
                 (a: GrowthRecordApi, b: GrowthRecordApi) =>

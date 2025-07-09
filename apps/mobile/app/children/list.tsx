@@ -1,5 +1,11 @@
-import { useRouter, Stack } from "expo-router";
-import React from "react";
+import { ChildCard } from "@/entities/child/ChildCard";
+import { useChildren } from "@/shared/api/hooks/useChildren";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
+import type { ChildApi } from "@daon/shared";
+import { Stack, useRouter } from "expo-router";
 import {
   Alert,
   RefreshControl,
@@ -8,13 +14,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { ChildCard } from "../../entities";
-import { useChildren } from "../../shared/api/hooks/useChildren";
-import type { ChildApi } from "@daon/shared";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { Button } from "../../shared/ui";
-import Card from "../../shared/ui/Card";
 
 export default function ChildrenListScreen() {
   const router = useRouter();

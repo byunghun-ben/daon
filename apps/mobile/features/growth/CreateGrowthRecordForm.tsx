@@ -1,3 +1,7 @@
+import { useCreateGrowthRecord } from "@/shared/api/growth/hooks/useCreateGrowthRecord";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import Button from "@/shared/ui/Button/Button";
+import Input from "@/shared/ui/Input/Input";
 import {
   CreateGrowthRecordRequestSchema,
   type CreateGrowthRecordRequest,
@@ -15,9 +19,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useCreateGrowthRecord } from "../../shared/api/growth/hooks";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { Button, Input } from "../../shared/ui";
 
 interface CreateGrowthRecordFormProps {
   onSuccess: () => void;
@@ -38,7 +39,6 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
       notes: "",
     },
   });
-
 
   const handleDateChange = (
     event: DateTimePickerEvent,
@@ -134,10 +134,15 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
   const headCircumference = form.watch("headCircumference");
 
   return (
-    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
+    <ScrollView
+      className="flex-1 bg-background px-4"
+      showsVerticalScrollIndicator={false}
+    >
       {/* 날짜/시간 선택 */}
       <View className="mb-6 pt-4">
-        <Text className="text-lg font-semibold text-foreground mb-3">측정 날짜</Text>
+        <Text className="text-lg font-semibold text-foreground mb-3">
+          측정 날짜
+        </Text>
         <TouchableOpacity
           className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}
@@ -152,14 +157,22 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
       {activeChild && (
         <View className="mb-6">
           <View className="bg-primary/10 p-6 rounded-lg border border-primary/20">
-            <Text className="text-base font-semibold text-primary mb-2">측정 시점 정보</Text>
+            <Text className="text-base font-semibold text-primary mb-2">
+              측정 시점 정보
+            </Text>
             <View className="flex-row justify-between mb-1">
               <Text className="text-sm text-muted-foreground">아이 이름</Text>
-              <Text className="text-sm font-semibold text-foreground">{activeChild.name}</Text>
+              <Text className="text-sm font-semibold text-foreground">
+                {activeChild.name}
+              </Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-sm text-muted-foreground">측정 시 나이</Text>
-              <Text className="text-sm font-semibold text-foreground">{calculateAgeText()}</Text>
+              <Text className="text-sm text-muted-foreground">
+                측정 시 나이
+              </Text>
+              <Text className="text-sm font-semibold text-foreground">
+                {calculateAgeText()}
+              </Text>
             </View>
           </View>
         </View>
@@ -170,7 +183,9 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
         <View className="bg-surface p-6 rounded-lg mb-4">
           <View className="flex-row items-center mb-4">
             <Text className="text-2xl mr-2">⚖️</Text>
-            <Text className="text-base font-semibold text-foreground">몸무게</Text>
+            <Text className="text-base font-semibold text-foreground">
+              몸무게
+            </Text>
           </View>
           <Text className="text-sm text-muted-foreground mb-4">
             아이의 현재 몸무게를 kg 단위로 입력하세요
@@ -254,7 +269,9 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
         <View className="bg-surface p-6 rounded-lg mb-4">
           <View className="flex-row items-center mb-4">
             <Text className="text-2xl mr-2">👶</Text>
-            <Text className="text-base font-semibold text-foreground">머리둘레</Text>
+            <Text className="text-base font-semibold text-foreground">
+              머리둘레
+            </Text>
           </View>
           <Text className="text-sm text-muted-foreground mb-4">
             아이의 머리둘레를 cm 단위로 입력하세요
@@ -314,23 +331,31 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
       {hasAnyMeasurement() && (
         <View className="mb-6">
           <View className="bg-primary/10 p-6 rounded-lg border border-primary/20">
-            <Text className="text-base font-semibold text-primary mb-2">측정 요약</Text>
+            <Text className="text-base font-semibold text-primary mb-2">
+              측정 요약
+            </Text>
             {weight && (
               <View className="flex-row justify-between mb-1">
                 <Text className="text-sm text-muted-foreground">몸무게</Text>
-                <Text className="text-sm font-semibold text-foreground">{weight} kg</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {weight} kg
+                </Text>
               </View>
             )}
             {height && (
               <View className="flex-row justify-between mb-1">
                 <Text className="text-sm text-muted-foreground">키</Text>
-                <Text className="text-sm font-semibold text-foreground">{height} cm</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {height} cm
+                </Text>
               </View>
             )}
             {headCircumference && (
               <View className="flex-row justify-between">
                 <Text className="text-sm text-muted-foreground">머리둘레</Text>
-                <Text className="text-sm font-semibold text-foreground">{headCircumference} cm</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {headCircumference} cm
+                </Text>
               </View>
             )}
           </View>

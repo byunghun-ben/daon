@@ -1,5 +1,6 @@
-import { ChatInput, ChatMessage } from "@/features/chat/components";
-import { useChatStream } from "@/shared/api/chat";
+import { ChatInput } from "@/features/chat/components/ChatInput";
+import { ChatMessage } from "@/features/chat/components/ChatMessage";
+import { useChatStream } from "@/shared/api/chat/hooks/useChatStream";
 import { ModelSelector } from "@/shared/ui/ModelSelector";
 import type { AIModel, ChatMessage as ChatMessageType } from "@daon/shared";
 import React, { useRef, useState } from "react";
@@ -112,4 +113,3 @@ export default function ChatScreen() {
     </SafeAreaView>
   );
 }
-

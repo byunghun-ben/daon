@@ -1,8 +1,8 @@
+import { cn } from "@/shared/lib/utils/cn";
+import Card from "@/shared/ui/Card/Card";
 import { type ActivityApi } from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { cn } from "../../shared/lib/utils/cn";
-import Card from "../../shared/ui/Card";
 
 interface ActivityCardProps {
   activity: ActivityApi;
@@ -17,7 +17,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   showUser = true,
   className,
 }) => {
-
   const getActivityConfig = (type: string) => {
     const configs = {
       feeding: { icon: "🍼", label: "수유" },
@@ -68,7 +67,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           <View className="mt-sm">
             {data.type && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">방법:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  방법:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {data.type === "breast"
                     ? "모유"
@@ -80,7 +81,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
             {data.side && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">부위:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  부위:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {data.side === "left"
                     ? "왼쪽"
@@ -92,14 +95,22 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
             {data.amount && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">양:</Text>
-                <Text className="text-sm text-text font-medium">{data.amount}ml</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  양:
+                </Text>
+                <Text className="text-sm text-text font-medium">
+                  {data.amount}ml
+                </Text>
               </View>
             )}
             {data.duration && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시간:</Text>
-                <Text className="text-sm text-text font-medium">{data.duration}분</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  시간:
+                </Text>
+                <Text className="text-sm text-text font-medium">
+                  {data.duration}분
+                </Text>
               </View>
             )}
           </View>
@@ -110,7 +121,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           <View className="mt-sm">
             {data.type && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">상태:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  상태:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {data.type === "wet"
                     ? "소변"
@@ -128,7 +141,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           <View className="mt-sm">
             {data.startedAt && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시작:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  시작:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {formatTime(data.startedAt)}
                 </Text>
@@ -136,7 +151,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
             {data.endedAt && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">종료:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  종료:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {formatTime(data.endedAt)}
                 </Text>
@@ -144,7 +161,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
             {data.quality && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">품질:</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  품질:
+                </Text>
                 <Text className="text-sm text-text font-medium">
                   {data.quality === "good"
                     ? "좋음"
@@ -162,8 +181,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           <View className="mt-sm">
             {data.duration && (
               <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">시간:</Text>
-                <Text className="text-sm text-text font-medium">{data.duration}분</Text>
+                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
+                  시간:
+                </Text>
+                <Text className="text-sm text-text font-medium">
+                  {data.duration}분
+                </Text>
               </View>
             )}
           </View>
@@ -191,16 +214,20 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         <View className="flex-row justify-between items-start mb-sm">
           <View className="flex-row items-center">
             <Text className="text-[20px] mr-xs">{config.icon}</Text>
-            <Text className="text-base font-semibold text-text">{config.label}</Text>
+            <Text className="text-base font-semibold text-text">
+              {config.label}
+            </Text>
           </View>
-          <Text className="text-xs text-text-secondary">{formatDate(activity.timestamp)}</Text>
+          <Text className="text-xs text-text-secondary">
+            {formatDate(activity.timestamp)}
+          </Text>
         </View>
 
         {renderActivityDetails()}
 
         {activity.notes && (
           <Text className="text-sm text-text-secondary italic mt-sm">
-            "{activity.notes}"
+            &quot;{activity.notes}&quot;
           </Text>
         )}
 

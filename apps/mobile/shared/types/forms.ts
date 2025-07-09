@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Activity Form Schema - simplified
 export const ActivityFormSchema = z.object({

@@ -1,3 +1,8 @@
+import { DiaryEntryCard } from "@/entities/diary-entry/DiaryEntryCard";
+import { useDiaryEntries } from "@/shared/api/diary/hooks/useDiaryEntries";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
 import type { DiaryEntryApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import {
@@ -7,11 +12,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { DiaryEntryCard } from "../../entities";
-import { useDiaryEntries } from "../../shared/api/diary/hooks";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import { Button } from "../../shared/ui";
-import Card from "../../shared/ui/Card";
 
 export default function DiaryScreen() {
   const router = useRouter();
@@ -26,13 +26,16 @@ export default function DiaryScreen() {
     activeChild ? { childId: activeChild.id, limit: 20, offset: 0 } : undefined,
   );
 
-
   if (!activeChild) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
-          <Text className="text-sm text-muted-foreground">아이를 먼저 등록해주세요</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 일기
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            아이를 먼저 등록해주세요
+          </Text>
         </View>
         <View className="flex-1 p-4">
           <Card>
@@ -67,12 +70,16 @@ export default function DiaryScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 일기
+          </Text>
           <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 소중한 순간들을 기록해보세요
           </Text>
         </View>
-        <Text className="text-center text-muted-foreground p-6">일기를 불러오는 중...</Text>
+        <Text className="text-center text-muted-foreground p-6">
+          일기를 불러오는 중...
+        </Text>
       </SafeAreaView>
     );
   }
@@ -81,7 +88,9 @@ export default function DiaryScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
-          <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">
+            성장 일기
+          </Text>
           <Text className="text-sm text-muted-foreground">
             {activeChild?.name}의 소중한 순간들을 기록해보세요
           </Text>
@@ -99,7 +108,9 @@ export default function DiaryScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="p-4 pb-4">
-        <Text className="text-2xl font-bold text-foreground mb-2">성장 일기</Text>
+        <Text className="text-2xl font-bold text-foreground mb-2">
+          성장 일기
+        </Text>
         <Text className="text-sm text-muted-foreground">
           {activeChild?.name}의 소중한 순간들을 기록해보세요
         </Text>

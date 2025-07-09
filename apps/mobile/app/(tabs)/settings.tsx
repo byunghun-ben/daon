@@ -1,6 +1,9 @@
-import { useAuthStore } from "@/shared/store";
+import { SCREEN_PADDING } from "@/shared/config/theme";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useAuthStore } from "@/shared/store/authStore";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
 import { useRouter } from "expo-router";
-import React from "react";
 import {
   Alert,
   SafeAreaView,
@@ -9,10 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Button from "../../shared/ui/Button";
-import Card from "../../shared/ui/Card";
 
 export default function SettingsScreen() {
   const router = useRouter();

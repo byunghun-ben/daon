@@ -1,4 +1,4 @@
-import {
+import type {
   ActivitiesResponse,
   ActivityFilters,
   ActivityResponse,
@@ -37,7 +37,7 @@ export const activitiesApi = {
 
   async updateActivity(
     id: string,
-    data: UpdateActivityRequest
+    data: UpdateActivityRequest,
   ): Promise<ActivityResponse> {
     return apiClient.put<ActivityResponse>(`/activities/${id}`, data);
   },

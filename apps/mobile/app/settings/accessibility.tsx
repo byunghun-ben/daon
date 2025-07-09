@@ -1,3 +1,6 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Card from "@/shared/ui/Card/Card";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { useState } from "react";
@@ -10,9 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { IconSymbol } from "../../components/ui/IconSymbol";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Card from "../../shared/ui/Card";
 
 type FontSize = "small" | "normal" | "large" | "extraLarge";
 
@@ -130,7 +130,7 @@ export default function AccessibilitySettingsScreen() {
 
   const updateSetting = async <K extends keyof AccessibilitySettings>(
     key: K,
-    value: AccessibilitySettings[K]
+    value: AccessibilitySettings[K],
   ) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
@@ -138,7 +138,7 @@ export default function AccessibilitySettingsScreen() {
     try {
       await AsyncStorage.setItem(
         "accessibility-settings",
-        JSON.stringify(newSettings)
+        JSON.stringify(newSettings),
       );
     } catch (error) {
       console.error("Failed to save accessibility settings:", error);
@@ -149,7 +149,7 @@ export default function AccessibilitySettingsScreen() {
     Alert.alert(
       "폰트 크기 설정",
       "폰트 크기를 변경하면 앱의 모든 텍스트 크기가 조정됩니다. 시각적 접근성을 향상시키는 데 도움이 됩니다.",
-      [{ text: "확인" }]
+      [{ text: "확인" }],
     );
   };
 

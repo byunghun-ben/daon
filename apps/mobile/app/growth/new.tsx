@@ -1,7 +1,7 @@
+import { CreateGrowthRecordForm } from "@/features/growth/CreateGrowthRecordForm";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateGrowthRecordForm } from "../../features/growth";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function NewGrowthScreen() {
   const router = useRouter();

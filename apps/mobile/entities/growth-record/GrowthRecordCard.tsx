@@ -1,8 +1,8 @@
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Card from "@/shared/ui/Card/Card";
 import { type GrowthRecordApi } from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Card from "../../shared/ui/Card";
 
 interface GrowthRecordCardProps {
   growthRecord: GrowthRecordApi;
@@ -183,7 +183,7 @@ export const GrowthRecordCard: React.FC<GrowthRecordCardProps> = ({
         </View>
 
         {growthRecord.notes && (
-          <Text style={styles.notes}>"{growthRecord.notes}"</Text>
+          <Text style={styles.notes}>&quot;{growthRecord.notes}&quot;</Text>
         )}
 
         {showUser && growthRecord.user && (

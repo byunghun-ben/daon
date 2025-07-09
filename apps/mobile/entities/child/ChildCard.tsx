@@ -1,8 +1,8 @@
+import { cn } from "@/shared/lib/utils/cn";
+import Card from "@/shared/ui/Card/Card";
 import { type ChildApi } from "@daon/shared";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { cn } from "../../shared/lib/utils/cn";
-import Card from "../../shared/ui/Card";
 
 interface ChildCardProps {
   child: ChildApi;
@@ -19,7 +19,6 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   showDetails = true,
   className,
 }) => {
-
   const calculateAge = (birthDate: string) => {
     const birth = new Date(birthDate);
     const today = new Date();
@@ -67,7 +66,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
       className={cn(
         "mb-sm",
         isSelected && "border-2 border-primary",
-        className
+        className,
       )}
       onPress={handlePress}
       disabled={!onPress}
@@ -76,8 +75,8 @@ export const ChildCard: React.FC<ChildCardProps> = ({
       <Card>
         <View className={cn("flex-row items-center", showDetails && "mb-sm")}>
           {child.photoUrl ? (
-            <Image 
-              source={{ uri: child.photoUrl }} 
+            <Image
+              source={{ uri: child.photoUrl }}
               className="w-[60px] h-[60px] rounded-full bg-surface mr-md"
             />
           ) : (
@@ -88,7 +87,9 @@ export const ChildCard: React.FC<ChildCardProps> = ({
 
           <View className="flex-1">
             <Text className="text-subtitle mb-xs">{child.name}</Text>
-            <Text className="text-sm text-text-secondary">{calculateAge(child.birthDate)}</Text>
+            <Text className="text-sm text-text-secondary">
+              {calculateAge(child.birthDate)}
+            </Text>
           </View>
         </View>
 
@@ -111,14 +112,18 @@ export const ChildCard: React.FC<ChildCardProps> = ({
             {child.birthWeight && (
               <View className="flex-row justify-between mb-xs">
                 <Text className="text-sm text-text-secondary">출생 체중</Text>
-                <Text className="text-sm text-text font-medium">{child.birthWeight}kg</Text>
+                <Text className="text-sm text-text font-medium">
+                  {child.birthWeight}kg
+                </Text>
               </View>
             )}
 
             {child.birthHeight && (
               <View className="flex-row justify-between mb-xs">
                 <Text className="text-sm text-text-secondary">출생 신장</Text>
-                <Text className="text-sm text-text font-medium">{child.birthHeight}cm</Text>
+                <Text className="text-sm text-text font-medium">
+                  {child.birthHeight}cm
+                </Text>
               </View>
             )}
           </View>

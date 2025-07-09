@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // 업로드 카테고리
 export const UPLOAD_CATEGORIES = {

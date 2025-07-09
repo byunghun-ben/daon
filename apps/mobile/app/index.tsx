@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/shared/store";
+import { useAuthStore } from "@/shared/store/authStore";
 import { Redirect } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 

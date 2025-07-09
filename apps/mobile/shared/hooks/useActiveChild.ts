@@ -1,10 +1,10 @@
-import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { childrenApi } from "../api/children/api";
 import {
-  useActiveChildStore,
   getActiveChildId,
+  useActiveChildStore,
 } from "../store/activeChildStore";
-import { childrenApi } from "../api/children";
 
 export const useActiveChild = () => {
   const queryClient = useQueryClient();
@@ -102,24 +102,3 @@ export const createChildQueryKey = (
   const targetChildId = childId || getActiveChildId();
   return targetChildId ? [...baseKey, targetChildId] : baseKey;
 };
-
-// 활성 아이 기준 쿼리 키 생성 헬퍼들
-export const getActivitiesQueryKey = (filters?: any) =>
-  createChildQueryKey(["activities"], getActiveChildId()).concat(
-    filters ? [filters] : [],
-  );
-
-export const getActivitySummaryQueryKey = (date?: string) =>
-  createChildQueryKey(["activity-summary"], getActiveChildId()).concat(
-    date ? [date] : [],
-  );
-
-export const getDiaryQueryKey = (filters?: any) =>
-  createChildQueryKey(["diary"], getActiveChildId()).concat(
-    filters ? [filters] : [],
-  );
-
-export const getGrowthQueryKey = (filters?: any) =>
-  createChildQueryKey(["growth"], getActiveChildId()).concat(
-    filters ? [filters] : [],
-  );

@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Card from "../../shared/ui/Card";
 import type { ActivityApi } from "@daon/shared";
+import React from "react";
+import { Text, View } from "react-native";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
+import Card from "../../shared/ui/Card/Card";
 
 interface TodaySummaryProps {
   todayActivities: ActivityApi[];

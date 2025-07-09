@@ -5,7 +5,7 @@ import type {
 } from "@daon/shared";
 import type { UseQueryOptions } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
-import { analyticsApi } from "./index";
+import { analyticsApi } from "./api";
 
 // Query Keys
 export const ANALYTICS_KEYS = {
@@ -17,7 +17,7 @@ export const ANALYTICS_KEYS = {
   comparison: (
     childId: string,
     currentPeriod: string,
-    previousPeriod: string
+    previousPeriod: string,
   ) =>
     [
       ...ANALYTICS_KEYS.comparisons(),
@@ -30,7 +30,7 @@ export const ANALYTICS_KEYS = {
 // Analytics 데이터 조회 훅
 export function useAnalytics(
   params: AnalyticsRequest,
-  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
     queryKey: ANALYTICS_KEYS.list(params),
@@ -47,19 +47,19 @@ export function useComparisonAnalytics(
   childId: string,
   currentPeriod: AnalyticsRequest["period"],
   previousPeriod: AnalyticsRequest["period"],
-  options?: Omit<UseQueryOptions<ComparisonAnalytics>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<ComparisonAnalytics>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
     queryKey: ANALYTICS_KEYS.comparison(
       childId,
       `${currentPeriod.startDate}-${currentPeriod.endDate}`,
-      `${previousPeriod.startDate}-${previousPeriod.endDate}`
+      `${previousPeriod.startDate}-${previousPeriod.endDate}`,
     ),
     queryFn: () =>
       analyticsApi.getComparisonAnalytics(
         childId,
         currentPeriod,
-        previousPeriod
+        previousPeriod,
       ),
     enabled: !!childId,
     staleTime: 5 * 60 * 1000,
@@ -71,7 +71,7 @@ export function useComparisonAnalytics(
 // 수유 패턴 분석만 조회하는 훅
 export function useFeedingAnalytics(
   params: Omit<AnalyticsRequest, "includePatterns">,
-  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">,
 ) {
   const analyticsParams: AnalyticsRequest = {
     ...params,
@@ -84,7 +84,7 @@ export function useFeedingAnalytics(
 // 수면 패턴 분석만 조회하는 훅
 export function useSleepAnalytics(
   params: Omit<AnalyticsRequest, "includePatterns">,
-  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">,
 ) {
   const analyticsParams: AnalyticsRequest = {
     ...params,
@@ -97,7 +97,7 @@ export function useSleepAnalytics(
 // 성장 패턴 분석만 조회하는 훅
 export function useGrowthAnalytics(
   params: Omit<AnalyticsRequest, "includePatterns">,
-  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">,
 ) {
   const analyticsParams: AnalyticsRequest = {
     ...params,
@@ -110,7 +110,7 @@ export function useGrowthAnalytics(
 // 기저귀 패턴 분석만 조회하는 훅
 export function useDiaperAnalytics(
   params: Omit<AnalyticsRequest, "includePatterns">,
-  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<AnalyticsResponse>, "queryKey" | "queryFn">,
 ) {
   const analyticsParams: AnalyticsRequest = {
     ...params,

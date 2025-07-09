@@ -1,11 +1,12 @@
+import { useJoinChild } from "@/shared/api/children/hooks/useJoinChild";
+import { ApiError } from "@/shared/api/client";
+import Button from "@/shared/ui/Button/Button";
+import Input from "@/shared/ui/Input/Input";
 import { GUARDIAN_ROLES, JoinChildRequestSchema } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
-import { useJoinChild } from "../../shared/api/children/hooks";
-import { ApiError } from "../../shared/api/client";
-import { Button, Input } from "../../shared/ui";
 
 interface JoinChildFormProps {
   onSuccess: () => void;

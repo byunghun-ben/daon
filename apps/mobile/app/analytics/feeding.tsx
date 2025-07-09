@@ -1,3 +1,9 @@
+import { useFeedingAnalytics } from "@/shared/api/analytics/hooks";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useActiveChildStore } from "@/shared/store/activeChildStore";
+import Card from "@/shared/ui/Card/Card";
+import { BarChart } from "@/shared/ui/charts/BarChart";
+import { LineChart } from "@/shared/ui/charts/LineChart";
 import { Stack } from "expo-router";
 import { useState } from "react";
 import type { TextStyle, ViewStyle } from "react-native";
@@ -8,11 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useFeedingAnalytics } from "../../shared/api/analytics/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useActiveChildStore } from "../../shared/store";
-import Card from "../../shared/ui/Card";
-import { BarChart, LineChart } from "../../shared/ui/charts";
 
 type TimePeriod = "day" | "week" | "month";
 
@@ -124,7 +125,7 @@ export default function FeedingAnalyticsScreen() {
       childId: activeChild?.id || "",
       period: {
         startDate: new Date(
-          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000,
         )
           .toISOString()
           .split("T")[0],
@@ -132,7 +133,7 @@ export default function FeedingAnalyticsScreen() {
         period: selectedPeriod,
       },
     },
-    { enabled: !!activeChild?.id }
+    { enabled: !!activeChild?.id },
   );
 
   function getPeriodDays(period: TimePeriod): number {

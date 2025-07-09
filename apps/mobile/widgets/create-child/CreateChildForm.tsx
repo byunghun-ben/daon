@@ -1,21 +1,22 @@
 import { GENDERS, GUARDIAN_ROLES, type CreateChildRequest } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
-import { useChildrenQuery, useCreateChild } from "../../shared/api/children";
+import { useChildrenQuery } from "../../shared/api/children/hooks/useChildrenQuery";
+import { useCreateChild } from "../../shared/api/children/hooks/useCreateChild";
 import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { ChildFormData, ChildFormSchema } from "../../shared/types";
-import Button from "../../shared/ui/Button";
-import Card from "../../shared/ui/Card";
+import type { ChildFormData } from "../../shared/types/child.forms";
+import { ChildFormSchema } from "../../shared/types/child.forms";
+import Button from "../../shared/ui/Button/Button";
+import Card from "../../shared/ui/Card/Card";
 import ImagePicker from "../../shared/ui/ImagePicker";
-import Input from "../../shared/ui/Input";
+import Input from "../../shared/ui/Input/Input";
 
 interface CreateChildFormProps {
-  onSuccess?: (childData: any) => void;
-  onError?: (error: any) => void;
+  onSuccess?: (childData: unknown) => void;
+  onError?: (error: unknown) => void;
   loading?: boolean;
   title?: string;
   subtitle?: string;
@@ -112,7 +113,7 @@ export const CreateChildForm = ({
           Alert.alert("성공", "아이 프로필이 생성되었습니다!");
         }
       },
-      onError: (error: any) => {
+      onError: (error) => {
         if (onError) {
           onError(error);
         } else {

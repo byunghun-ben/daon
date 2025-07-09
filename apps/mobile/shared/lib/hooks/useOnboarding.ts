@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../store";
+import { useAuthStore } from "@/shared/store/authStore";
 
 interface OnboardingState {
   needsChildRegistration: boolean;

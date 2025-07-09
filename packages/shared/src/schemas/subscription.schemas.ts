@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Subscription Plans
 export const SubscriptionPlanSchema = z.object({
@@ -22,11 +22,11 @@ export const UserSubscriptionSchema = z.object({
   planId: z.string(),
   status: z.enum([
     "active",
-    "inactive", 
+    "inactive",
     "canceled",
     "past_due",
     "unpaid",
-    "trialing"
+    "trialing",
   ]),
   currentPeriodStart: z.string().datetime(),
   currentPeriodEnd: z.string().datetime(),
@@ -75,11 +75,11 @@ export const PremiumFeatureSchema = z.object({
   description: z.string(),
   category: z.enum([
     "analytics",
-    "storage", 
+    "storage",
     "sharing",
     "export",
     "ai",
-    "support"
+    "support",
   ]),
   requiredPlan: z.enum(["free", "premium", "family"]),
   usageLimit: z.number().nonnegative().nullable(),
@@ -131,18 +131,28 @@ export type PurchaseReceipt = z.infer<typeof PurchaseReceiptSchema>;
 export type SubscriptionUsage = z.infer<typeof SubscriptionUsageSchema>;
 export type PremiumFeature = z.infer<typeof PremiumFeatureSchema>;
 
-export type CreateSubscriptionRequest = z.infer<typeof CreateSubscriptionRequestSchema>;
-export type UpdateSubscriptionRequest = z.infer<typeof UpdateSubscriptionRequestSchema>;
-export type CancelSubscriptionRequest = z.infer<typeof CancelSubscriptionRequestSchema>;
+export type CreateSubscriptionRequest = z.infer<
+  typeof CreateSubscriptionRequestSchema
+>;
+export type UpdateSubscriptionRequest = z.infer<
+  typeof UpdateSubscriptionRequestSchema
+>;
+export type CancelSubscriptionRequest = z.infer<
+  typeof CancelSubscriptionRequestSchema
+>;
 export type VerifyPurchaseRequest = z.infer<typeof VerifyPurchaseRequestSchema>;
 
-export type SubscriptionStatusResponse = z.infer<typeof SubscriptionStatusResponseSchema>;
-export type SubscriptionPlansResponse = z.infer<typeof SubscriptionPlansResponseSchema>;
+export type SubscriptionStatusResponse = z.infer<
+  typeof SubscriptionStatusResponseSchema
+>;
+export type SubscriptionPlansResponse = z.infer<
+  typeof SubscriptionPlansResponseSchema
+>;
 
 // Premium Feature Keys
 export const PREMIUM_FEATURES = {
   UNLIMITED_CHILDREN: "unlimited_children",
-  ADVANCED_ANALYTICS: "advanced_analytics", 
+  ADVANCED_ANALYTICS: "advanced_analytics",
   AI_INSIGHTS: "ai_insights",
   CLOUD_BACKUP: "cloud_backup",
   DATA_EXPORT: "data_export",
@@ -156,7 +166,7 @@ export const PREMIUM_FEATURES = {
 // Subscription Plans
 export const SUBSCRIPTION_PLANS = {
   FREE: "free",
-  PREMIUM: "premium", 
+  PREMIUM: "premium",
   FAMILY: "family",
 } as const;
 

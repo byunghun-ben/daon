@@ -1,14 +1,11 @@
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import React from "react";
+import { GrowthRecordCard } from "@/entities/growth-record/GrowthRecordCard";
+import { useDeleteGrowthRecord } from "@/shared/api/growth/hooks/useDeleteGrowthRecord";
+import { useGrowthRecord } from "@/shared/api/growth/hooks/useGrowthRecord";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Button from "@/shared/ui/Button/Button";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { GrowthRecordCard } from "../../entities";
-import {
-  useDeleteGrowthRecord,
-  useGrowthRecord,
-} from "../../shared/api/growth/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { Button } from "../../shared/ui";
 
 export default function GrowthDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

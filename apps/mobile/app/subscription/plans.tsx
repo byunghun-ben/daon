@@ -1,27 +1,32 @@
-import React, { useState } from "react";
+import { IconSymbol } from "@/components/ui/IconSymbol.ios";
 import {
+  useCreateSubscription,
+  useStartTrial,
+  useSubscriptionPlans,
+} from "@/shared/api/subscription/hooks";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useIsActive, useIsPremium } from "@/shared/store/subscription.store";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
+import type { SubscriptionPlan } from "@daon/shared";
+import { Stack, useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   Text,
-  View,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
+  View,
 } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useSubscriptionPlans, useCreateSubscription, useStartTrial } from "../../shared/api/subscription/hooks";
-import { useIsPremium, useIsActive } from "../../shared/store/subscription.store";
-import Button from "../../shared/ui/Button";
-import Card from "../../shared/ui/Card";
-import { IconSymbol } from "../../components/ui/IconSymbol";
-import type { SubscriptionPlan } from "@daon/shared";
 
 type BillingInterval = "month" | "year";
 
 export default function SubscriptionPlansScreen() {
   const router = useRouter();
-  const [selectedInterval, setSelectedInterval] = useState<BillingInterval>("year");
+  const [selectedInterval, setSelectedInterval] =
+    useState<BillingInterval>("year");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   const styles = useThemedStyles((theme) => ({
@@ -158,7 +163,7 @@ export default function SubscriptionPlansScreen() {
       marginTop: theme.spacing.md,
     },
     trialInfo: {
-      backgroundColor: `${theme.colors.info  }20`,
+      backgroundColor: `${theme.colors.info}20`,
       padding: theme.spacing.md,
       borderRadius: theme.borderRadius.md,
       marginBottom: theme.spacing.lg,
@@ -239,15 +244,13 @@ export default function SubscriptionPlansScreen() {
                 planId: plan.id,
                 trialDays: 7, // 7일 무료 체험
               });
-              
-              Alert.alert(
-                "구독 완료",
-                "구독이 성공적으로 완료되었습니다!",
-                [{ text: "확인", onPress: () => router.back() }]
-              );
+
+              Alert.alert("구독 완료", "구독이 성공적으로 완료되었습니다!", [
+                { text: "확인", onPress: () => router.back() },
+              ]);
             },
           },
-        ]
+        ],
       );
     } catch {
       Alert.alert("오류", "구독 처리 중 오류가 발생했습니다.");
@@ -257,11 +260,9 @@ export default function SubscriptionPlansScreen() {
   const handleStartTrial = async (planId: string) => {
     try {
       await startTrial.mutateAsync(planId);
-      Alert.alert(
-        "체험 시작",
-        "7일 무료 체험이 시작되었습니다!",
-        [{ text: "확인", onPress: () => router.back() }]
-      );
+      Alert.alert("체험 시작", "7일 무료 체험이 시작되었습니다!", [
+        { text: "확인", onPress: () => router.back() },
+      ]);
     } catch {
       Alert.alert("오류", "체험 시작 중 오류가 발생했습니다.");
     }
@@ -269,20 +270,21 @@ export default function SubscriptionPlansScreen() {
 
   const getDisplayPrice = (plan: SubscriptionPlan) => {
     if (plan.name === "free") return "무료";
-    
-    const price = selectedInterval === "year" ? plan.price * 12 * 0.8 : plan.price; // 20% 연간 할인
+
+    const price =
+      selectedInterval === "year" ? plan.price * 12 * 0.8 : plan.price; // 20% 연간 할인
     return `₩${price.toLocaleString()}`;
   };
 
   const getPriceSubtext = (plan: SubscriptionPlan) => {
     if (plan.name === "free") return "영구 무료";
-    
+
     return selectedInterval === "year" ? "/년" : "/월";
   };
 
   const getOriginalPrice = (plan: SubscriptionPlan) => {
     if (plan.name === "free" || selectedInterval === "month") return null;
-    
+
     return `₩${(plan.price * 12).toLocaleString()}/년`;
   };
 
@@ -292,7 +294,9 @@ export default function SubscriptionPlansScreen() {
         <Stack.Screen options={{ title: "구독 플랜" }} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={{ marginTop: 16, color: "#666" }}>플랜을 불러오는 중...</Text>
+          <Text style={{ marginTop: 16, color: "#666" }}>
+            플랜을 불러오는 중...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -384,7 +388,7 @@ export default function SubscriptionPlansScreen() {
         </View>
 
         {/* Plans list */}
-        {plans.map((plan, _index) => (
+        {plans.map((plan: SubscriptionPlan, _index: number) => (
           <TouchableOpacity
             key={plan.id}
             style={[
@@ -411,19 +415,27 @@ export default function SubscriptionPlansScreen() {
                     color={plan.name === "free" ? "#666" : "#FFD700"}
                   />
                 </View>
-                <Text style={styles.planName}>{plan.name === "free" ? "무료" : plan.name === "premium" ? "프리미엄" : "패밀리"}</Text>
+                <Text style={styles.planName}>
+                  {plan.name === "free"
+                    ? "무료"
+                    : plan.name === "premium"
+                      ? "프리미엄"
+                      : "패밀리"}
+                </Text>
               </View>
 
               <View style={styles.priceContainer}>
                 <Text style={styles.price}>{getDisplayPrice(plan)}</Text>
                 <Text style={styles.priceSubtext}>{getPriceSubtext(plan)}</Text>
                 {getOriginalPrice(plan) && (
-                  <Text style={styles.originalPrice}>{getOriginalPrice(plan)}</Text>
+                  <Text style={styles.originalPrice}>
+                    {getOriginalPrice(plan)}
+                  </Text>
                 )}
               </View>
 
               <View style={styles.featuresContainer}>
-                {plan.features.map((feature, featureIndex) => (
+                {plan.features.map((feature: string, featureIndex: number) => (
                   <View key={featureIndex} style={styles.feature}>
                     <IconSymbol
                       name="checkmark.circle.fill"
@@ -440,8 +452,8 @@ export default function SubscriptionPlansScreen() {
                   plan.name === "free"
                     ? "현재 플랜"
                     : isActive
-                    ? "플랜 변경"
-                    : "무료 체험 시작"
+                      ? "플랜 변경"
+                      : "무료 체험 시작"
                 }
                 onPress={() => {
                   if (plan.name === "free") return;
@@ -462,9 +474,10 @@ export default function SubscriptionPlansScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            구독은 언제든지 취소할 수 있으며, 취소 시 현재 구독 기간이 끝날 때까지 서비스를 이용할 수 있습니다.
+            구독은 언제든지 취소할 수 있으며, 취소 시 현재 구독 기간이 끝날
+            때까지 서비스를 이용할 수 있습니다.
           </Text>
-          
+
           <TouchableOpacity
             style={styles.restoreButton}
             onPress={() => {

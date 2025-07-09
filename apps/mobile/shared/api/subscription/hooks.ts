@@ -1,15 +1,13 @@
-import React from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
+import type {
+  CancelSubscriptionRequest,
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
-  CancelSubscriptionRequest,
   VerifyPurchaseRequest,
-  SubscriptionStatusResponse,
-  SubscriptionPlansResponse,
 } from "@daon/shared";
-import { subscriptionApi } from "./index";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import { useSubscriptionStore } from "../../store/subscription.store";
+import { subscriptionApi } from "./api";
 
 // Query Keys
 export const SUBSCRIPTION_KEYS = {
@@ -33,7 +31,8 @@ export function useSubscriptionPlans() {
 
 // Get subscription status
 export function useSubscriptionStatus() {
-  const { setSubscription, setPlan, setFeatures, setUsage } = useSubscriptionStore();
+  const { setSubscription, setPlan, setFeatures, setUsage } =
+    useSubscriptionStore();
 
   const query = useQuery({
     queryKey: SUBSCRIPTION_KEYS.status(),
@@ -87,7 +86,7 @@ export function useCreateSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateSubscriptionRequest) => 
+    mutationFn: (data: CreateSubscriptionRequest) =>
       subscriptionApi.createSubscription(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_KEYS.status() });
@@ -101,7 +100,7 @@ export function useUpdateSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateSubscriptionRequest) => 
+    mutationFn: (data: UpdateSubscriptionRequest) =>
       subscriptionApi.updateSubscription(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_KEYS.status() });
@@ -115,7 +114,7 @@ export function useCancelSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CancelSubscriptionRequest) => 
+    mutationFn: (data: CancelSubscriptionRequest) =>
       subscriptionApi.cancelSubscription(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_KEYS.status() });
@@ -142,7 +141,7 @@ export function useVerifyPurchase() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: VerifyPurchaseRequest) => 
+    mutationFn: (data: VerifyPurchaseRequest) =>
       subscriptionApi.verifyPurchase(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_KEYS.status() });

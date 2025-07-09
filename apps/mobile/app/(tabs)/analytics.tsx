@@ -1,3 +1,6 @@
+import { useAnalytics } from "@/shared/api/analytics/hooks";
+import { useActiveChildStore } from "@/shared/store/activeChildStore";
+import Button from "@/shared/ui/Button/Button";
 import type { AnalyticsRequest } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
@@ -9,9 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAnalytics } from "../../shared/api/analytics/hooks";
-import { useActiveChildStore } from "../../shared/store";
-import Button from "../../shared/ui/Button";
 
 export default function AnalyticsScreen() {
   const router = useRouter();
@@ -38,129 +38,6 @@ export default function AnalyticsScreen() {
   } = useAnalytics(analyticsParams, {
     enabled: !!activeChild?.id,
   });
-
-  // const styles = useThemedStyles((theme: Theme) => ({
-  //   container: {
-  //     flex: 1,
-  //     backgroundColor: theme.colors.background,
-  //   },
-  //   content: {
-  //     padding: theme.spacing.lg,
-  //   },
-  //   header: {
-  //     marginBottom: theme.spacing.xl,
-  //   },
-  //   title: {
-  //     fontSize: theme.typography.title.fontSize,
-  //     fontWeight: theme.typography.title.fontWeight,
-  //     color: theme.colors.text,
-  //     marginBottom: theme.spacing.sm,
-  //   },
-  //   subtitle: {
-  //     fontSize: theme.typography.body2.fontSize,
-  //     color: theme.colors.textSecondary,
-  //   },
-  //   periodSelector: {
-  //     flexDirection: "row" as const,
-  //     backgroundColor: theme.colors.surface,
-  //     borderRadius: theme.borderRadius.lg,
-  //     padding: theme.spacing.xs,
-  //     marginBottom: theme.spacing.xl,
-  //   },
-  //   periodButton: {
-  //     flex: 1,
-  //     paddingVertical: theme.spacing.sm,
-  //     paddingHorizontal: theme.spacing.md,
-  //     borderRadius: theme.borderRadius.md,
-  //     alignItems: "center" as const,
-  //   },
-  //   periodButtonActive: {
-  //     backgroundColor: theme.colors.primary,
-  //   },
-  //   periodText: {
-  //     fontSize: theme.typography.body2.fontSize,
-  //     color: theme.colors.textSecondary,
-  //     fontWeight: "500" as const,
-  //   },
-  //   periodTextActive: {
-  //     color: theme.colors.white,
-  //     fontWeight: "600" as const,
-  //   },
-  //   summaryGrid: {
-  //     flexDirection: "row" as const,
-  //     flexWrap: "wrap" as const,
-  //     gap: theme.spacing.md,
-  //     marginBottom: theme.spacing.xl,
-  //   },
-  //   summaryCard: {
-  //     flex: 1,
-  //     minWidth: "45%" as DimensionValue,
-  //     backgroundColor: theme.colors.surface,
-  //     padding: theme.spacing.lg,
-  //     borderRadius: theme.borderRadius.lg,
-  //     alignItems: "center" as const,
-  //   },
-  //   summaryValue: {
-  //     fontSize: theme.typography.h3.fontSize,
-  //     fontWeight: theme.typography.h3.fontWeight,
-  //     color: theme.colors.primary,
-  //     marginBottom: theme.spacing.xs,
-  //   },
-  //   summaryLabel: {
-  //     fontSize: theme.typography.caption.fontSize,
-  //     color: theme.colors.textSecondary,
-  //     textAlign: "center" as const,
-  //   },
-  //   sectionGrid: {
-  //     flexDirection: "row" as const,
-  //     flexWrap: "wrap" as const,
-  //     gap: theme.spacing.md,
-  //   },
-  //   sectionCard: {
-  //     flex: 1,
-  //     minWidth: "45%" as DimensionValue,
-  //     backgroundColor: theme.colors.surface,
-  //     padding: theme.spacing.lg,
-  //     borderRadius: theme.borderRadius.lg,
-  //     alignItems: "center" as const,
-  //   },
-  //   sectionIcon: {
-  //     fontSize: 32,
-  //     marginBottom: theme.spacing.sm,
-  //   },
-  //   sectionTitle: {
-  //     fontSize: theme.typography.body1.fontSize,
-  //     fontWeight: "600" as const,
-  //     color: theme.colors.text,
-  //     marginBottom: theme.spacing.xs,
-  //   },
-  //   sectionDescription: {
-  //     fontSize: theme.typography.caption.fontSize,
-  //     color: theme.colors.textSecondary,
-  //     textAlign: "center" as const,
-  //   },
-  //   emptyState: {
-  //     alignItems: "center" as const,
-  //     justifyContent: "center" as const,
-  //     padding: theme.spacing.xxl,
-  //   },
-  //   emptyText: {
-  //     fontSize: theme.typography.body1.fontSize,
-  //     color: theme.colors.textSecondary,
-  //     textAlign: "center" as const,
-  //     marginBottom: theme.spacing.lg,
-  //   },
-  //   loadingText: {
-  //     textAlign: "center" as const,
-  //     color: theme.colors.textSecondary,
-  //     padding: theme.spacing.lg,
-  //   },
-  //   errorText: {
-  //     textAlign: "center" as const,
-  //     color: theme.colors.error,
-  //     padding: theme.spacing.lg,
-  //   },
-  // }));
 
   const periods = [
     { key: "day" as const, label: "일간" },

@@ -2,8 +2,8 @@ import type { ActivityType } from "@daon/shared";
 import React, { useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
 import BottomSheet from "../../shared/ui/BottomSheet";
-import Button from "../../shared/ui/Button";
-import { QuickActivityRecord } from "../quick-record";
+import Button from "../../shared/ui/Button/Button";
+import QuickActivityRecord from "../quick-record/QuickActivityRecord";
 
 interface QuickActionsProps {
   activeChildId: string;

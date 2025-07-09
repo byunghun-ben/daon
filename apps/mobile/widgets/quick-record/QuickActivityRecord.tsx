@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Alert, ScrollView } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Button from "../../shared/ui/Button";
-import { useCreateActivity } from "../../shared/api/hooks/useActivities";
+import Button from "@/shared/ui/Button/Button";
 import type {
   ActivityType,
   CreateActivityRequest,
-  CreateFeedingDataRequest,
   CreateDiaperDataRequest,
+  CreateFeedingDataRequest,
   CreateSleepDataRequest,
   CreateTummyTimeDataRequest,
 } from "@daon/shared";
+import React, { useState } from "react";
+import { Alert, ScrollView, Text, TextInput, View } from "react-native";
+import { useCreateActivity } from "../../shared/api/hooks/useActivities";
+import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 interface QuickActivityRecordProps {
   activityType: ActivityType;
@@ -132,6 +132,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       await createActivityMutation.mutateAsync(activityData);
       onSuccess();
     } catch (error) {
+      console.error(error);
       Alert.alert("오류", "활동 기록을 저장하는데 실패했습니다.");
     }
   };

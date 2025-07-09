@@ -1,1 +1,0 @@
-export { DiaryEntryCard } from "./DiaryEntryCard";

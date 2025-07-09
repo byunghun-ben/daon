@@ -1,6 +1,6 @@
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateActivityForm } from "../../features/activities";
+import { CreateActivityForm } from "../../features/activities/CreateActivityForm";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function NewRecordScreen() {

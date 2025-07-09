@@ -1,11 +1,11 @@
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Button from "@/shared/ui/Button/Button";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { Button } from "../../shared/ui";
 
 export default function PermissionsScreen() {
   const router = useRouter();

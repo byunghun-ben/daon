@@ -1,5 +1,5 @@
-import { useAuthStore } from "@/shared/store";
-import { Stack, Redirect } from "expo-router";
+import { useAuthStore } from "@/shared/store/authStore";
+import { Redirect, Stack } from "expo-router";
 
 export default function AuthLayout() {
   const { isAuthenticated } = useAuthStore();

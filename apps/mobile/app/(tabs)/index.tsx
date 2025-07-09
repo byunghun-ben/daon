@@ -1,3 +1,14 @@
+import {
+  useRecentActivities,
+  useTodayActivities,
+} from "@/shared/api/hooks/useActivities";
+import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import Button from "@/shared/ui/Button/Button";
+import Card from "@/shared/ui/Card/Card";
+import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
+import QuickActions from "@/widgets/home/QuickActions";
+import RecentActivities from "@/widgets/home/RecentActivities";
+import TodaySummary from "@/widgets/home/TodaySummary";
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import {
@@ -8,19 +19,6 @@ import {
   Text,
   View,
 } from "react-native";
-import {
-  useRecentActivities,
-  useTodayActivities,
-} from "../../shared/api/hooks/useActivities";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
-import Button from "../../shared/ui/Button";
-import Card from "../../shared/ui/Card";
-import {
-  ChildSelector,
-  QuickActions,
-  RecentActivities,
-  TodaySummary,
-} from "../../widgets";
 
 export default function HomeScreen() {
   const router = useRouter();

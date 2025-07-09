@@ -1,7 +1,7 @@
+import { useAuthStore } from "@/shared/store/authStore";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { useAuthStore } from "../../../shared/store";
 
 export default function KakaoCallbackScreen() {
   const router = useRouter();
@@ -10,7 +10,7 @@ export default function KakaoCallbackScreen() {
   useEffect(() => {
     // 카카오 로그인 콜백 처리 중이 아닌 경우 적절한 페이지로 리디렉션
     console.log("[KakaoCallbackScreen] Redirecting from callback page");
-    
+
     // 약간의 지연을 주어 화면 깜빡임 최소화
     const timer = setTimeout(() => {
       if (user) {

@@ -1,8 +1,8 @@
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Card from "@/shared/ui/Card/Card";
 import { type DiaryEntryApi } from "@daon/shared";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import Card from "../../shared/ui/Card";
 
 interface DiaryEntryCardProps {
   diaryEntry: DiaryEntryApi;
@@ -38,7 +38,7 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
       gap: theme.spacing.xs,
     },
     milestoneTag: {
-      backgroundColor: theme.colors.primary + "20",
+      backgroundColor: `${theme.colors.primary}20` as const,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.borderRadius.sm,
@@ -91,7 +91,7 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
 
   const truncateContent = (content: string, maxLength: number) => {
     if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + "...";
+    return `${content.substring(0, maxLength)}...`;
   };
 
   const handlePress = () => {

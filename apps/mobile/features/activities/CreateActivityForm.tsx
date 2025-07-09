@@ -17,7 +17,8 @@ import {
 import { useCreateActivity } from "../../shared/api/hooks/useActivities";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { cn } from "../../shared/lib/utils/cn";
-import { Button, Input } from "../../shared/ui";
+import Button from "../../shared/ui/Button/Button";
+import Input from "../../shared/ui/Input/Input";
 
 type ActivityType = "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
 
@@ -44,7 +45,6 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       notes: "",
     },
   });
-
 
   const activityTypes = [
     { key: "feeding", label: "수유", icon: "🍼" },
@@ -106,17 +106,23 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
   const currentTimestamp = form.watch("timestamp");
 
   return (
-    <ScrollView className="flex-1 bg-background px-4" showsVerticalScrollIndicator={false}>
+    <ScrollView
+      className="flex-1 bg-background px-4"
+      showsVerticalScrollIndicator={false}
+    >
       {/* 활동 유형 선택 */}
       <View className="mb-6 pt-4">
-        <Text className="text-lg font-semibold text-foreground mb-3">활동 유형</Text>
+        <Text className="text-lg font-semibold text-foreground mb-3">
+          활동 유형
+        </Text>
         <View className="flex-row flex-wrap gap-2">
           {activityTypes.map((activity) => (
             <TouchableOpacity
               key={activity.key}
               className={cn(
                 "flex-1 min-w-[45%] py-4 px-3 rounded-lg border-2 border-border items-center bg-surface",
-                selectedActivityType === activity.key && "border-primary bg-primary/10"
+                selectedActivityType === activity.key &&
+                  "border-primary bg-primary/10",
               )}
               onPress={() => handleActivityTypeChange(activity.key)}
             >
@@ -124,7 +130,8 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
               <Text
                 className={cn(
                   "text-sm text-foreground text-center",
-                  selectedActivityType === activity.key && "text-primary font-semibold"
+                  selectedActivityType === activity.key &&
+                    "text-primary font-semibold",
                 )}
               >
                 {activity.label}
@@ -136,7 +143,9 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
 
       {/* 날짜 및 시간 */}
       <View className="mb-6">
-        <Text className="text-lg font-semibold text-foreground mb-3">날짜 및 시간</Text>
+        <Text className="text-lg font-semibold text-foreground mb-3">
+          날짜 및 시간
+        </Text>
         <TouchableOpacity
           className="bg-surface border border-border rounded-lg p-4"
           onPress={() => setShowDatePicker(true)}

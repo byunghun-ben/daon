@@ -1,16 +1,18 @@
-import { useAuthStore } from "@/shared/store";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { kakaoAuthService } from "@/shared/lib/kakao-auth";
+import { useAuthStore } from "@/shared/store/authStore";
+import {
+  SignInFormSchema,
+  type SignInFormSchemaType,
+} from "@/shared/types/auth.forms";
+import Button from "@/shared/ui/Button/Button";
+import KakaoButton from "@/shared/ui/Button/KakaoButton";
+import Input from "@/shared/ui/Input/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
 import { ZodError } from "zod/v4";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { kakaoAuthService } from "../../shared/lib/kakao-auth";
-import {
-  SignInFormSchema,
-  type SignInFormSchemaType,
-} from "../../shared/types";
-import { Button, Input, KakaoButton } from "../../shared/ui";
 
 export const SignInForm = () => {
   const router = useRouter();

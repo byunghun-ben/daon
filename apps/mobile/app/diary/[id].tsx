@@ -1,14 +1,11 @@
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import React from "react";
+import { DiaryEntryCard } from "@/entities/diary-entry/DiaryEntryCard";
+import { useDeleteDiaryEntry } from "@/shared/api/diary/hooks/useDeleteDiaryEntry";
+import { useDiaryEntry } from "@/shared/api/diary/hooks/useDiaryEntry";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import Button from "@/shared/ui/Button/Button";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DiaryEntryCard } from "../../entities";
-import {
-  useDeleteDiaryEntry,
-  useDiaryEntry,
-} from "../../shared/api/diary/hooks";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { Button } from "../../shared/ui";
 
 export default function DiaryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

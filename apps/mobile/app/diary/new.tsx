@@ -1,7 +1,7 @@
+import { CreateDiaryForm } from "@/features/diary/CreateDiaryForm";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateDiaryForm } from "../../features/diary";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function NewDiaryScreen() {
   const router = useRouter();

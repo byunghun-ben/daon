@@ -1,3 +1,5 @@
+import { CreateChildForm } from "@/features/children/CreateChildForm";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { Stack, useRouter } from "expo-router";
 import {
   KeyboardAvoidingView,
@@ -7,8 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateChildForm } from "../../features/children";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function CreateChildScreen() {
   const router = useRouter();

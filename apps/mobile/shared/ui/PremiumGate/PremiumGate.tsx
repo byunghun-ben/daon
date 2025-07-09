@@ -1,17 +1,14 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-} from "react-native";
 import { useRouter } from "expo-router";
-import { useThemedStyles } from "../../lib/hooks/useTheme";
-import { useHasFeature, useCanUseFeature, useIsPremium } from "../../store/subscription.store";
-import Button from "../Button";
-import Card from "../Card";
+import React from "react";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { IconSymbol } from "../../../components/ui/IconSymbol";
+import { useThemedStyles } from "../../lib/hooks/useTheme";
+import {
+  useCanUseFeature,
+  useHasFeature,
+} from "../../store/subscription.store";
+import Button from "../Button/Button";
+import Card from "../Card/Card";
 
 interface PremiumGateProps {
   feature: string;
@@ -36,10 +33,9 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
 }) => {
   const router = useRouter();
   const [showModal, setShowModal] = React.useState(false);
-  
+
   const hasFeature = useHasFeature(feature);
   const canUseFeature = useCanUseFeature(feature, usageRequired);
-  const isPremium = useIsPremium();
 
   const styles = useThemedStyles((theme) => ({
     container: {
@@ -154,13 +150,9 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
     <>
       <Card style={styles.restrictedContainer}>
         <View style={styles.icon}>
-          <IconSymbol 
-            name="star.fill" 
-            size={48} 
-            color="#FFD700" 
-          />
+          <IconSymbol name="star.fill" size={48} color="#FFD700" />
         </View>
-        
+
         <Text style={styles.title}>{defaultTitle}</Text>
         <Text style={styles.description}>{defaultDescription}</Text>
 
@@ -174,7 +166,7 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
               accessibilityLabel="프리미엄으로 업그레이드"
               accessibilityHint="프리미엄 기능을 사용하기 위해 구독을 시작합니다"
             />
-            
+
             <TouchableOpacity
               style={styles.learnMoreButton}
               onPress={handleLearnMore}
@@ -212,13 +204,16 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
                 프리미엄 구독으로 더 많은 기능을 이용하세요
               </Text>
 
-              <ScrollView style={styles.featureList} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                style={styles.featureList}
+                showsVerticalScrollIndicator={false}
+              >
                 {getPremiumFeatures().map((feature, index) => (
                   <View key={index} style={styles.featureItem}>
-                    <IconSymbol 
-                      name="checkmark.circle.fill" 
-                      size={20} 
-                      color="#4CAF50" 
+                    <IconSymbol
+                      name="checkmark.circle.fill"
+                      size={20}
+                      color="#4CAF50"
                     />
                     <Text style={styles.featureText}>{feature}</Text>
                   </View>
@@ -261,7 +256,7 @@ function getFeatureTitle(feature: string): string {
     unlimited_photos: "무제한 사진",
     expert_consultation: "전문가 상담",
   };
-  
+
   return titles[feature] || "프리미엄 기능";
 }
 
@@ -278,8 +273,10 @@ function getFeatureDescription(feature: string): string {
     unlimited_photos: "사진을 무제한으로 업로드하세요",
     expert_consultation: "전문가와 상담을 받으세요",
   };
-  
-  return descriptions[feature] || "이 기능을 사용하려면 프리미엄 구독이 필요합니다";
+
+  return (
+    descriptions[feature] || "이 기능을 사용하려면 프리미엄 구독이 필요합니다"
+  );
 }
 
 function getPremiumFeatures(): string[] {

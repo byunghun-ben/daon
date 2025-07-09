@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  RefreshControl,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { useSleepAnalytics } from "@/shared/api/analytics/hooks";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { useActiveChildStore } from "@/shared/store/activeChildStore";
+import Card from "@/shared/ui/Card/Card";
+import { BarChart } from "@/shared/ui/charts/BarChart";
+import { LineChart } from "@/shared/ui/charts/LineChart";
 import { Stack } from "expo-router";
-import { BarChart, LineChart } from "../../shared/ui/charts";
-import Card from "../../shared/ui/Card";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
-import { useActiveChildStore } from "../../shared/store";
-import { useSleepAnalytics } from "../../shared/api/analytics/hooks";
+import { useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type TimePeriod = "day" | "week" | "month";
 
@@ -27,92 +28,94 @@ export default function SleepAnalyticsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { activeChild } = useActiveChildStore();
 
-  const styles = useThemedStyles((theme) => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    content: {
-      padding: theme.spacing.md,
-    },
-    periodSelector: {
-      flexDirection: "row",
-      backgroundColor: theme.colors.surface,
-      borderRadius: 12,
-      padding: 4,
-      marginBottom: theme.spacing.lg,
-    },
-    periodButton: {
-      flex: 1,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-      alignItems: "center",
-    },
-    periodButtonActive: {
-      backgroundColor: theme.colors.primary,
-    },
-    periodButtonText: {
-      fontSize: 14,
-      fontWeight: "500",
-      color: theme.colors.text,
-    },
-    periodButtonTextActive: {
-      color: theme.colors.onPrimary,
-    },
-    section: {
-      marginBottom: theme.spacing.lg,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: "600",
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    metricCard: {
-      marginBottom: theme.spacing.md,
-    },
-    metricRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: 8,
-    },
-    metricLabel: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-    },
-    metricValue: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: theme.colors.text,
-    },
-    chartContainer: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 16,
-      padding: theme.spacing.md,
-      marginBottom: theme.spacing.md,
-    },
-    chartTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-      textAlign: "center" as const,
-    },
-    loadingText: {
-      textAlign: "center" as const,
-      fontSize: 16,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xl,
-    },
-    errorText: {
-      textAlign: "center" as const,
-      fontSize: 16,
-      color: theme.colors.error,
-      marginTop: theme.spacing.xl,
-    },
-  }));
+  const styles = useThemedStyles((theme) =>
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+      },
+      content: {
+        padding: theme.spacing.md,
+      },
+      periodSelector: {
+        flexDirection: "row",
+        backgroundColor: theme.colors.surface,
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: theme.spacing.lg,
+      },
+      periodButton: {
+        flex: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        alignItems: "center",
+      },
+      periodButtonActive: {
+        backgroundColor: theme.colors.primary,
+      },
+      periodButtonText: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: theme.colors.text,
+      },
+      periodButtonTextActive: {
+        color: theme.colors.onPrimary,
+      },
+      section: {
+        marginBottom: theme.spacing.lg,
+      },
+      sectionTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: theme.colors.text,
+        marginBottom: theme.spacing.md,
+      },
+      metricCard: {
+        marginBottom: theme.spacing.md,
+      },
+      metricRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 8,
+      },
+      metricLabel: {
+        fontSize: 14,
+        color: theme.colors.textSecondary,
+      },
+      metricValue: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: theme.colors.text,
+      },
+      chartContainer: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: 16,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.md,
+      },
+      chartTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
+        textAlign: "center" as const,
+      },
+      loadingText: {
+        textAlign: "center" as const,
+        fontSize: 16,
+        color: theme.colors.textSecondary,
+        marginTop: theme.spacing.xl,
+      },
+      errorText: {
+        textAlign: "center" as const,
+        fontSize: 16,
+        color: theme.colors.error,
+        marginTop: theme.spacing.xl,
+      },
+    }),
+  );
 
   const {
     data: analytics,
@@ -123,12 +126,16 @@ export default function SleepAnalyticsScreen() {
     {
       childId: activeChild?.id || "",
       period: {
-        startDate: new Date(Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
+        startDate: new Date(
+          Date.now() - getPeriodDays(selectedPeriod) * 24 * 60 * 60 * 1000,
+        )
+          .toISOString()
+          .split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
         period: selectedPeriod,
       },
     },
-    { enabled: !!activeChild?.id }
+    { enabled: !!activeChild?.id },
   );
 
   function getPeriodDays(period: TimePeriod): number {
@@ -172,7 +179,9 @@ export default function SleepAnalyticsScreen() {
     labels: ["월", "화", "수", "목", "금", "토", "일"],
     datasets: [
       {
-        data: sleepPattern?.sleepByDay?.map(day => day.totalSleep / 60) || [0, 0, 0, 0, 0, 0, 0],
+        data: sleepPattern?.sleepByDay?.map((day) => day.totalSleep / 60) || [
+          0, 0, 0, 0, 0, 0, 0,
+        ],
         color: () => "#2196F3",
         strokeWidth: 3,
       },
@@ -195,7 +204,7 @@ export default function SleepAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "수면 패턴 분석" }} />
-      
+
       <ScrollView
         style={styles.content}
         refreshControl={
@@ -216,7 +225,8 @@ export default function SleepAnalyticsScreen() {
               <Text
                 style={[
                   styles.periodButtonText,
-                  selectedPeriod === period.key && styles.periodButtonTextActive,
+                  selectedPeriod === period.key &&
+                    styles.periodButtonTextActive,
                 ]}
               >
                 {period.label}
@@ -240,25 +250,33 @@ export default function SleepAnalyticsScreen() {
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>총 수면 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.totalSleepTime ? formatDuration(sleepPattern.totalSleepTime) : "데이터 없음"}
+                    {sleepPattern?.totalSleepTime
+                      ? formatDuration(sleepPattern.totalSleepTime)
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>일평균 수면 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.averageSleepPerDay ? formatDuration(sleepPattern.averageSleepPerDay) : "데이터 없음"}
+                    {sleepPattern?.averageSleepPerDay
+                      ? formatDuration(sleepPattern.averageSleepPerDay)
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>총 낮잠 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.dayNapTime ? formatDuration(sleepPattern.dayNapTime) : "데이터 없음"}
+                    {sleepPattern?.dayNapTime
+                      ? formatDuration(sleepPattern.dayNapTime)
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>총 밤잠 시간</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.nightSleepTime ? formatDuration(sleepPattern.nightSleepTime) : "데이터 없음"}
+                    {sleepPattern?.nightSleepTime
+                      ? formatDuration(sleepPattern.nightSleepTime)
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>
@@ -298,27 +316,26 @@ export default function SleepAnalyticsScreen() {
               <Card style={styles.metricCard}>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 취침 시간</Text>
-                  <Text style={styles.metricValue}>
-                    {"데이터 없음"}
-                  </Text>
+                  <Text style={styles.metricValue}>{"데이터 없음"}</Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 기상 시간</Text>
-                  <Text style={styles.metricValue}>
-                    {"데이터 없음"}
-                  </Text>
+                  <Text style={styles.metricValue}>{"데이터 없음"}</Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>낮잠 횟수</Text>
-                  <Text style={styles.metricValue}>
-                    {"데이터 없음"}
-                  </Text>
+                  <Text style={styles.metricValue}>{"데이터 없음"}</Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>평균 낮잠 시간</Text>
                   <Text style={styles.metricValue}>
                     {sleepPattern?.dayNapTime && sleepPattern?.sleepSessions
-                      ? formatDuration(Math.round(sleepPattern.dayNapTime / Math.max(1, sleepPattern.sleepSessions - 1)))
+                      ? formatDuration(
+                          Math.round(
+                            sleepPattern.dayNapTime /
+                              Math.max(1, sleepPattern.sleepSessions - 1),
+                          ),
+                        )
                       : "데이터 없음"}
                   </Text>
                 </View>
@@ -331,20 +348,22 @@ export default function SleepAnalyticsScreen() {
               <Card style={styles.metricCard}>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>수면 효율성</Text>
-                  <Text style={styles.metricValue}>
-                    {"데이터 없음"}
-                  </Text>
+                  <Text style={styles.metricValue}>{"데이터 없음"}</Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>수면 세션 수</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.sleepSessions !== undefined ? `${sleepPattern.sleepSessions}회` : "데이터 없음"}
+                    {sleepPattern?.sleepSessions !== undefined
+                      ? `${sleepPattern.sleepSessions}회`
+                      : "데이터 없음"}
                   </Text>
                 </View>
                 <View style={styles.metricRow}>
                   <Text style={styles.metricLabel}>최장 연속 수면</Text>
                   <Text style={styles.metricValue}>
-                    {sleepPattern?.longestSleep ? formatDuration(sleepPattern.longestSleep) : "데이터 없음"}
+                    {sleepPattern?.longestSleep
+                      ? formatDuration(sleepPattern.longestSleep)
+                      : "데이터 없음"}
                   </Text>
                 </View>
               </Card>

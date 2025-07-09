@@ -1,4 +1,7 @@
-import React from "react";
+import { SignUpForm } from "@/features/auth/SignUpForm";
+import { SCREEN_PADDING } from "@/shared/config/theme";
+import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
+import { Link } from "expo-router";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,10 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { Link } from "expo-router";
-import { SignUpForm } from "../../features/auth";
-import { SCREEN_PADDING } from "../../shared/config/theme";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 
 export default function SignUpScreen() {
   const styles = useThemedStyles((theme) => ({
@@ -64,9 +63,7 @@ export default function SignUpScreen() {
       >
         <View style={styles.header}>
           <Text style={styles.title}>다온 계정 만들기</Text>
-          <Text style={styles.subtitle}>
-            아이의 성장을 함께 기록해보세요
-          </Text>
+          <Text style={styles.subtitle}>아이의 성장을 함께 기록해보세요</Text>
         </View>
 
         <SignUpForm />

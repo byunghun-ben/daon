@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/shared/store";
+import { useAuthStore } from "@/shared/store/authStore";
 import type {
   AIModel,
   ChatMessage,

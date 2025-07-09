@@ -1,3 +1,6 @@
+import { useCreateChild } from "@/shared/api/children/hooks/useCreateChild";
+import Button from "@/shared/ui/Button/Button";
+import Input from "@/shared/ui/Input/Input";
 import {
   CreateChildRequestSchema,
   GENDERS,
@@ -8,8 +11,6 @@ import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Text, View } from "react-native";
-import { useCreateChild } from "../../shared/api/children";
-import { Button, Input } from "../../shared/ui";
 
 interface CreateChildFormProps {
   onSuccess: () => void;
@@ -45,7 +46,7 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,

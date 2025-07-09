@@ -13,6 +13,11 @@ import {
 import type { Request, Response } from "express";
 import z from "zod/v4";
 
+// Token refresh request schema
+const RefreshTokenRequestSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token is required"),
+});
+
 // Using shared schemas for request validation
 
 /**
@@ -178,6 +183,50 @@ export async function signIn(req: Request, res: Response): Promise<void> {
     }
 
     logger.error("Sign in error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+export async function refreshToken(req: Request, res: Response): Promise<void> {
+  try {
+    const validatedData = RefreshTokenRequestSchema.parse(req.body);
+    const { refreshToken } = validatedData;
+
+    // Use Supabase to refresh the session
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error || !data.session) {
+      logger.warn("Token refresh failed", { error: error?.message });
+      res.status(401).json({ error: "Invalid refresh token" });
+      return;
+    }
+
+    logger.info("Token refreshed successfully", {
+      userId: data.user?.id,
+    });
+
+    res.json({
+      message: "Token refreshed successfully",
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresIn: data.session.expires_in,
+      expiresAt: data.session.expires_at,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        error: "Validation failed",
+        details: error.issues,
+      });
+      return;
+    }
+
+    logger.error("Token refresh error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }

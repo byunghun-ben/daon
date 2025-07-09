@@ -1,5 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+
+// Add type declaration for _retry property
+declare module "axios" {
+  interface AxiosRequestConfig {
+    _retry?: boolean;
+  }
+}
 import axios from "axios";
 import axiosRetry from "axios-retry";
 
@@ -30,6 +37,11 @@ export class ApiError extends Error {
 // HTTP client with authentication using axios
 class ApiClient {
   private client: AxiosInstance;
+  private isRefreshing = false;
+  private failedQueue: {
+    resolve: (value: unknown) => void;
+    reject: (reason?: unknown) => void;
+  }[] = [];
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -69,6 +81,68 @@ class ApiClient {
     });
   }
 
+  private processQueue(error: unknown, token: string | null = null) {
+    this.failedQueue.forEach(({ resolve, reject }) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(token);
+      }
+    });
+    this.failedQueue = [];
+  }
+
+  private async refreshToken(): Promise<string | null> {
+    try {
+      const refreshToken = await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+        refreshToken,
+      });
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      
+      // Save new tokens
+      await this.saveTokens(accessToken, newRefreshToken);
+      
+      return accessToken;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      // Clear tokens and redirect to login
+      await this.clearTokens();
+      throw error;
+    }
+  }
+
+  private async saveTokens(accessToken: string, refreshToken?: string) {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+      if (refreshToken) {
+        await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      }
+    } catch (error) {
+      console.error("Failed to save tokens:", error);
+    }
+  }
+
+  private async clearTokens() {
+    try {
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.ACCESS_TOKEN,
+        STORAGE_KEYS.REFRESH_TOKEN,
+        STORAGE_KEYS.USER_DATA,
+      ]);
+      // Notify auth store to handle auth error
+      const { useAuthStore } = await import("../store/authStore");
+      useAuthStore.getState().handleAuthError();
+    } catch (error) {
+      console.error("Failed to clear tokens:", error);
+    }
+  }
+
   private setupInterceptors() {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
@@ -86,10 +160,47 @@ class ApiClient {
       (error) => Promise.reject(error),
     );
 
-    // Response interceptor to handle errors
+    // Response interceptor to handle errors and token refresh
     this.client.interceptors.response.use(
       (response) => response,
-      (error: AxiosError) => {
+      async (error: AxiosError) => {
+        const originalRequest = error.config;
+        
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            // If a refresh is already in progress, queue this request
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject });
+            }).then(token => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+              }
+              return this.client(originalRequest);
+            }).catch(err => {
+              return Promise.reject(err);
+            });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          try {
+            const newToken = await this.refreshToken();
+            this.processQueue(null, newToken);
+            
+            if (originalRequest.headers && newToken) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            this.processQueue(refreshError, null);
+            return Promise.reject(refreshError);
+          } finally {
+            this.isRefreshing = false;
+          }
+        }
+
         if (error.response) {
           // Server responded with error status
           const { status, data } = error.response;
@@ -204,6 +315,15 @@ export const authUtils = {
       return await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     } catch (error) {
       console.error("Failed to get stored token:", error);
+      return null;
+    }
+  },
+
+  async getStoredRefreshToken(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    } catch (error) {
+      console.error("Failed to get stored refresh token:", error);
       return null;
     }
   },

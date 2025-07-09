@@ -2,6 +2,7 @@ import {
   checkRegistrationStatus,
   createChild,
   getProfile,
+  refreshToken,
   signIn,
   signOut,
   signUp,
@@ -18,6 +19,7 @@ const kakaoAuthController = new KakaoAuthController();
 // Public routes with auth rate limiting
 router.post("/signup", authLimiter, signUp);
 router.post("/signin", authLimiter, signIn);
+router.post("/refresh", authLimiter, refreshToken);
 
 // Kakao OAuth routes with auth rate limiting
 router.post("/kakao/url", authLimiter, kakaoAuthController.generateLoginUrl);

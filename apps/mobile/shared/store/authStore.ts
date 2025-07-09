@@ -29,6 +29,8 @@ interface AuthState {
   setUser: (user: UserApi | null) => void;
   setLoading: (loading: boolean) => void;
   saveToken: (token: string, refreshToken?: string) => Promise<void>;
+  // Add method for handling automatic sign out from API client
+  handleAuthError: () => Promise<void>;
 }
 
 const STORAGE_KEY = "auth-store";
@@ -239,6 +241,18 @@ export const useAuthStore = create<AuthState>()(
           });
           throw error;
         }
+      },
+
+      // Handle authentication errors from API client (called when token refresh fails)
+      handleAuthError: async () => {
+        console.warn("[AuthStore] Handling authentication error - signing out");
+        await authUtils.clearTokens();
+        set({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false,
+        });
+        kakaoAuthService.clearProcessedUrls();
       },
     }),
     {

@@ -1,7 +1,6 @@
 import type { ActivityApi } from "@daon/shared";
 import React from "react";
 import { Text, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Card from "../../shared/ui/Card/Card";
 
 interface TodaySummaryProps {
@@ -16,35 +15,35 @@ interface ActivitySummary {
 }
 
 const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
-  const styles = useThemedStyles((theme) => ({
-    card: {
-      marginBottom: theme.spacing.xl,
-    },
-    cardTitle: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    summaryGrid: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-    },
-    summaryItem: {
-      alignItems: "center" as const,
-      flex: 1,
-    },
-    summaryValue: {
-      fontSize: 24,
-      fontWeight: "700" as const,
-      color: theme.colors.primary,
-      marginBottom: theme.spacing.xs,
-    },
-    summaryLabel: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-  }));
+  // const styles = useThemedStyles((theme) => ({
+  //   card: {
+  //     marginBottom: theme.spacing.xl,
+  //   },
+  //   cardTitle: {
+  //     fontSize: 18,
+  //     fontWeight: "600" as const,
+  //     color: theme.colors.text,
+  //     marginBottom: theme.spacing.md,
+  //   },
+  //   summaryGrid: {
+  //     flexDirection: "row" as const,
+  //     justifyContent: "space-between" as const,
+  //   },
+  //   summaryItem: {
+  //     alignItems: "center" as const,
+  //     flex: 1,
+  //   },
+  //   summaryValue: {
+  //     fontSize: 24,
+  //     fontWeight: "700" as const,
+  //     color: theme.colors.primary,
+  //     marginBottom: theme.spacing.xs,
+  //   },
+  //   summaryLabel: {
+  //     fontSize: theme.typography.body2.fontSize,
+  //     color: theme.colors.textSecondary,
+  //   },
+  // }));
 
   // 오늘 활동 요약 계산
   const getSummary = (): ActivitySummary => {
@@ -70,17 +69,18 @@ const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
     { key: "feeding", label: "수유", value: summary.feeding },
     { key: "diaper", label: "기저귀", value: summary.diaper },
     { key: "sleep", label: "수면", value: summary.sleep },
-    { key: "tummy_time", label: "배밀이", value: summary.tummy_time },
   ];
 
   return (
-    <Card style={styles.card}>
-      <Text style={styles.cardTitle}>오늘 요약</Text>
-      <View style={styles.summaryGrid}>
+    <Card>
+      <Text className="text-xl font-bold mb-4">오늘 요약</Text>
+      <View className="flex-row justify-between">
         {summaryItems.map((item) => (
-          <View key={item.key} style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>{item.value}</Text>
-            <Text style={styles.summaryLabel}>{item.label}</Text>
+          <View key={item.key} className="flex-1 items-center">
+            <Text className="text-2xl font-bold text-primary">
+              {item.value}
+            </Text>
+            <Text className="text-sm text-gray-500">{item.label}</Text>
           </View>
         ))}
       </View>

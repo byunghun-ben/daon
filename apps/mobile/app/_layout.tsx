@@ -20,13 +20,14 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { kakaoAuthService } from "@/shared/lib/kakao-auth";
 import { queryClient } from "@/shared/lib/queryClient";
+import { initializeI18n } from "@/shared/lib/i18n";
 import { useAuthStore } from "@/shared/store/authStore";
 import {
   initializeThemeStore,
   useThemeStore,
 } from "@/shared/store/theme.store";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GlobalBottomSheet } from "@/shared/ui/GlobalBottomSheet";
 import "../global.css";
 
@@ -80,6 +81,7 @@ export default function RootLayout() {
   const { theme } = useThemeStore();
   const pathname = usePathname();
   const segments = useSegments();
+  const [i18nInitialized, setI18nInitialized] = useState(false);
 
   useEffect(() => {
     console.log("[RootLayout] user", user);
@@ -116,6 +118,21 @@ export default function RootLayout() {
 
   useNotificationObserver();
 
+  // Initialize i18n on app start
+  useEffect(() => {
+    const initI18n = async () => {
+      try {
+        await initializeI18n();
+        setI18nInitialized(true);
+        console.log("[RootLayout] i18n initialized successfully");
+      } catch (error) {
+        console.error("[RootLayout] Failed to initialize i18n:", error);
+        setI18nInitialized(true); // Continue even if i18n fails
+      }
+    };
+    initI18n();
+  }, []);
+
   // Initialize theme store on app start
   useEffect(() => {
     const subscription = initializeThemeStore();
@@ -139,8 +156,8 @@ export default function RootLayout() {
     };
   }, []);
 
-  // Show loading screen while fonts or auth are loading
-  if (!loaded || !isInitialized || isLoading) {
+  // Show loading screen while fonts, i18n, or auth are loading
+  if (!loaded || !i18nInitialized || !isInitialized || isLoading) {
     return (
       <View
         style={{

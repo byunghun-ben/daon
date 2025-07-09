@@ -1,0 +1,38 @@
+{
+  "common": {
+    "buttons": {
+      "save": "保存",
+      "cancel": "キャンセル", 
+      "delete": "削除",
+      "edit": "編集",
+      "add": "追加"
+    },
+    "messages": {
+      "success": "成功しました",
+      "error": "エラーが発生しました"
+    }
+  },
+  "navigation": {
+    "tabs": {
+      "home": "ホーム",
+      "settings": "設定"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "language": {
+      "title": "言語設定",
+      "korean": "한국어",
+      "english": "English", 
+      "japanese": "日本語"
+    }
+  },
+  "notifications": {
+    "settings": {
+      "permissions": {
+        "granted": "通知権限が許可されています",
+        "denied": "通知権限を許可してください"
+      }
+    }
+  }
+}

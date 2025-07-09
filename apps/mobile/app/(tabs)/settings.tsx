@@ -155,6 +155,16 @@ export default function SettingsScreen() {
             <View className="h-px bg-gray-200" />
             <TouchableOpacity
               className="p-2"
+              onPress={() => router.push("/settings/language")}
+            >
+              <Text className="text-lg font-bold mb-2">언어 설정</Text>
+              <Text className="text-sm text-gray-500">
+                앱 언어 변경
+              </Text>
+            </TouchableOpacity>
+            <View className="h-px bg-gray-200" />
+            <TouchableOpacity
+              className="p-2"
               onPress={() => router.push("/settings/privacy")}
             >
               <Text className="text-lg font-bold mb-2">개인정보 보호</Text>

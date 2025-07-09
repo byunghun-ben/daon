@@ -1,0 +1,649 @@
+{
+  "common": {
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "confirm": "Confirm",
+      "close": "Close",
+      "next": "Next",
+      "back": "Back",
+      "submit": "Submit",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "upload": "Upload",
+      "download": "Download",
+      "share": "Share",
+      "copy": "Copy",
+      "done": "Done",
+      "skip": "Skip",
+      "select": "Select",
+      "selectAll": "Select All",
+      "clear": "Clear",
+      "reset": "Reset",
+      "apply": "Apply",
+      "dismiss": "Dismiss"
+    },
+    "labels": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "birthDate": "Birth Date",
+      "gender": "Gender",
+      "weight": "Weight",
+      "height": "Height",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "amount": "Amount",
+      "note": "Note",
+      "photo": "Photo",
+      "location": "Location",
+      "category": "Category",
+      "type": "Type",
+      "status": "Status",
+      "priority": "Priority",
+      "frequency": "Frequency",
+      "reminder": "Reminder",
+      "settings": "Settings",
+      "profile": "Profile",
+      "account": "Account",
+      "privacy": "Privacy",
+      "security": "Security",
+      "language": "Language",
+      "theme": "Theme",
+      "version": "Version",
+      "about": "About"
+    },
+    "messages": {
+      "success": "Successfully completed",
+      "error": "An error occurred",
+      "loading": "Loading...",
+      "saving": "Saving...",
+      "deleting": "Deleting...",
+      "uploading": "Uploading...",
+      "processing": "Processing...",
+      "connecting": "Connecting...",
+      "syncing": "Syncing...",
+      "noData": "No data available",
+      "noResults": "No results found",
+      "networkError": "Network error occurred",
+      "serverError": "Server error occurred",
+      "validationError": "Please check your input",
+      "permissionDenied": "Permission denied",
+      "featureUnavailable": "Feature currently unavailable",
+      "updateAvailable": "Update available",
+      "comingSoon": "Coming soon",
+      "maintenance": "Under maintenance"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "failed": "Failed",
+      "expired": "Expired",
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "time": {
+      "now": "Now",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "nextWeek": "Next Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "nextMonth": "Next Month",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "night": "Night",
+      "seconds": "Seconds",
+      "minutes": "Minutes",
+      "hours": "Hours",
+      "days": "Days",
+      "weeks": "Weeks",
+      "months": "Months",
+      "years": "Years"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign In",
+      "subtitle": "Welcome to Daon",
+      "emailPlaceholder": "Enter your email address",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Sign Up",
+      "continueWithKakao": "Continue with Kakao",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple"
+    },
+    "signUp": {
+      "title": "Sign Up",
+      "subtitle": "Create a new account",
+      "namePlaceholder": "Enter your name",
+      "emailPlaceholder": "Enter your email address",
+      "passwordPlaceholder": "Enter your password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "phonePlaceholder": "Enter your phone number (optional)",
+      "agreeToTerms": "I agree to the Terms of Service",
+      "agreeToPrivacy": "I agree to the Privacy Policy",
+      "hasAccount": "Already have an account?",
+      "signInInstead": "Sign In"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email format",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "nameRequired": "Name is required",
+      "phoneInvalid": "Please enter a valid phone number format",
+      "termsRequired": "Please agree to the Terms of Service",
+      "privacyRequired": "Please agree to the Privacy Policy"
+    }
+  },
+  "navigation": {
+    "tabs": {
+      "home": "Home",
+      "record": "Record",
+      "diary": "Diary",
+      "growth": "Growth",
+      "settings": "Settings"
+    }
+  },
+  "home": {
+    "title": "Hello!",
+    "subtitle": "Another precious day with your child",
+    "quickActions": {
+      "title": "Quick Record",
+      "feeding": "Feeding",
+      "sleep": "Sleep",
+      "diaper": "Diaper",
+      "tummyTime": "Tummy Time",
+      "custom": "Custom"
+    },
+    "todaySummary": {
+      "title": "Today's Summary",
+      "feeding": "{{count}} feedings",
+      "sleep": "{{hours}} hours of sleep",
+      "diaper": "{{count}} diaper changes",
+      "noActivities": "No activities recorded yet"
+    },
+    "recentActivities": {
+      "title": "Recent Activities",
+      "seeAll": "See All",
+      "noActivities": "No recent activities"
+    },
+    "upcomingReminders": {
+      "title": "Upcoming Reminders",
+      "noReminders": "No upcoming reminders"
+    }
+  },
+  "activities": {
+    "feeding": {
+      "title": "Feeding Record",
+      "type": {
+        "breast": "Breast",
+        "bottle": "Bottle",
+        "solid": "Solid Food"
+      },
+      "side": {
+        "left": "Left",
+        "right": "Right",
+        "both": "Both"
+      },
+      "amount": "Amount (ml)",
+      "duration": "Duration (min)",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "note": "Note",
+      "completed": "Feeding record saved"
+    },
+    "sleep": {
+      "title": "Sleep Record",
+      "startTime": "Sleep Time",
+      "endTime": "Wake Time",
+      "duration": "Sleep Duration",
+      "quality": {
+        "title": "Sleep Quality",
+        "excellent": "Excellent",
+        "good": "Good",
+        "fair": "Fair",
+        "poor": "Poor"
+      },
+      "location": {
+        "title": "Sleep Location",
+        "crib": "Crib",
+        "bed": "Parents' Bed",
+        "couch": "Couch",
+        "stroller": "Stroller",
+        "carSeat": "Car Seat"
+      },
+      "completed": "Sleep record saved"
+    },
+    "diaper": {
+      "title": "Diaper Record",
+      "type": {
+        "wet": "Wet",
+        "dirty": "Dirty",
+        "both": "Wet + Dirty",
+        "dry": "Dry"
+      },
+      "size": {
+        "newborn": "Newborn",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "xlarge": "X-Large"
+      },
+      "rash": "Diaper Rash",
+      "completed": "Diaper record saved"
+    },
+    "tummyTime": {
+      "title": "Tummy Time Record",
+      "duration": "Duration (min)",
+      "mood": {
+        "title": "Mood",
+        "happy": "Happy",
+        "calm": "Calm",
+        "fussy": "Fussy",
+        "crying": "Crying"
+      },
+      "milestones": {
+        "title": "Milestones",
+        "headUp": "Head Up",
+        "rolling": "Rolling",
+        "reaching": "Reaching",
+        "pushing": "Pushing Up"
+      },
+      "completed": "Tummy time record saved"
+    },
+    "list": {
+      "title": "Activity Records",
+      "filter": {
+        "all": "All",
+        "today": "Today",
+        "week": "This Week",
+        "month": "This Month"
+      },
+      "sort": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "type": "By Type"
+      },
+      "empty": "No activities recorded"
+    }
+  },
+  "diary": {
+    "title": "Baby Diary",
+    "create": {
+      "title": "New Diary Entry",
+      "titlePlaceholder": "Enter a title",
+      "contentPlaceholder": "Record what happened today...",
+      "addPhoto": "Add Photo",
+      "addMilestone": "Add Milestone",
+      "mood": {
+        "title": "Today's Mood",
+        "happy": "Happy",
+        "excited": "Excited",
+        "calm": "Calm",
+        "tired": "Tired",
+        "worried": "Worried",
+        "grateful": "Grateful"
+      }
+    },
+    "list": {
+      "empty": "No diary entries yet",
+      "writeFirst": "Write your first diary entry"
+    },
+    "milestones": {
+      "title": "Milestones",
+      "first": {
+        "smile": "First Smile",
+        "laugh": "First Laugh",
+        "word": "First Word",
+        "step": "First Step",
+        "tooth": "First Tooth",
+        "crawl": "First Crawl",
+        "sit": "First Sit",
+        "stand": "First Stand"
+      }
+    }
+  },
+  "growth": {
+    "title": "Growth Records",
+    "record": {
+      "title": "New Growth Record",
+      "weight": "Weight (kg)",
+      "height": "Height (cm)",
+      "headCircumference": "Head Circumference (cm)",
+      "note": "Note",
+      "completed": "Growth record saved"
+    },
+    "chart": {
+      "title": "Growth Chart",
+      "weight": "Weight",
+      "height": "Height",
+      "headCircumference": "Head Circumference",
+      "percentile": "Percentile",
+      "average": "Average",
+      "period": {
+        "month": "1 Month",
+        "threeMonths": "3 Months",
+        "sixMonths": "6 Months",
+        "year": "1 Year"
+      }
+    },
+    "list": {
+      "empty": "No growth records yet",
+      "recordFirst": "Add your first growth record"
+    }
+  },
+  "children": {
+    "title": "Children Management",
+    "add": {
+      "title": "Add New Child",
+      "subtitle": "Please enter your child's basic information"
+    },
+    "profile": {
+      "title": "Child Profile",
+      "basicInfo": "Basic Information",
+      "birthInfo": "Birth Information",
+      "birthWeight": "Birth Weight (kg)",
+      "birthHeight": "Birth Height (cm)",
+      "inviteCode": "Invite Code",
+      "shareCode": "Share this code with other caregivers"
+    },
+    "join": {
+      "title": "Join Child",
+      "subtitle": "Enter an invite code to join an existing child",
+      "codePlaceholder": "Enter invite code",
+      "joinButton": "Join",
+      "invalidCode": "Invalid invite code"
+    },
+    "list": {
+      "title": "Registered Children",
+      "empty": "No children registered",
+      "addFirst": "Add your first child"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "App settings and account management",
+    "sections": {
+      "account": "Account",
+      "app": "App Settings",
+      "support": "Support"
+    },
+    "items": {
+      "profile": {
+        "title": "Edit Profile",
+        "subtitle": "Edit basic information like name, email"
+      },
+      "children": {
+        "title": "Children Management",
+        "subtitle": "View and edit registered children information"
+      },
+      "notifications": {
+        "title": "Notification Settings",
+        "subtitle": "Push notifications and reminder settings"
+      },
+      "language": {
+        "title": "Language Settings",
+        "subtitle": "Change app language"
+      },
+      "theme": {
+        "title": "Theme Settings",
+        "subtitle": "Light/Dark mode and system settings"
+      },
+      "accessibility": {
+        "title": "Accessibility",
+        "subtitle": "Font size, high contrast mode, motion settings"
+      },
+      "privacy": {
+        "title": "Privacy",
+        "subtitle": "Data security and privacy settings"
+      },
+      "backup": {
+        "title": "Backup & Sync",
+        "subtitle": "Data backup and device synchronization"
+      },
+      "help": {
+        "title": "Help",
+        "subtitle": "Usage guide and FAQ"
+      },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Bug reports and feature requests"
+      },
+      "about": {
+        "title": "About",
+        "subtitle": "Version information and licenses"
+      }
+    },
+    "language": {
+      "title": "Language Settings",
+      "current": "Current Language",
+      "available": "Available Languages",
+      "korean": "한국어",
+      "english": "English",
+      "japanese": "日本語",
+      "changeConfirm": "Do you want to change the language to {{language}}?",
+      "changeSuccess": "Language changed successfully",
+      "changeFailed": "Failed to change language"
+    },
+    "logout": {
+      "button": "Logout",
+      "confirm": "Are you sure you want to logout?",
+      "success": "Successfully logged out"
+    }
+  },
+  "notifications": {
+    "settings": {
+      "title": "Notification Settings",
+      "permissions": {
+        "title": "Notification Permission",
+        "granted": "Notification permission granted",
+        "denied": "Please allow notifications to receive alerts",
+        "request": "Grant Permission",
+        "requesting": "Requesting...",
+        "openSettings": "Advanced settings in system preferences"
+      },
+      "categories": {
+        "basic": "Basic Notifications",
+        "activities": "Activity Notifications",
+        "summary": "Summary Notifications"
+      },
+      "types": {
+        "push": {
+          "title": "Push Notifications",
+          "subtitle": "Basic setting for all notifications"
+        },
+        "sound": {
+          "title": "Sound",
+          "subtitle": "Play notification sound"
+        },
+        "vibration": {
+          "title": "Vibration",
+          "subtitle": "Use notification vibration"
+        },
+        "feeding": {
+          "title": "Feeding Reminders",
+          "subtitle": "Feeding time notifications"
+        },
+        "sleep": {
+          "title": "Sleep Reminders",
+          "subtitle": "Sleep time notifications"
+        },
+        "growth": {
+          "title": "Growth Tracking",
+          "subtitle": "Growth record notifications"
+        },
+        "milestone": {
+          "title": "Milestone Alerts",
+          "subtitle": "Developmental milestone notifications"
+        },
+        "dailySummary": {
+          "title": "Daily Summary",
+          "subtitle": "Daily activity summary notifications"
+        },
+        "weeklyReport": {
+          "title": "Weekly Report",
+          "subtitle": "Weekly growth report notifications"
+        }
+      },
+      "quietHours": {
+        "title": "Quiet Hours",
+        "subtitle": "Block notifications during specified times",
+        "enabled": "Use Quiet Hours",
+        "timeRange": "Quiet Hours Period",
+        "startTime": "Start Time",
+        "endTime": "End Time"
+      },
+      "frequency": {
+        "title": "Notification Frequency",
+        "feeding": "Feeding reminder interval (hours)",
+        "sleep": "Sleep reminder interval (hours)",
+        "dailySummary": "Daily summary time",
+        "weeklyReport": "Weekly report day"
+      },
+      "tips": {
+        "title": "💡 Notification Tips",
+        "content": "• Keep important notifications on and turn off unnecessary ones\n• Set quiet hours to ensure rest time\n• More detailed notification settings available in system preferences"
+      }
+    },
+    "templates": {
+      "feeding": {
+        "reminder": {
+          "title": "Feeding Time",
+          "body": "It's time to feed {{childName}}"
+        },
+        "overdue": {
+          "title": "Feeding Overdue",
+          "body": "{{childName}}'s feeding is {{duration}} overdue"
+        }
+      },
+      "sleep": {
+        "reminder": {
+          "title": "Sleep Time",
+          "body": "It's time for {{childName}} to sleep"
+        },
+        "wakeUp": {
+          "title": "Wake Up Time",
+          "body": "Time to wake up {{childName}}"
+        }
+      },
+      "diaper": {
+        "reminder": {
+          "title": "Diaper Check Time",
+          "body": "Please check {{childName}}'s diaper"
+        }
+      },
+      "growth": {
+        "reminder": {
+          "title": "Growth Record Time",
+          "body": "Please record {{childName}}'s growth"
+        }
+      },
+      "milestone": {
+        "achievement": {
+          "title": "New Milestone Achieved!",
+          "body": "{{childName}} has achieved {{milestone}}"
+        }
+      },
+      "summary": {
+        "daily": {
+          "title": "Today's Activity Summary",
+          "body": "{{feedingCount}} feedings, {{sleepHours}} hours sleep, {{diaperCount}} diaper changes"
+        },
+        "weekly": {
+          "title": "This Week's Growth Report",
+          "body": "{{childName}}'s weekly activity report is ready"
+        }
+      }
+    },
+    "actions": {
+      "markDone": "Done",
+      "snooze5": "5 min later",
+      "snooze10": "10 min later",
+      "snooze30": "30 min later",
+      "openApp": "Open App",
+      "dismiss": "Dismiss"
+    }
+  },
+  "errors": {
+    "general": {
+      "unknown": "An unknown error occurred",
+      "network": "Please check your network connection",
+      "server": "There's a temporary server issue",
+      "timeout": "Request timed out",
+      "maintenance": "Service is currently under maintenance"
+    },
+    "auth": {
+      "invalidCredentials": "Invalid email or password",
+      "userNotFound": "User not found",
+      "emailAlreadyExists": "Email already in use",
+      "weakPassword": "Password is too weak",
+      "tokenExpired": "Authentication expired. Please sign in again",
+      "unauthorized": "Access denied"
+    },
+    "validation": {
+      "required": "{{field}} is required",
+      "invalid": "Please enter a valid {{field}}",
+      "tooShort": "{{field}} must be at least {{min}} characters",
+      "tooLong": "{{field}} can be up to {{max}} characters",
+      "min": "{{field}} must be at least {{min}}",
+      "max": "{{field}} must be at most {{max}}"
+    },
+    "permissions": {
+      "camera": "Camera permission is required",
+      "photos": "Photo library permission is required",
+      "notifications": "Notification permission is required",
+      "location": "Location permission is required",
+      "microphone": "Microphone permission is required"
+    }
+  },
+  "accessibility": {
+    "buttons": {
+      "back": "Go back",
+      "close": "Close",
+      "menu": "Menu",
+      "search": "Search",
+      "filter": "Filter",
+      "sort": "Sort",
+      "refresh": "Refresh",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "images": {
+      "profilePhoto": "Profile photo",
+      "childPhoto": "Child photo",
+      "activityPhoto": "Activity photo",
+      "diaryPhoto": "Diary photo",
+      "placeholder": "Image placeholder"
+    },
+    "states": {
+      "loading": "Loading",
+      "error": "Error",
+      "empty": "Empty",
+      "selected": "Selected",
+      "disabled": "Disabled",
+      "required": "Required"
+    }
+  }
+}

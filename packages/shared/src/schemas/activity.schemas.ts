@@ -107,18 +107,47 @@ export const ActivityDbSchema = z.object({
   updated_at: z.iso.datetime({ offset: true }),
 });
 
-export const ActivityApiSchema = z.object({
+// const BaseActivityApiSchema = z.object({
+//   id: z.uuid(),
+//   childId: z.uuid(),
+//   userId: z.uuid(),
+//   type: ActivityTypeSchema,
+//   timestamp: z.iso.datetime({ offset: true }),
+//   data: z.record(z.string(), z.unknown()),
+//   notes: z.string().nullable(),
+//   createdAt: z.iso.datetime({ offset: true }),
+//   updatedAt: z.iso.datetime({ offset: true }),
+//   user: z.object({
+//     id: z.uuid(),
+//     name: z.string().nullable(),
+//     email: z.email(),
+//   }),
+// });
+
+const FeedingActivityApiSchema = z.object({
   id: z.uuid(),
   childId: z.uuid(),
   userId: z.uuid(),
-  type: ActivityTypeSchema,
+  type: z.literal("feeding"),
   timestamp: z.iso.datetime({ offset: true }),
-  data: z.union([
-    FeedingDataApiSchema,
-    DiaperDataApiSchema,
-    SleepDataApiSchema,
-    TummyTimeDataApiSchema,
-  ]),
+  data: FeedingDataApiSchema,
+  notes: z.string().nullable(),
+  user: z.object({
+    id: z.uuid(),
+    name: z.string().nullable(),
+    email: z.email(),
+  }),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+});
+
+const DiaperActivityApiSchema = z.object({
+  id: z.uuid(),
+  childId: z.uuid(),
+  userId: z.uuid(),
+  type: z.literal("diaper"),
+  timestamp: z.iso.datetime({ offset: true }),
+  data: DiaperDataApiSchema,
   notes: z.string().nullable(),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
@@ -129,12 +158,71 @@ export const ActivityApiSchema = z.object({
   }),
 });
 
+const SleepActivityApiSchema = z.object({
+  id: z.uuid(),
+  childId: z.uuid(),
+  userId: z.uuid(),
+  type: z.literal("sleep"),
+  timestamp: z.iso.datetime({ offset: true }),
+  data: SleepDataApiSchema,
+  notes: z.string().nullable(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+  user: z.object({
+    id: z.uuid(),
+    name: z.string().nullable(),
+    email: z.email(),
+  }),
+});
+
+const TummyTimeActivityApiSchema = z.object({
+  id: z.uuid(),
+  childId: z.uuid(),
+  userId: z.uuid(),
+  type: z.literal("tummy_time"),
+  timestamp: z.iso.datetime({ offset: true }),
+  data: TummyTimeDataApiSchema,
+  notes: z.string().nullable(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+  user: z.object({
+    id: z.uuid(),
+    name: z.string().nullable(),
+    email: z.email(),
+  }),
+});
+
+const CustomActivityApiSchema = z.object({
+  id: z.uuid(),
+  childId: z.uuid(),
+  userId: z.uuid(),
+  type: z.literal("custom"),
+  timestamp: z.iso.datetime({ offset: true }),
+  data: z.record(z.string(), z.unknown()),
+  notes: z.string().nullable(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+  user: z.object({
+    id: z.uuid(),
+    name: z.string().nullable(),
+    email: z.email(),
+  }),
+});
+
+export const ActivityApiSchema = z.discriminatedUnion("type", [
+  FeedingActivityApiSchema,
+  DiaperActivityApiSchema,
+  SleepActivityApiSchema,
+  TummyTimeActivityApiSchema,
+  CustomActivityApiSchema,
+]);
+
 // Request schemas
 export const CreateActivityRequestSchema = z.object({
   childId: z.uuid(),
   type: ActivityTypeSchema,
   timestamp: z.iso.datetime({ offset: true }).optional(), // 기본값은 서버에서 현재 시간
-  data: z.union([
+  data: z.discriminatedUnion("type", [
     CreateFeedingDataRequestSchema,
     CreateDiaperDataRequestSchema,
     CreateSleepDataRequestSchema,
@@ -146,7 +234,7 @@ export const CreateActivityRequestSchema = z.object({
 export const UpdateActivityRequestSchema = z.object({
   type: ActivityTypeSchema.optional(),
   timestamp: z.iso.datetime({ offset: true }).optional(),
-  data: z.union([
+  data: z.discriminatedUnion("type", [
     CreateFeedingDataRequestSchema,
     CreateDiaperDataRequestSchema,
     CreateSleepDataRequestSchema,

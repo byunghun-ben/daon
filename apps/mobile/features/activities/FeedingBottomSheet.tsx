@@ -1,22 +1,22 @@
-import { forwardRef, useState, useImperativeHandle, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import type { CreateActivityRequest } from "@daon/shared";
-import { z } from "zod/v4";
 import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import { BottomSheet } from "@/shared/ui/BottomSheet/BottomSheet";
 import Button from "@/shared/ui/Button/Button";
 import Input from "@/shared/ui/Input/Input";
-import { BottomSheet } from "@/shared/ui/BottomSheet/BottomSheet";
+import type { CreateActivityRequest } from "@daon/shared";
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { z } from "zod/v4";
 
 // 수유 기록 폼 스키마
 const FeedingFormSchema = z.object({
@@ -116,11 +116,11 @@ export const FeedingBottomSheet = forwardRef<
       enableDynamicSizing={false}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-2 py-4">
+        <View className="p-6 gap-6">
           <Text className="text-xl font-bold mb-4">수유 기록</Text>
 
           {/* 시간 선택 */}
-          <View className="mb-4">
+          <View>
             <Text className="text-base font-medium mb-2">시간</Text>
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
@@ -145,6 +145,7 @@ export const FeedingBottomSheet = forwardRef<
                   setShowDatePicker(false);
                   if (date) setSelectedDate(date);
                 }}
+                locale="ko-KR"
               />
             )}
           </View>

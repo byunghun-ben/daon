@@ -39,6 +39,11 @@ export const createActivity: RequestHandler = createAuthenticatedHandler(
         .single();
 
       if (accessError || !access) {
+        logger.error("Child not found or access denied", {
+          childId: validatedApiData.childId,
+          userId: req.user.id,
+          error: accessError,
+        });
         res.status(404).json({ error: "Child not found or access denied" });
         return;
       }

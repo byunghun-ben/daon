@@ -23,7 +23,7 @@ export const chatController = {
       });
 
       // Generate unique conversation ID
-      const conversationId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const conversationId = `chat_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
       logger.info(`Starting chat stream: ${conversationId}`, {
         messageCount: messages.length,

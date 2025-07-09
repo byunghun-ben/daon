@@ -124,31 +124,33 @@ export default function RecordScreen() {
           <View className="gap-4">
             <Text className="text-lg font-bold">최근 활동</Text>
 
-            {Array.isArray(recentActivities?.activities) &&
-            recentActivities.activities.length === 0 ? (
-              <Card>
-                <View className="items-center justify-center gap-4">
-                  <Text className="text-sm text-text-secondary">
-                    아직 기록된 활동이 없습니다.{"\n"}첫 번째 활동을
-                    기록해보세요!
-                  </Text>
-                  <Button
-                    title="활동 기록하기"
-                    onPress={handleNewRecord}
-                    variant="primary"
+            <View>
+              {Array.isArray(recentActivities?.activities) &&
+              recentActivities.activities.length === 0 ? (
+                <Card>
+                  <View className="items-center justify-center gap-4">
+                    <Text className="text-sm text-text-secondary">
+                      아직 기록된 활동이 없습니다.{"\n"}첫 번째 활동을
+                      기록해보세요!
+                    </Text>
+                    <Button
+                      title="활동 기록하기"
+                      onPress={handleNewRecord}
+                      variant="primary"
+                    />
+                  </View>
+                </Card>
+              ) : Array.isArray(recentActivities?.activities) ? (
+                recentActivities.activities.map((activity: Activity) => (
+                  <ActivityCard
+                    key={activity.id}
+                    activity={activity}
+                    onPress={handleActivityPress}
+                    showUser={false}
                   />
-                </View>
-              </Card>
-            ) : Array.isArray(recentActivities?.activities) ? (
-              recentActivities.activities.map((activity: Activity) => (
-                <ActivityCard
-                  key={activity.id}
-                  activity={activity}
-                  onPress={handleActivityPress}
-                  showUser={false}
-                />
-              ))
-            ) : null}
+                ))
+              ) : null}
+            </View>
           </View>
         </View>
       </ScrollView>

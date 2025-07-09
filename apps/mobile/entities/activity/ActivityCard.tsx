@@ -1,6 +1,12 @@
 import { cn } from "@/shared/lib/utils/cn";
 import Card from "@/shared/ui/Card/Card";
-import { type ActivityApi } from "@daon/shared";
+import type {
+  ActivityApi,
+  DiaperDataApi,
+  FeedingDataApi,
+  SleepDataApi,
+  TummyTimeDataApi,
+} from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -59,75 +65,58 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   };
 
   const renderActivityDetails = () => {
-    const data = activity.data as any;
+    const data = activity.data;
 
     switch (activity.type) {
-      case "feeding":
+      case "feeding": {
+        const feedingData = data as FeedingDataApi;
         return (
-          <View className="mt-sm">
-            {data.type && (
-              <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
-                  방법:
-                </Text>
-                <Text className="text-sm text-text font-medium">
-                  {data.type === "breast"
+          <View>
+            {feedingData.type && (
+              <View className="flex-row gap-2 items-center">
+                <Text className="text-lg text-text-secondary">방법:</Text>
+                <Text className="text-lg text-text font-medium">
+                  {feedingData.type === "breast"
                     ? "모유"
-                    : data.type === "bottle"
+                    : feedingData.type === "bottle"
                       ? "분유"
                       : "이유식"}
                 </Text>
               </View>
             )}
-            {data.side && (
-              <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
-                  부위:
-                </Text>
-                <Text className="text-sm text-text font-medium">
-                  {data.side === "left"
-                    ? "왼쪽"
-                    : data.side === "right"
-                      ? "오른쪽"
-                      : "양쪽"}
+            {feedingData.amount && (
+              <View className="flex-row gap-2 items-center">
+                <Text className="text-lg text-text-secondary">양:</Text>
+                <Text className="text-lg text-text font-medium">
+                  {feedingData.amount}ml
                 </Text>
               </View>
             )}
-            {data.amount && (
-              <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
-                  양:
-                </Text>
-                <Text className="text-sm text-text font-medium">
-                  {data.amount}ml
-                </Text>
-              </View>
-            )}
-            {data.duration && (
-              <View className="flex-row mb-xs">
-                <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
-                  시간:
-                </Text>
-                <Text className="text-sm text-text font-medium">
-                  {data.duration}분
+            {feedingData.duration && (
+              <View className="flex-row gap-2 items-center">
+                <Text className="text-lg text-text-secondary">시간:</Text>
+                <Text className="text-lg text-text font-medium">
+                  {feedingData.duration}분
                 </Text>
               </View>
             )}
           </View>
         );
+      }
 
-      case "diaper":
+      case "diaper": {
+        const diaperData = data as DiaperDataApi;
         return (
-          <View className="mt-sm">
-            {data.type && (
+          <View>
+            {diaperData.type && (
               <View className="flex-row mb-xs">
                 <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
                   상태:
                 </Text>
                 <Text className="text-sm text-text font-medium">
-                  {data.type === "wet"
+                  {diaperData.type === "wet"
                     ? "소변"
-                    : data.type === "dirty"
+                    : diaperData.type === "dirty"
                       ? "대변"
                       : "둘 다"}
                 </Text>
@@ -135,39 +124,42 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
           </View>
         );
+      }
 
-      case "sleep":
+      case "sleep": {
+        const sleepData = data as SleepDataApi;
+
         return (
-          <View className="mt-sm">
-            {data.startedAt && (
+          <View>
+            {sleepData.startedAt && (
               <View className="flex-row mb-xs">
                 <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
                   시작:
                 </Text>
                 <Text className="text-sm text-text font-medium">
-                  {formatTime(data.startedAt)}
+                  {formatTime(sleepData.startedAt)}
                 </Text>
               </View>
             )}
-            {data.endedAt && (
+            {sleepData.endedAt && (
               <View className="flex-row mb-xs">
                 <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
                   종료:
                 </Text>
                 <Text className="text-sm text-text font-medium">
-                  {formatTime(data.endedAt)}
+                  {formatTime(sleepData.endedAt)}
                 </Text>
               </View>
             )}
-            {data.quality && (
+            {sleepData.quality && (
               <View className="flex-row mb-xs">
                 <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
                   품질:
                 </Text>
                 <Text className="text-sm text-text font-medium">
-                  {data.quality === "good"
+                  {sleepData.quality === "good"
                     ? "좋음"
-                    : data.quality === "fair"
+                    : sleepData.quality === "fair"
                       ? "보통"
                       : "나쁨"}
                 </Text>
@@ -175,22 +167,25 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             )}
           </View>
         );
+      }
 
-      case "tummy_time":
+      case "tummy_time": {
+        const tummyTimeData = data as TummyTimeDataApi;
         return (
-          <View className="mt-sm">
-            {data.duration && (
+          <View>
+            {tummyTimeData.duration && (
               <View className="flex-row mb-xs">
                 <Text className="text-sm text-text-secondary mr-sm min-w-[60px]">
                   시간:
                 </Text>
                 <Text className="text-sm text-text font-medium">
-                  {data.duration}분
+                  {tummyTimeData.duration}분
                 </Text>
               </View>
             )}
           </View>
         );
+      }
 
       default:
         return null;

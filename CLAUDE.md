@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Implementation Status: ✅ 100% COMPLETE
 
-### ✅ Completed Features (All 7 Phases)
+### ✅ Completed Features (All 8 Phases)
 
 #### Phase 1-4: Core Foundation & Enhanced Features ✅
 - Complete user authentication (Kakao OAuth + email/password)
@@ -39,6 +39,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Premium feature gating with PremiumGate component
 - Free trial management (7-day trial)
 - Subscription plans screen with billing options
+
+#### Phase 8: Push Notifications & Internationalization ✅
+- Smart push notification system with category-based controls
+- Comprehensive i18n support with 3 languages (Korean, English, Japanese)
+- Quiet hours and notification scheduling
+- Real-time language switching with TypeScript type safety
+- Localized notification templates and formatting
 
 ## Essential Development Commands
 
@@ -175,9 +182,12 @@ The mobile app uses **Expo Router v5** with file-based routing combined with **F
 - `hooks/`: Custom React hooks
   - `useActiveChild.tsx` - Child selection management
   - `useTheme.tsx` - Theme utilities
+  - `useTranslation.tsx` - Translation and i18n utilities
 - `lib/`: Utilities, permissions, storage, sync managers
   - `imagePicker.ts` - Camera/gallery image picker
   - `permissions.ts` - Device permissions management
+  - `notifications/` - Push notification system with NotificationManager
+  - `i18n/` - Internationalization system with i18next
 - `types/`: TypeScript type definitions and form schemas
 - `config/`: Theme and app configuration
   - `theme.ts` - Complete design system (colors, typography, spacing)
@@ -237,6 +247,25 @@ The mobile app uses **Expo Router v5** with file-based routing combined with **F
 - Multiple image selection support
 - Proper error handling and user feedback
 
+**Push Notifications**: Smart notification system with expo-notifications
+
+- NotificationManager singleton with category-based controls
+- Seven notification categories (feeding, sleep, diaper, growth, milestone, summary, reminder)
+- Quiet hours support with time-based blocking
+- Notification scheduling (immediate, scheduled, recurring)
+- expo-device integration for real device detection
+- Badge management and sound/vibration controls
+
+**Internationalization**: Comprehensive i18n system with i18next
+
+- Three language support: Korean (default), English, Japanese
+- Automatic language detection from system settings
+- Real-time language switching without app restart
+- TypeScript type safety with custom i18next declarations
+- Localized date/time/number/currency formatting
+- Translation resources organized by namespace
+- Localized notification templates
+
 ## Current Implementation Status
 
 ### ✅ Completed Features
@@ -273,6 +302,15 @@ The mobile app uses **Expo Router v5** with file-based routing combined with **F
 - ✅ Automatic cache invalidation
 - ✅ Real-time UI updates
 - ✅ Data consistency across screens
+
+**Advanced Features (100% Complete)**
+- ✅ Smart push notification system with 7 categories
+- ✅ Comprehensive internationalization (Korean, English, Japanese)
+- ✅ Real-time language switching
+- ✅ Notification scheduling and quiet hours
+- ✅ TypeScript type safety for translations
+- ✅ Localized formatting for dates, numbers, currency
+- ✅ Device-specific notification handling
 
 ## Development Guidelines
 
@@ -387,6 +425,47 @@ The mobile app uses **Expo Router v5** with file-based routing combined with **F
   ```
 - Use `form.handleSubmit()` pattern for proper type inference
 
+### Push Notification System
+
+- **NotificationManager**: Singleton class in `apps/mobile/shared/lib/notifications/`
+- **Categories**: 7 notification types with individual settings
+- **Scheduling**: Support for immediate, scheduled, and recurring notifications
+- **Quiet Hours**: Time-based notification blocking
+- **Permission Handling**: Automatic permission requests with expo-device detection
+- **Integration**: Use `notificationManager.initialize()` in app root
+  ```typescript
+  import { notificationManager } from '@/shared/lib/notifications';
+  
+  await notificationManager.initialize();
+  await notificationManager.sendImmediate({
+    id: 'unique-id',
+    category: NotificationCategory.FEEDING,
+    priority: NotificationPriority.HIGH,
+    title: 'Feeding Reminder',
+    body: 'Time for feeding!'
+  });
+  ```
+
+### Internationalization (i18n)
+
+- **Setup**: i18next with react-i18next in `apps/mobile/shared/lib/i18n/`
+- **Languages**: Korean (default), English, Japanese
+- **Type Safety**: Custom TypeScript declarations for translation keys
+- **Usage**: Use `useTranslation()` hook in components
+  ```typescript
+  import { useTranslation } from '@/shared/hooks/useTranslation';
+  
+  const { t, changeLanguage, formatDate } = useTranslation();
+  
+  return (
+    <Text>{t('common.welcome')}</Text>
+    <Text>{formatDate(new Date())}</Text>
+  );
+  ```
+- **Translation Files**: Organized by namespace in `apps/mobile/shared/lib/i18n/locales/`
+- **Language Detection**: Automatic detection from system settings with fallback
+- **Real-time Switching**: Change language without app restart
+
 # Using Gemini CLI for Large Codebase Analysis
 
 When analyzing large codebases or multiple files that might exceed context limits, use the Gemini CLI with its massive context window. Use `gemini -p` to leverage Google Gemini's large context capacity.
@@ -496,6 +575,9 @@ The Daon app is **100% complete** with all core features implemented and working
 - Authentication with Supabase Auth and Kakao OAuth
 - Image upload and gallery functionality
 - Comprehensive error handling and loading states
+- Smart push notification system with 7 categories and scheduling
+- Complete internationalization with 3 languages (Korean, English, Japanese)
+- Real-time language switching and localized formatting
 
 ## Quality Standards
 - **No `any` types**: The codebase maintains 100% type safety

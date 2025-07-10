@@ -34,10 +34,11 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Apply general rate limiting to all routes
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 app.use(generalLimiter);
 
 // Request logging
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   logger.info(`${req.method} ${req.path}`, {
     ip: req.ip,
     userAgent: req.get("User-Agent"),
@@ -46,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -55,7 +56,7 @@ app.get("/health", (req, res) => {
 });
 
 // Root endpoint
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({
     message: "Daon API Server",
     version: "1.0.0",
@@ -75,7 +76,7 @@ interface HttpError extends Error {
 app.use(
   (
     err: HttpError,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
@@ -96,7 +97,7 @@ app.use(
 );
 
 // 404 handler
-app.use("/*splat", (req, res) => {
+app.use("/*splat", (_req, res) => {
   res.status(404).json({ error: "Endpoint not found" });
 });
 
@@ -107,7 +108,6 @@ app.listen(PORT, () => {
   logger.info(
     `CORS Origin: ${process.env.CORS_ORIGIN ?? "http://localhost:3000"}`,
   );
-
 });
 
 // Graceful shutdown

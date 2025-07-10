@@ -17,12 +17,20 @@ const router: Router = Router();
 const kakaoAuthController = new KakaoAuthController();
 
 // Public routes with auth rate limiting
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.post("/signup", authLimiter, signUp);
+
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.post("/signin", authLimiter, signIn);
+
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.post("/refresh", authLimiter, refreshToken);
 
 // Kakao OAuth routes with auth rate limiting
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.post("/kakao/url", authLimiter, kakaoAuthController.generateLoginUrl);
+
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.get("/kakao/callback", authLimiter, kakaoAuthController.handleCallback);
 
 // Protected routes

@@ -1,5 +1,5 @@
-import type { Request } from "express";
-import rateLimit from "express-rate-limit";
+import type { RateLimitRequestHandler } from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 
 // General rate limiter for all API endpoints
 export const generalLimiter = rateLimit({
@@ -8,7 +8,7 @@ export const generalLimiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  keyGenerator: (req: Request) => {
+  keyGenerator: (req) => {
     // Use IP address as the key
     return req.ip ?? req.socket.remoteAddress ?? "unknown";
   },
@@ -56,7 +56,7 @@ export const createRateLimiter = (options: {
   windowMs: number;
   max: number;
   message?: string;
-}) => {
+}): RateLimitRequestHandler => {
   return rateLimit({
     windowMs: options.windowMs,
     max: options.max,

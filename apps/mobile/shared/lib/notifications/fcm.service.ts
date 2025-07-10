@@ -1,8 +1,10 @@
+import type {
+  useRegisterFcmToken,
+  useUnregisterFcmToken,
+} from "@/shared/api/hooks/notifications";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import { useRegisterFcmToken, useUnregisterFcmToken } from "@/shared/api/hooks/notifications";
-import { supabase } from "../supabase";
 
 class FcmService {
   private token: string | null = null;
@@ -19,7 +21,8 @@ class FcmService {
       }
 
       // 권한 확인
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
       if (existingStatus !== "granted") {
@@ -50,7 +53,9 @@ class FcmService {
   /**
    * FCM 토큰을 백엔드에 등록
    */
-  async registerToken(registerMutation: ReturnType<typeof useRegisterFcmToken>): Promise<boolean> {
+  async registerToken(
+    registerMutation: ReturnType<typeof useRegisterFcmToken>,
+  ): Promise<boolean> {
     try {
       const token = await this.getExpoPushToken();
       if (!token) {
@@ -84,7 +89,9 @@ class FcmService {
   /**
    * FCM 토큰을 백엔드에서 해제
    */
-  async unregisterToken(unregisterMutation: ReturnType<typeof useUnregisterFcmToken>): Promise<boolean> {
+  async unregisterToken(
+    unregisterMutation: ReturnType<typeof useUnregisterFcmToken>,
+  ): Promise<boolean> {
     try {
       if (!this.token) {
         const token = await this.getExpoPushToken();
@@ -117,7 +124,9 @@ class FcmService {
   /**
    * 로그아웃 시 토큰 해제
    */
-  async handleLogout(unregisterMutation: ReturnType<typeof useUnregisterFcmToken>) {
+  async handleLogout(
+    unregisterMutation: ReturnType<typeof useUnregisterFcmToken>,
+  ) {
     await this.unregisterToken(unregisterMutation);
   }
 

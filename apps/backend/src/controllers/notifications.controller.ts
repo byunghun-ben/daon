@@ -46,7 +46,9 @@ export const registerToken: RequestHandler = createAuthenticatedHandler(
           .from("fcm_tokens")
           .update({
             platform,
-            device_info: device_info ? JSON.parse(JSON.stringify(device_info)) : {},
+            device_info: device_info
+              ? JSON.parse(JSON.stringify(device_info))
+              : {},
             is_active: true,
             updated_at: new Date().toISOString(),
           })
@@ -64,7 +66,9 @@ export const registerToken: RequestHandler = createAuthenticatedHandler(
             user_id: userId,
             token,
             platform,
-            device_info: device_info ? JSON.parse(JSON.stringify(device_info)) : {},
+            device_info: device_info
+              ? JSON.parse(JSON.stringify(device_info))
+              : {},
             is_active: true,
           })
           .select()
@@ -75,17 +79,19 @@ export const registerToken: RequestHandler = createAuthenticatedHandler(
       }
 
       logger.info(`FCM token registered for user ${userId}`);
-      const response: FcmTokenResponse = { 
+      const response: FcmTokenResponse = {
         fcm_token: {
           id: fcmToken.id,
           user_id: fcmToken.user_id,
           token: fcmToken.token,
           platform: fcmToken.platform as "ios" | "android" | "web" | undefined,
-          device_info: fcmToken.device_info as Record<string, unknown> | undefined,
+          device_info: fcmToken.device_info as
+            | Record<string, unknown>
+            | undefined,
           is_active: fcmToken.is_active ?? true,
           created_at: fcmToken.created_at ?? new Date().toISOString(),
           updated_at: fcmToken.updated_at ?? new Date().toISOString(),
-        }
+        },
       };
       res.json(response);
     } catch (error) {
@@ -158,8 +164,8 @@ export const getUserTokens: RequestHandler = createAuthenticatedHandler(
 
       if (error) throw error;
 
-      const response: FcmTokensResponse = { 
-        fcm_tokens: (data ?? []).map(token => ({
+      const response: FcmTokensResponse = {
+        fcm_tokens: (data ?? []).map((token) => ({
           id: token.id,
           user_id: token.user_id,
           token: token.token,
@@ -168,7 +174,7 @@ export const getUserTokens: RequestHandler = createAuthenticatedHandler(
           is_active: token.is_active ?? true,
           created_at: token.created_at ?? new Date().toISOString(),
           updated_at: token.updated_at ?? new Date().toISOString(),
-        }))
+        })),
       };
       res.json(response);
     } catch (error) {

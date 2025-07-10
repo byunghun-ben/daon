@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // Add type declaration for _retry property
 declare module "axios" {
@@ -7,8 +9,6 @@ declare module "axios" {
     _retry?: boolean;
   }
 }
-import axios from "axios";
-import axiosRetry from "axios-retry";
 
 // API base configuration
 const API_BASE_URL = __DEV__
@@ -94,7 +94,9 @@ class ApiClient {
 
   private async refreshToken(): Promise<string | null> {
     try {
-      const refreshToken = await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      const refreshToken = await AsyncStorage.getItem(
+        STORAGE_KEYS.REFRESH_TOKEN,
+      );
       if (!refreshToken) {
         throw new Error("No refresh token available");
       }
@@ -104,10 +106,10 @@ class ApiClient {
       });
 
       const { accessToken, refreshToken: newRefreshToken } = response.data;
-      
+
       // Save new tokens
       await this.saveTokens(accessToken, newRefreshToken);
-      
+
       return accessToken;
     } catch (error) {
       console.error("Token refresh failed:", error);
@@ -165,20 +167,26 @@ class ApiClient {
       (response) => response,
       async (error: AxiosError) => {
         const originalRequest = error.config;
-        
-        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+
+        if (
+          error.response?.status === 401 &&
+          originalRequest &&
+          !originalRequest._retry
+        ) {
           if (this.isRefreshing) {
             // If a refresh is already in progress, queue this request
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject });
-            }).then(token => {
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              return this.client(originalRequest);
-            }).catch(err => {
-              return Promise.reject(err);
-            });
+            })
+              .then((token) => {
+                if (originalRequest.headers) {
+                  originalRequest.headers.Authorization = `Bearer ${token}`;
+                }
+                return this.client(originalRequest);
+              })
+              .catch((err) => {
+                return Promise.reject(err);
+              });
           }
 
           originalRequest._retry = true;
@@ -187,11 +195,11 @@ class ApiClient {
           try {
             const newToken = await this.refreshToken();
             this.processQueue(null, newToken);
-            
+
             if (originalRequest.headers && newToken) {
               originalRequest.headers.Authorization = `Bearer ${newToken}`;
             }
-            
+
             return this.client(originalRequest);
           } catch (refreshError) {
             this.processQueue(refreshError, null);

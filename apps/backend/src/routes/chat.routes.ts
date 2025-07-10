@@ -9,6 +9,7 @@ const router = Router();
 router.use(authenticateToken);
 
 // POST /api/v1/chat/stream - Stream chat response (with AI rate limiting)
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.post("/stream", aiLimiter, chatController.streamChat);
 
 // GET /api/v1/chat/health - Chat service health check

@@ -7,6 +7,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -37,11 +39,9 @@ class NotificationHandler {
   /**
    * 알림 수신 처리
    */
-  private handleNotificationReceived(
-    notification: Notifications.Notification,
-  ) {
-    const { title, body, data } = notification.request.content;
-    
+  private handleNotificationReceived(notification: Notifications.Notification) {
+    const { title, data } = notification.request.content;
+
     // 알림 타입에 따른 처리
     if (data?.type) {
       console.log(`Received ${data.type} notification:`, title);
@@ -66,7 +66,10 @@ class NotificationHandler {
           // 활동 기록 화면으로 이동
           router.push({
             pathname: "/record",
-            params: { childId: data.childId as string, type: data.type as string },
+            params: {
+              childId: data.childId as string,
+              type: data.type as string,
+            },
           });
           break;
 

@@ -4,7 +4,7 @@ import { config } from "../config/index.js";
 class FirebaseAdminService {
   private initialized = false;
 
-  initialize() {
+  initialize(): void {
     if (this.initialized) {
       return;
     }
@@ -14,7 +14,7 @@ class FirebaseAdminService {
       // 환경 변수에서 서비스 계정 키 경로 또는 직접 인증 정보 사용
       if (config.firebase.serviceAccountPath) {
         // 서비스 계정 JSON 파일 사용
-        const serviceAccount = require(config.firebase.serviceAccountPath);
+        const serviceAccount = config.firebase.serviceAccountPath;
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
         });
@@ -43,14 +43,14 @@ class FirebaseAdminService {
     }
   }
 
-  getMessaging() {
+  getMessaging(): admin.messaging.Messaging {
     if (!this.initialized) {
       this.initialize();
     }
     return admin.messaging();
   }
 
-  getAuth() {
+  getAuth(): admin.auth.Auth {
     if (!this.initialized) {
       this.initialize();
     }

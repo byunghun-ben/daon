@@ -126,3 +126,6 @@ export function requireRole(role: string) {
     next();
   };
 }
+
+// Export authenticateToken as authMiddleware for backward compatibility
+export const authMiddleware = authenticateToken;

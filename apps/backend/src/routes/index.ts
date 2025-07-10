@@ -6,7 +6,6 @@ import childrenRoutes from "./children.routes.js";
 import diaryRoutes from "./diary.routes.js";
 import growthRoutes from "./growth.routes.js";
 import guardiansRoutes from "./guardians.routes.js";
-import notificationsRoutes from "./notifications.routes.js";
 import uploadRoutes from "./upload.routes.js";
 
 const router: Router = Router();
@@ -79,22 +78,6 @@ router.get("/", (req, res) => {
         "POST /chat/stream": "Stream AI chat response (requires auth)",
         "GET /chat/health": "Chat service health check (requires auth)",
       },
-      notifications: {
-        "POST /notifications/tokens": "Register push token (requires auth)",
-        "DELETE /notifications/tokens": "Deactivate push token (requires auth)",
-        "GET /notifications/settings":
-          "Get notification settings (requires auth)",
-        "PUT /notifications/settings":
-          "Update notification settings (requires auth)",
-        "POST /notifications/send":
-          "Send immediate notification (requires auth)",
-        "POST /notifications/schedule": "Schedule notification (requires auth)",
-        "DELETE /notifications/schedule/:id":
-          "Cancel scheduled notification (requires auth)",
-        "GET /notifications/history":
-          "Get notification history (requires auth)",
-        "POST /notifications/test": "Send test notification (requires auth)",
-      },
     },
   });
 });
@@ -107,7 +90,6 @@ router.use("/guardians", guardiansRoutes);
 router.use("/activities", activitiesRoutes);
 router.use("/growth", growthRoutes);
 router.use("/diary", diaryRoutes);
-router.use("/notifications", notificationsRoutes);
 router.use("/upload", uploadRoutes);
 
 export default router;

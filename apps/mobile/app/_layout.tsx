@@ -4,12 +4,6 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import type { Notification } from "expo-notifications";
-import {
-  addNotificationResponseReceivedListener,
-  getLastNotificationResponseAsync,
-} from "expo-notifications";
-import type { RelativePathString } from "expo-router";
 import { Stack, router, usePathname, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
@@ -31,45 +25,6 @@ import { useEffect, useState } from "react";
 import { GlobalBottomSheet } from "@/shared/ui/GlobalBottomSheet";
 import "../global.css";
 
-const useNotificationObserver = () => {
-  useEffect(() => {
-    let isMounted = true;
-
-    const redirect = (notification: Notification) => {
-      const url = notification.request.content.data?.url;
-      if (url) {
-        // TODO: 타입 수정
-        router.push(url as RelativePathString);
-      }
-    };
-
-    getLastNotificationResponseAsync().then((response) => {
-      console.log(
-        "[useNotificationObserver] getLastNotificationResponseAsync",
-        response,
-      );
-
-      if (!isMounted || !response?.notification) {
-        return;
-      }
-      console.log("[useNotificationObserver] redirect", response?.notification);
-      redirect(response?.notification);
-    });
-
-    const subscription = addNotificationResponseReceivedListener((response) => {
-      console.log(
-        "[useNotificationObserver] addNotificationResponseReceivedListener",
-        response,
-      );
-      redirect(response.notification);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.remove();
-    };
-  }, []);
-};
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -116,7 +71,6 @@ export default function RootLayout() {
     }
   }, [pathname, segments, user, loaded, isInitialized]);
 
-  useNotificationObserver();
 
   // Initialize i18n on app start
   useEffect(() => {

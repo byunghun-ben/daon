@@ -9,7 +9,6 @@ import { initReactI18next } from "react-i18next";
 
 // 번역 리소스 Import
 import en from "./locales/en.json";
-import ja from "./locales/ja.json";
 import ko from "./locales/ko.json";
 
 // 언어 설정 키
@@ -19,7 +18,6 @@ const LANGUAGE_KEY = "@daon:language";
 export const SUPPORTED_LANGUAGES = {
   ko: { name: "한국어", nativeName: "한국어", flag: "🇰🇷" },
   en: { name: "English", nativeName: "English", flag: "🇺🇸" },
-  ja: { name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
 } as const;
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES;
@@ -74,7 +72,6 @@ const initI18n = async () => {
     resources: {
       ko: { translation: ko },
       en: { translation: en },
-      ja: { translation: ja },
     },
     lng: detectedLanguage,
     fallbackLng: "ko",

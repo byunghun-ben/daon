@@ -396,10 +396,6 @@
         "title": "아이 관리",
         "subtitle": "등록된 아이 정보 보기 및 수정"
       },
-      "notifications": {
-        "title": "알림 설정",
-        "subtitle": "푸시 알림 및 리마인더 설정"
-      },
       "language": {
         "title": "언어 설정",
         "subtitle": "앱 언어 변경"
@@ -450,147 +446,7 @@
       "success": "성공적으로 로그아웃되었습니다"
     }
   },
-  "notifications": {
-    "settings": {
-      "title": "알림 설정",
-      "permissions": {
-        "title": "알림 권한",
-        "granted": "알림 권한이 허용되었습니다",
-        "denied": "알림을 받으려면 권한을 허용해주세요",
-        "request": "권한 허용",
-        "requesting": "요청 중...",
-        "openSettings": "시스템 설정에서 상세 설정"
-      },
-      "categories": {
-        "basic": "기본 알림",
-        "activities": "활동 알림",
-        "summary": "요약 알림"
-      },
-      "types": {
-        "push": {
-          "title": "푸시 알림",
-          "subtitle": "모든 알림의 기본 설정"
-        },
-        "sound": {
-          "title": "소리",
-          "subtitle": "알림 소리 재생"
-        },
-        "vibration": {
-          "title": "진동",
-          "subtitle": "알림 진동 사용"
-        },
-        "feeding": {
-          "title": "수유 리마인더",
-          "subtitle": "수유 시간 알림"
-        },
-        "sleep": {
-          "title": "수면 리마인더",
-          "subtitle": "수면 시간 알림"
-        },
-        "growth": {
-          "title": "성장 추적",
-          "subtitle": "성장 기록 알림"
-        },
-        "milestone": {
-          "title": "이정표 알림",
-          "subtitle": "발달 이정표 알림"
-        },
-        "dailySummary": {
-          "title": "일일 요약",
-          "subtitle": "매일 활동 요약 알림"
-        },
-        "weeklyReport": {
-          "title": "주간 리포트",
-          "subtitle": "주간 성장 리포트 알림"
-        }
-      },
-      "quietHours": {
-        "title": "방해 금지 시간",
-        "subtitle": "지정된 시간에는 알림 차단",
-        "enabled": "방해 금지 시간 사용",
-        "timeRange": "방해 금지 시간대",
-        "startTime": "시작 시간",
-        "endTime": "종료 시간"
-      },
-      "frequency": {
-        "title": "알림 빈도",
-        "feeding": "수유 알림 간격 (시간)",
-        "sleep": "수면 알림 간격 (시간)",
-        "dailySummary": "일일 요약 시간",
-        "weeklyReport": "주간 리포트 요일"
-      },
-      "tips": {
-        "title": "💡 알림 설정 팁",
-        "content": "• 중요한 알림은 켜두고 불필요한 알림은 끄세요\n• 방해 금지 시간을 설정하여 휴식 시간을 보장하세요\n• 시스템 설정에서 더 세부적인 알림 설정이 가능합니다"
-      }
-    },
-    "templates": {
-      "feeding": {
-        "reminder": {
-          "title": "수유 시간입니다",
-          "body": "{{childName}}의 수유 시간이 되었습니다"
-        },
-        "overdue": {
-          "title": "수유 시간이 지났습니다",
-          "body": "{{childName}}의 수유가 {{duration}} 늦었습니다"
-        }
-      },
-      "sleep": {
-        "reminder": {
-          "title": "수면 시간입니다",
-          "body": "{{childName}}의 수면 시간이 되었습니다"
-        },
-        "wakeUp": {
-          "title": "기상 시간입니다",
-          "body": "{{childName}}를 깨워주세요"
-        }
-      },
-      "diaper": {
-        "reminder": {
-          "title": "기저귀 확인 시간",
-          "body": "{{childName}}의 기저귀를 확인해주세요"
-        }
-      },
-      "growth": {
-        "reminder": {
-          "title": "성장 기록 시간",
-          "body": "{{childName}}의 성장을 기록해주세요"
-        }
-      },
-      "milestone": {
-        "achievement": {
-          "title": "새로운 이정표 달성!",
-          "body": "{{childName}}가 {{milestone}}을(를) 달성했습니다"
-        }
-      },
-      "summary": {
-        "daily": {
-          "title": "오늘의 활동 요약",
-          "body": "수유 {{feedingCount}}회, 수면 {{sleepHours}}시간, 기저귀 {{diaperCount}}회"
-        },
-        "weekly": {
-          "title": "이번 주 성장 리포트",
-          "body": "{{childName}}의 이번 주 활동 리포트가 준비되었습니다"
-        }
-      }
-    },
-    "actions": {
-      "markDone": "완료",
-      "snooze5": "5분 후",
-      "snooze10": "10분 후",
-      "snooze30": "30분 후",
-      "openApp": "앱 열기",
-      "dismiss": "닫기"
-    }
-  },
   "errors": {
-    "general": {
-      "unknown": "알 수 없는 오류가 발생했습니다",
-      "network": "네트워크 연결을 확인해주세요",
-      "server": "서버에 일시적인 문제가 있습니다",
-      "timeout": "요청 시간이 초과되었습니다",
-      "maintenance": "현재 서비스 점검 중입니다"
-    },
     "auth": {
       "invalidCredentials": "이메일 또는 비밀번호가 잘못되었습니다",
       "userNotFound": "존재하지 않는 사용자입니다",
@@ -610,7 +466,6 @@
     "permissions": {
       "camera": "카메라 권한이 필요합니다",
       "photos": "사진 라이브러리 권한이 필요합니다",
-      "notifications": "알림 권한이 필요합니다",
       "location": "위치 권한이 필요합니다",
       "microphone": "마이크 권한이 필요합니다"
     }

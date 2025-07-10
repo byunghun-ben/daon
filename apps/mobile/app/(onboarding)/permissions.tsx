@@ -2,6 +2,7 @@ import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import Button from "@/shared/ui/Button/Button";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, View } from "react-native";
@@ -22,9 +23,14 @@ export default function PermissionsScreen() {
       const { status: cameraStatus } =
         await ImagePicker.requestCameraPermissionsAsync();
 
+      // 알림 권한 요청
+      const { status: notificationStatus } =
+        await Notifications.requestPermissionsAsync();
+
       const allPermissionsGranted =
         mediaStatus === "granted" &&
-        cameraStatus === "granted";
+        cameraStatus === "granted" &&
+        notificationStatus === "granted";
 
       if (allPermissionsGranted) {
         Alert.alert(
@@ -96,7 +102,7 @@ export default function PermissionsScreen() {
         <Text style={styles.title}>앱 권한 설정</Text>
         <Text style={styles.subtitle}>
           다온의 모든 기능을 사용하려면{"\n"}다음 권한들이 필요해요:{"\n\n"}•
-          사진/카메라: 아이 사진을 저장하고 촬영{"\n"}• 미디어 라이브러리: 기존 사진 선택
+          사진/카메라: 아이 사진을 저장하고 촬영{"\n"}• 미디어 라이브러리: 기존 사진 선택{"\n"}• 알림: 중요한 일정과 활동 알림
         </Text>
       </View>
 

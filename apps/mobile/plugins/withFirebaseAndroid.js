@@ -2,6 +2,7 @@ const {
   withGradleProperties,
   withAppBuildGradle,
   withProjectBuildGradle,
+  withAndroidManifest,
 } = require("@expo/config-plugins");
 
 module.exports = function withFirebaseAndroid(config) {
@@ -57,6 +58,34 @@ apply plugin: "com.google.gms.google-services"`,
 
       config.modResults.contents = contents;
     }
+    return config;
+  });
+
+  // AndroidManifest.xml Firebase 설정
+  config = withAndroidManifest(config, (config) => {
+    const manifest = config.modResults;
+    const application = manifest.manifest.application[0];
+
+    // Firebase messaging meta-data에 tools:replace 속성 추가
+    if (application["meta-data"]) {
+      application["meta-data"].forEach((metaData) => {
+        const name = metaData.$["android:name"];
+
+        // Firebase messaging 관련 meta-data에 tools:replace 추가
+        if (
+          name ===
+          "com.google.firebase.messaging.default_notification_channel_id"
+        ) {
+          metaData.$["tools:replace"] = "android:value";
+        }
+        if (
+          name === "com.google.firebase.messaging.default_notification_color"
+        ) {
+          metaData.$["tools:replace"] = "android:resource";
+        }
+      });
+    }
+
     return config;
   });
 

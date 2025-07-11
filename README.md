@@ -464,5 +464,13 @@ pnpm submit:android   # Google Play 제출
 - Supabase for database
 - TypeScript type safety
 
-### 7. 다음 단계
-**실기기 테스트 필요** (iOS/Android 물리 디바이스에서 알림 수신 확인)
+### 7. FCM 토큰 방식 구현 완료 ✅
+- **React Native Firebase 패키지**: @react-native-firebase/app, @react-native-firebase/messaging
+- **Android 설정**: Google Services Plugin, Firebase SDK 종속성 추가
+- **iOS 설정**: Firebase 초기화 코드 자동 생성 (expo prebuild)
+- **FCM 서비스**: Expo Push Token → FCM Token 전환 완료
+- **메시지 처리**: 포그라운드/백그라운드 알림 수신 리스너 구현
+- **권한 처리**: iOS APNs, Android 알림 권한 통합 관리
+
+### 8. 다음 단계
+**실기기 테스트 필요** (iOS/Android 물리 디바이스에서 FCM 토큰 생성 및 알림 수신 확인)

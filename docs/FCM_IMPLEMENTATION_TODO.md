@@ -62,6 +62,24 @@ Firebase Cloud Messaging (FCM)을 사용한 최소한의 푸시 알림 시스템
 - [x] firebase-admin 패키지 설치 완료
 - [x] 백엔드 서버 Firebase 연결 테스트 완료
 
+## ✅ FCM 토큰 방식 구현 완료 (2025-07-11)
+- [x] @react-native-firebase/app, @react-native-firebase/messaging 패키지 설치
+- [x] app.json에 Firebase 플러그인 설정 추가
+- [x] Android: Google Services Plugin 및 Firebase SDK 종속성 추가
+- [x] iOS: Firebase 초기화 코드 자동 생성 (expo prebuild)
+- [x] FCM 서비스 코드 수정: Expo Push Token → FCM Token
+- [x] 메시지 수신 리스너 및 권한 처리 구현
+- [x] 타입 체크 및 빌드 테스트 완료
+
+## ✅ Expo Config Plugin 및 prebuild 자동화 완료 (2025-07-11)
+- [x] Firebase 설정 파일 backup 폴더로 이동 (prebuild 시 삭제 방지)
+- [x] withFirebaseAndroid.js 플러그인: Android Firebase 자동 설정
+- [x] withFirebasePodfile.js 플러그인: iOS Podfile use_modular_headers! 자동 추가
+- [x] app.json 플러그인 순서 최적화 (Firebase 플러그인 우선)
+- [x] expo prebuild --clean 성공 및 Firebase 설정 자동 복원
+- [x] CocoaPods 설치 완료 (Firebase Swift 종속성 해결)
+- [x] 전체 자동화 시스템 구축 완료
+
 ## 🚀 향후 추가 가능한 기능들
 
 ### 1. 알림 설정 화면 🔶 (우선순위: 중간)
@@ -150,14 +168,20 @@ eas build --platform all --profile production
 - [ ] 포그라운드/백그라운드 알림 표시 확인
 
 ## 📊 구현 완료 통계
-- **총 작업 항목**: 10개
-- **완료된 항목**: 10개 (100%)
+- **총 작업 항목**: 24개
+- **완료된 항목**: 24개 (100%)
 - **Firebase 설정 완료**: 7개 항목
-- **커밋 수**: 6개
-- **영향받은 파일**: 약 25개
+- **FCM 토큰 방식 구현**: 7개 항목
+- **Expo Config Plugin 자동화**: 7개 항목
+- **Prebuild 통합**: 3개 항목
+- **커밋 수**: 7개 (완료)
+- **영향받은 파일**: 약 35개
 
 ## 🎯 다음 단계 권장사항
 1. **실기기 테스트** (iOS/Android) - 최우선 ⭐
+   - 개발 빌드 생성 후 실제 디바이스에서 FCM 토큰 생성 확인
+   - 백엔드에서 FCM 토큰으로 테스트 알림 발송
+   - 포그라운드/백그라운드 알림 수신 테스트
 2. **알림 설정 화면 구현** (사용자 경험 개선)
 3. **예약 알림 기능** (사용자 편의성)
 4. **알림 히스토리 화면** (알림 관리)

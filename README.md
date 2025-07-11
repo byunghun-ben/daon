@@ -422,44 +422,47 @@ pnpm submit:android   # Google Play 제출
 
 ---
 
-1. 데이터베이스 스키마
+## 🔔 FCM 푸시 알림 시스템 (2025-07-11 설정 완료)
 
+### 1. Firebase 프로젝트 설정 ✅
+- **프로젝트 ID**: daon-748c3
+- **iOS 앱**: com.bridgestudio.daon
+- **Android 앱**: com.bridgestudio.daon
+- **설정 파일 배치 완료**: GoogleService-Info.plist, google-services.json
+- **Service Account 키**: 백엔드 환경 변수 설정 완료
 
-    - push_tokens - 사용자별 푸시 토큰 관리
-    - notification_settings - 알림 설정 (카테고리별, 방해금지시간 등)
-    - scheduled_notifications - 예약 알림
-    - notification_history - 알림 이력
+### 2. 데이터베이스 스키마 ✅
+- push_tokens - 사용자별 푸시 토큰 관리
+- notification_settings - 알림 설정 (카테고리별, 방해금지시간 등)
+- scheduled_notifications - 예약 알림
+- notification_history - 알림 이력
 
-2. NotificationService 클래스
+### 3. NotificationService 클래스 ✅
+- 푸시 토큰 등록/관리
+- 즉시 알림 발송
+- 예약 알림 스케줄링
+- 다국어 템플릿 지원 (한글/영어/일본어)
+- 방해금지 시간 기능
 
+### 4. NotificationSchedulerService 클래스 ✅
+- 크론 작업으로 자동 스케줄링
+- 수유/수면 리마인더
+- 일일/주간 요약 알림
+- 실패한 알림 재시도 로직
 
-    - 푸시 토큰 등록/관리
-    - 즉시 알림 발송
-    - 예약 알림 스케줄링
-    - 다국어 템플릿 지원 (한글/영어/일본어)
-    - 방해금지 시간 기능
+### 5. REST API 엔드포인트 ✅
+- POST /notifications/tokens - 푸시 토큰 등록
+- GET/PUT /notifications/settings - 알림 설정 관리
+- POST /notifications/send - 즉시 알림 발송
+- POST /notifications/schedule - 알림 예약
+- GET /notifications/history - 알림 이력
 
-3. NotificationSchedulerService 클래스
+### 6. 기술 스택 ✅
+- Firebase Cloud Messaging (FCM) for push notifications
+- Firebase Admin SDK for backend
+- expo-notifications for React Native
+- Supabase for database
+- TypeScript type safety
 
-
-    - 크론 작업으로 자동 스케줄링
-    - 수유/수면 리마인더
-    - 일일/주간 요약 알림
-    - 실패한 알림 재시도 로직
-
-4. REST API 엔드포인트
-
-
-    - POST /notifications/tokens - 푸시 토큰 등록
-    - GET/PUT /notifications/settings - 알림 설정 관리
-    - POST /notifications/send - 즉시 알림 발송
-    - POST /notifications/schedule - 알림 예약
-    - GET /notifications/history - 알림 이력
-
-5. 기술 스택
-
-
-    - Expo Server SDK for push notifications
-    - node-cron for scheduling
-    - Supabase for database
-    - TypeScript type safety
+### 7. 다음 단계
+**실기기 테스트 필요** (iOS/Android 물리 디바이스에서 알림 수신 확인)

@@ -53,11 +53,14 @@ Firebase Cloud Messaging (FCM)을 사용한 최소한의 푸시 알림 시스템
    - FCM API 훅 구현 (TanStack Query)
    - 토큰 등록/해제/조회 훅
 
-## 🔧 남은 준비 사항
-- [ ] Firebase 콘솔에서 iOS/Android 앱 추가
-- [ ] google-services.json (Android) 다운로드
-- [ ] GoogleService-Info.plist (iOS) 다운로드
-- [ ] 환경 변수 설정 (FIREBASE_SERVICE_ACCOUNT_PATH 등)
+## ✅ 준비 사항 완료 (2025-07-11)
+- [x] Firebase 콘솔에서 iOS/Android 앱 추가 (프로젝트 ID: daon-748c3)
+- [x] google-services.json (Android) 다운로드 및 배치 완료
+- [x] GoogleService-Info.plist (iOS) 다운로드 및 배치 완료
+- [x] Firebase Service Account 키 파일 배치 완료
+- [x] 백엔드 환경 변수 설정 완료
+- [x] firebase-admin 패키지 설치 완료
+- [x] 백엔드 서버 Firebase 연결 테스트 완료
 
 ## 🚀 향후 추가 가능한 기능들
 
@@ -138,21 +141,23 @@ eas build --platform all --profile production
 - [x] 알림 권한 요청 플로우
 - [x] 로그인/로그아웃 시 토큰 관리
 
-### 실제 디바이스 테스트 필요
-- [ ] iOS 실기기 알림 수신
-- [ ] Android 실기기 알림 수신
-- [ ] 백그라운드 알림 동작
-- [ ] 알림 클릭 시 딥링크
-- [ ] 알림 채널별 설정 (Android)
+### 실제 디바이스 테스트 필요 📱
+- [ ] iOS 실기기 알림 수신 테스트
+- [ ] Android 실기기 알림 수신 테스트
+- [ ] 백그라운드 알림 동작 확인
+- [ ] 알림 클릭 시 딥링크 동작 확인
+- [ ] 알림 채널별 설정 (Android) 확인
+- [ ] 포그라운드/백그라운드 알림 표시 확인
 
 ## 📊 구현 완료 통계
 - **총 작업 항목**: 10개
 - **완료된 항목**: 10개 (100%)
-- **커밋 수**: 5개
-- **영향받은 파일**: 약 20개
+- **Firebase 설정 완료**: 7개 항목
+- **커밋 수**: 6개
+- **영향받은 파일**: 약 25개
 
 ## 🎯 다음 단계 권장사항
-1. **Firebase 프로젝트 설정 완료** (최우선)
-2. **실기기 테스트** (iOS/Android)
-3. **알림 설정 화면 구현** (사용자 경험 개선)
-4. **예약 알림 기능** (사용자 편의성)
+1. **실기기 테스트** (iOS/Android) - 최우선 ⭐
+2. **알림 설정 화면 구현** (사용자 경험 개선)
+3. **예약 알림 기능** (사용자 편의성)
+4. **알림 히스토리 화면** (알림 관리)

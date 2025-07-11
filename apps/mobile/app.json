@@ -15,6 +15,9 @@
       "infoPlist": {
         "NSCameraUsageDescription": "이 앱은 아이의 사진을 찍어 일기에 추가하기 위해 카메라 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "이 앱은 아이의 사진을 선택해 일기에 추가하기 위해 사진 라이브러리 접근 권한이 필요합니다."
+      },
+      "entitlements": {
+        "aps-environment": "production"
       }
     },
     "android": {
@@ -82,7 +85,8 @@
         {
           "icon": "./assets/images/notification-icon.png",
           "color": "#FFB366",
-          "defaultChannel": "default"
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
         }
       ]
     ],

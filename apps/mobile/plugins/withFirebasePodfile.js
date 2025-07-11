@@ -4,7 +4,7 @@ const fs = require("fs");
 
 /**
  * Firebase를 위한 Podfile 수정 플러그인
- * prebuild 후 자동으로 use_modular_headers!를 추가합니다.
+ * Firebase pod들에 대해서만 modular headers를 활성화합니다.
  */
 function withFirebasePodfile(config) {
   return withDangerousMod(config, [
@@ -18,20 +18,26 @@ function withFirebasePodfile(config) {
       if (fs.existsSync(podfilePath)) {
         let podfileContent = fs.readFileSync(podfilePath, "utf-8");
 
-        // use_modular_headers!가 이미 있는지 확인
-        if (!podfileContent.includes("use_modular_headers!")) {
-          // platform :ios 다음에 use_modular_headers! 추가
+        // Firebase dependencies 설정이 이미 있는지 확인
+        if (!podfileContent.includes("# Firebase dependencies")) {
+          // use_react_native! 블록 다음에 Firebase pod 의존성 추가
           podfileContent = podfileContent.replace(
-            /platform :ios, .+\n/,
-            (match) => `${match}
-# Enable modular headers for Firebase Swift pods
-use_modular_headers!
-`,
+            /(use_react_native!\([\s\S]*?\))/,
+            (match) => {
+              return `${match}
+
+  # Firebase dependencies with modular headers
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseMessaging', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true`;
+            },
           );
 
           fs.writeFileSync(podfilePath, podfileContent);
           console.log(
-            "✅ Added use_modular_headers! to Podfile for Firebase compatibility",
+            "✅ Added Firebase dependencies with modular headers to Podfile",
           );
         }
       }

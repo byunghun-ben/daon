@@ -6,6 +6,7 @@ import { Router } from "express";
 const router = Router();
 
 router.use(authenticateToken);
+// @ts-expect-error - express-rate-limit types are not compatible with express types
 router.use(uploadLimiter);
 
 const uploadController = new UploadController();

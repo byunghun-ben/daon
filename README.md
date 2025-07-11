@@ -419,3 +419,58 @@ pnpm submit:android   # Google Play 제출
 ---
 
 **다온(Daon)** - 한국어로 "함께 모이다"라는 뜻 - 공유된 육아 경험을 통해 가족을 하나로 모으는 서비스
+
+---
+
+## 🔔 FCM 푸시 알림 시스템 (2025-07-11 설정 완료)
+
+### 1. Firebase 프로젝트 설정 ✅
+- **프로젝트 ID**: daon-748c3
+- **iOS 앱**: com.bridgestudio.daon
+- **Android 앱**: com.bridgestudio.daon
+- **설정 파일 배치 완료**: GoogleService-Info.plist, google-services.json
+- **Service Account 키**: 백엔드 환경 변수 설정 완료
+
+### 2. 데이터베이스 스키마 ✅
+- push_tokens - 사용자별 푸시 토큰 관리
+- notification_settings - 알림 설정 (카테고리별, 방해금지시간 등)
+- scheduled_notifications - 예약 알림
+- notification_history - 알림 이력
+
+### 3. NotificationService 클래스 ✅
+- 푸시 토큰 등록/관리
+- 즉시 알림 발송
+- 예약 알림 스케줄링
+- 다국어 템플릿 지원 (한글/영어/일본어)
+- 방해금지 시간 기능
+
+### 4. NotificationSchedulerService 클래스 ✅
+- 크론 작업으로 자동 스케줄링
+- 수유/수면 리마인더
+- 일일/주간 요약 알림
+- 실패한 알림 재시도 로직
+
+### 5. REST API 엔드포인트 ✅
+- POST /notifications/tokens - 푸시 토큰 등록
+- GET/PUT /notifications/settings - 알림 설정 관리
+- POST /notifications/send - 즉시 알림 발송
+- POST /notifications/schedule - 알림 예약
+- GET /notifications/history - 알림 이력
+
+### 6. 기술 스택 ✅
+- Firebase Cloud Messaging (FCM) for push notifications
+- Firebase Admin SDK for backend
+- expo-notifications for React Native
+- Supabase for database
+- TypeScript type safety
+
+### 7. FCM 토큰 방식 구현 완료 ✅
+- **React Native Firebase 패키지**: @react-native-firebase/app, @react-native-firebase/messaging
+- **Android 설정**: Google Services Plugin, Firebase SDK 종속성 추가
+- **iOS 설정**: Firebase 초기화 코드 자동 생성 (expo prebuild)
+- **FCM 서비스**: Expo Push Token → FCM Token 전환 완료
+- **메시지 처리**: 포그라운드/백그라운드 알림 수신 리스너 구현
+- **권한 처리**: iOS APNs, Android 알림 권한 통합 관리
+
+### 8. 다음 단계
+**실기기 테스트 필요** (iOS/Android 물리 디바이스에서 FCM 토큰 생성 및 알림 수신 확인)

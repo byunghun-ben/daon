@@ -5,12 +5,7 @@ import {
   MILESTONE_TYPE_LABELS,
   SLEEP_QUALITY_LABELS,
 } from "../constants";
-import type {
-  ActivityApi,
-  DiaperDataApi,
-  FeedingDataApi,
-  TummyTimeDataApi,
-} from "../schemas";
+import type { ActivityApi } from "../schemas";
 
 // 날짜 포맷팅
 export const formatDate = (
@@ -151,7 +146,7 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
         typeof activity.data === "object" &&
         "type" in activity.data
       ) {
-        const feedingData = activity.data as FeedingDataApi;
+        const feedingData = activity.data;
         const parts = [
           formatFeedingType(
             feedingData.type.toUpperCase() as keyof typeof FEEDING_TYPE_LABELS,
@@ -169,7 +164,7 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
         typeof activity.data === "object" &&
         "type" in activity.data
       ) {
-        const diaperData = activity.data as DiaperDataApi;
+        const diaperData = activity.data;
         return `${typeLabel} - ${formatDiaperType(diaperData.type.toUpperCase() as keyof typeof DIAPER_TYPE_LABELS)}`;
       }
       return typeLabel;
@@ -206,7 +201,7 @@ export const formatActivitySummary = (activity: ActivityApi): string => {
         typeof activity.data === "object" &&
         "duration" in activity.data
       ) {
-        const tummyTimeData = activity.data as TummyTimeDataApi;
+        const tummyTimeData = activity.data;
         return `${typeLabel} - ${formatDuration(tummyTimeData.duration)}`;
       }
       return typeLabel;

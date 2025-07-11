@@ -7,6 +7,7 @@ import diaryRoutes from "./diary.routes.js";
 import growthRoutes from "./growth.routes.js";
 import guardiansRoutes from "./guardians.routes.js";
 import uploadRoutes from "./upload.routes.js";
+import notificationsRoutes from "./notifications.routes.js";
 
 const router: Router = Router();
 
@@ -78,6 +79,13 @@ router.get("/", (req, res) => {
         "POST /chat/stream": "Stream AI chat response (requires auth)",
         "GET /chat/health": "Chat service health check (requires auth)",
       },
+      notifications: {
+        "POST /notifications/register": "Register FCM token (requires auth)",
+        "DELETE /notifications/unregister": "Unregister FCM token (requires auth)",
+        "GET /notifications/tokens": "Get user's FCM tokens (requires auth)",
+        "POST /notifications/send": "Send notification to user (requires auth)",
+        "POST /notifications/send-to-topic": "Send notification to topic (requires auth)",
+      },
     },
   });
 });
@@ -91,5 +99,6 @@ router.use("/activities", activitiesRoutes);
 router.use("/growth", growthRoutes);
 router.use("/diary", diaryRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/notifications", notificationsRoutes);
 
 export default router;

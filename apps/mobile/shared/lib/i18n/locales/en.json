@@ -396,10 +396,6 @@
         "title": "Children Management",
         "subtitle": "View and edit registered children information"
       },
-      "notifications": {
-        "title": "Notification Settings",
-        "subtitle": "Push notifications and reminder settings"
-      },
       "language": {
         "title": "Language Settings",
         "subtitle": "Change app language"
@@ -450,139 +446,6 @@
       "success": "Successfully logged out"
     }
   },
-  "notifications": {
-    "settings": {
-      "title": "Notification Settings",
-      "permissions": {
-        "title": "Notification Permission",
-        "granted": "Notification permission granted",
-        "denied": "Please allow notifications to receive alerts",
-        "request": "Grant Permission",
-        "requesting": "Requesting...",
-        "openSettings": "Advanced settings in system preferences"
-      },
-      "categories": {
-        "basic": "Basic Notifications",
-        "activities": "Activity Notifications",
-        "summary": "Summary Notifications"
-      },
-      "types": {
-        "push": {
-          "title": "Push Notifications",
-          "subtitle": "Basic setting for all notifications"
-        },
-        "sound": {
-          "title": "Sound",
-          "subtitle": "Play notification sound"
-        },
-        "vibration": {
-          "title": "Vibration",
-          "subtitle": "Use notification vibration"
-        },
-        "feeding": {
-          "title": "Feeding Reminders",
-          "subtitle": "Feeding time notifications"
-        },
-        "sleep": {
-          "title": "Sleep Reminders",
-          "subtitle": "Sleep time notifications"
-        },
-        "growth": {
-          "title": "Growth Tracking",
-          "subtitle": "Growth record notifications"
-        },
-        "milestone": {
-          "title": "Milestone Alerts",
-          "subtitle": "Developmental milestone notifications"
-        },
-        "dailySummary": {
-          "title": "Daily Summary",
-          "subtitle": "Daily activity summary notifications"
-        },
-        "weeklyReport": {
-          "title": "Weekly Report",
-          "subtitle": "Weekly growth report notifications"
-        }
-      },
-      "quietHours": {
-        "title": "Quiet Hours",
-        "subtitle": "Block notifications during specified times",
-        "enabled": "Use Quiet Hours",
-        "timeRange": "Quiet Hours Period",
-        "startTime": "Start Time",
-        "endTime": "End Time"
-      },
-      "frequency": {
-        "title": "Notification Frequency",
-        "feeding": "Feeding reminder interval (hours)",
-        "sleep": "Sleep reminder interval (hours)",
-        "dailySummary": "Daily summary time",
-        "weeklyReport": "Weekly report day"
-      },
-      "tips": {
-        "title": "💡 Notification Tips",
-        "content": "• Keep important notifications on and turn off unnecessary ones\n• Set quiet hours to ensure rest time\n• More detailed notification settings available in system preferences"
-      }
-    },
-    "templates": {
-      "feeding": {
-        "reminder": {
-          "title": "Feeding Time",
-          "body": "It's time to feed {{childName}}"
-        },
-        "overdue": {
-          "title": "Feeding Overdue",
-          "body": "{{childName}}'s feeding is {{duration}} overdue"
-        }
-      },
-      "sleep": {
-        "reminder": {
-          "title": "Sleep Time",
-          "body": "It's time for {{childName}} to sleep"
-        },
-        "wakeUp": {
-          "title": "Wake Up Time",
-          "body": "Time to wake up {{childName}}"
-        }
-      },
-      "diaper": {
-        "reminder": {
-          "title": "Diaper Check Time",
-          "body": "Please check {{childName}}'s diaper"
-        }
-      },
-      "growth": {
-        "reminder": {
-          "title": "Growth Record Time",
-          "body": "Please record {{childName}}'s growth"
-        }
-      },
-      "milestone": {
-        "achievement": {
-          "title": "New Milestone Achieved!",
-          "body": "{{childName}} has achieved {{milestone}}"
-        }
-      },
-      "summary": {
-        "daily": {
-          "title": "Today's Activity Summary",
-          "body": "{{feedingCount}} feedings, {{sleepHours}} hours sleep, {{diaperCount}} diaper changes"
-        },
-        "weekly": {
-          "title": "This Week's Growth Report",
-          "body": "{{childName}}'s weekly activity report is ready"
-        }
-      }
-    },
-    "actions": {
-      "markDone": "Done",
-      "snooze5": "5 min later",
-      "snooze10": "10 min later",
-      "snooze30": "30 min later",
-      "openApp": "Open App",
-      "dismiss": "Dismiss"
-    }
-  },
   "errors": {
     "general": {
       "unknown": "An unknown error occurred",
@@ -610,7 +473,6 @@
     "permissions": {
       "camera": "Camera permission is required",
       "photos": "Photo library permission is required",
-      "notifications": "Notification permission is required",
       "location": "Location permission is required",
       "microphone": "Microphone permission is required"
     }

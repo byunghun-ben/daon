@@ -145,16 +145,6 @@ export default function SettingsScreen() {
             <View className="h-px bg-gray-200" />
             <TouchableOpacity
               className="p-2"
-              onPress={() => router.push("/settings/notifications")}
-            >
-              <Text className="text-lg font-bold mb-2">알림 설정</Text>
-              <Text className="text-sm text-gray-500">
-                푸시 알림 및 리마인더 설정
-              </Text>
-            </TouchableOpacity>
-            <View className="h-px bg-gray-200" />
-            <TouchableOpacity
-              className="p-2"
               onPress={() => router.push("/settings/language")}
             >
               <Text className="text-lg font-bold mb-2">언어 설정</Text>

@@ -1,4 +1,5 @@
-import { Alert } from "react-native";
+import * as Notifications from "expo-notifications";
+import { Alert, Linking, Platform } from "react-native";
 
 export interface PermissionResult {
   granted: boolean;
@@ -21,8 +22,8 @@ export const showPermissionBlockedAlert = (
         style: "cancel",
       },
       {
-        text: "확인",
-        onPress: () => {},
+        text: "설정으로 이동",
+        onPress: () => Linking.openSettings(),
       },
     ],
   );
@@ -46,4 +47,41 @@ export const showPermissionRationaleAlert = (
       onPress: onConfirm,
     },
   ]);
+};
+
+/**
+ * 알림 권한 확인
+ */
+export const checkNotificationPermission = async (): Promise<PermissionResult> => {
+  const { status } = await Notifications.getPermissionsAsync();
+  return {
+    granted: status === "granted",
+  };
+};
+
+/**
+ * 알림 권한 요청
+ */
+export const requestNotificationPermission = async (): Promise<PermissionResult> => {
+  // 현재 권한 상태 확인
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  
+  if (existingStatus === "granted") {
+    return { granted: true };
+  }
+
+  // 권한 요청
+  const { status } = await Notifications.requestPermissionsAsync();
+  
+  if (status === "denied" && Platform.OS === "ios") {
+    // iOS에서는 한 번 거부하면 설정에서만 변경 가능
+    showPermissionBlockedAlert(
+      "알림",
+      "중요한 일정과 활동을 알려드리기 위해 알림 권한이 필요합니다.",
+    );
+  }
+
+  return {
+    granted: status === "granted",
+  };
 };

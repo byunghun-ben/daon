@@ -5,14 +5,15 @@ import type {
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import messaging from "@react-native-firebase/messaging";
 
 class FcmService {
   private token: string | null = null;
 
   /**
-   * Expo Push Token 가져오기
+   * FCM 토큰 가져오기
    */
-  async getExpoPushToken(): Promise<string | null> {
+  async getFcmToken(): Promise<string | null> {
     try {
       // 실제 기기인지 확인
       if (!Device.isDevice) {
@@ -35,17 +36,28 @@ class FcmService {
         return null;
       }
 
-      // Expo Push Token 가져오기
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: "57cb1ae6-3b2e-44a6-a54c-da24a38007d2", // EAS 프로젝트 ID
-      });
+      // iOS에서 APNs 권한 요청
+      if (Platform.OS === "ios") {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-      this.token = tokenData.data;
-      console.log("Expo Push Token:", this.token);
+        if (!enabled) {
+          console.log("Authorization status:", authStatus);
+          return null;
+        }
+      }
+
+      // FCM 토큰 가져오기
+      const fcmToken = await messaging().getToken();
+
+      this.token = fcmToken;
+      console.log("FCM Token:", this.token);
 
       return this.token;
     } catch (error) {
-      console.error("Error getting push token:", error);
+      console.error("Error getting FCM token:", error);
       return null;
     }
   }
@@ -57,7 +69,7 @@ class FcmService {
     registerMutation: ReturnType<typeof useRegisterFcmToken>,
   ): Promise<boolean> {
     try {
-      const token = await this.getExpoPushToken();
+      const token = await this.getFcmToken();
       if (!token) {
         console.log("No token available to register");
         return false;
@@ -94,7 +106,7 @@ class FcmService {
   ): Promise<boolean> {
     try {
       if (!this.token) {
-        const token = await this.getExpoPushToken();
+        const token = await this.getFcmToken();
         if (!token) {
           console.log("No token to unregister");
           return false;
@@ -175,6 +187,48 @@ class FcmService {
         sound: "default",
       });
     }
+  }
+
+  /**
+   * FCM 메시지 리스너 설정
+   */
+  setupMessageListeners() {
+    // 포그라운드 메시지 처리
+    messaging().onMessage(async (remoteMessage) => {
+      console.log("FCM 메시지 수신 (포그라운드):", remoteMessage);
+
+      // Expo Notifications로 로컬 알림 표시
+      if (remoteMessage.notification) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: remoteMessage.notification.title || "알림",
+            body: remoteMessage.notification.body || "",
+            data: remoteMessage.data,
+          },
+          trigger: null,
+        });
+      }
+    });
+
+    // 백그라운드 메시지 처리
+    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      console.log("FCM 메시지 수신 (백그라운드):", remoteMessage);
+    });
+
+    // 토큰 새로 고침 리스너
+    messaging().onTokenRefresh((fcmToken) => {
+      console.log("FCM 토큰 새로 고침:", fcmToken);
+      this.token = fcmToken;
+      // 필요시 백엔드에 새 토큰 등록
+    });
+  }
+
+  /**
+   * 서비스 초기화
+   */
+  async initialize() {
+    await this.setupNotificationChannel();
+    this.setupMessageListeners();
   }
 }
 

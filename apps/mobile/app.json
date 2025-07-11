@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bridgestudio.daon",
+      "googleServicesFile": "./backup/GoogleService-Info.plist",
       "infoPlist": {
         "NSCameraUsageDescription": "이 앱은 아이의 사진을 찍어 일기에 추가하기 위해 카메라 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "이 앱은 아이의 사진을 선택해 일기에 추가하기 위해 사진 라이브러리 접근 권한이 필요합니다."
@@ -23,6 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.bridgestudio.daon",
+      "googleServicesFile": "./backup/google-services.json",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
@@ -36,6 +38,19 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@react-native-firebase/app",
+        {
+          "android": {
+            "googleServicesFile": "./backup/google-services.json"
+          },
+          "ios": {
+            "googleServicesFile": "./backup/GoogleService-Info.plist"
+          }
+        }
+      ],
+      "./plugins/withFirebaseAndroid.js",
+      "./plugins/withFirebasePodfile.js",
       "expo-router",
       [
         "expo-splash-screen",

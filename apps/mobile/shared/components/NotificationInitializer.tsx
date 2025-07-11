@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { fcmService } from "@/shared/lib/notifications/fcm.service";
 import { notificationHandler } from "@/shared/lib/notifications/notification.handler";
-import { useRegisterFcmToken, useUnregisterFcmToken } from "@/shared/api/hooks/notifications";
+import {
+  useRegisterFcmToken,
+  useUnregisterFcmToken,
+} from "@/shared/api/hooks/notifications";
 import { useAuthStore } from "@/shared/store/authStore";
 
 export function NotificationInitializer() {
@@ -10,8 +13,8 @@ export function NotificationInitializer() {
   const unregisterMutation = useUnregisterFcmToken();
 
   useEffect(() => {
-    // 알림 채널 설정 (Android)
-    fcmService.setupNotificationChannel();
+    // FCM 서비스 초기화
+    fcmService.initialize();
 
     // 알림 핸들러 초기화
     notificationHandler.initialize();

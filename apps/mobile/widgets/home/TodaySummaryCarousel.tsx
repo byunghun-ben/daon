@@ -1,14 +1,9 @@
-import type { ChildApi, ActivityApi } from "@daon/shared";
-import React, { useState, useRef } from "react";
-import {
-  ScrollView,
-  View,
-  Dimensions,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-} from "react-native";
-import TodaySummary from "./TodaySummary";
 import { useTodayActivities } from "@/shared/api/hooks/useActivities";
+import type { ChildApi } from "@daon/shared";
+import React, { useRef, useState } from "react";
+import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
+import TodaySummary from "./TodaySummary";
 
 interface TodaySummaryCarouselProps {
   children: ChildApi[];
@@ -44,18 +39,6 @@ const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
     setCurrentIndex(pageNum);
   };
 
-  // activeChildId가 변경되면 해당 아이의 페이지로 스크롤
-  React.useEffect(() => {
-    const index = children.findIndex((child) => child.id === activeChildId);
-    if (index >= 0 && index !== currentIndex) {
-      scrollViewRef.current?.scrollTo({
-        x: index * screenWidth,
-        animated: true,
-      });
-      setCurrentIndex(index);
-    }
-  }, [activeChildId, children, currentIndex]);
-
   if (children.length === 1) {
     // 아이가 한 명일 때는 캐러셀 없이 바로 표시
     return (
@@ -76,7 +59,7 @@ const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        {childrenActivities.map((childData, index) => (
+        {childrenActivities.map((childData) => (
           <View key={childData.childId} style={{ width: screenWidth - 32 }}>
             <TodaySummary
               todayActivities={childData.activities}

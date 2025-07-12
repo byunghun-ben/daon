@@ -2,7 +2,7 @@ import { useCreateDiaryEntry } from "@/shared/api/diary/hooks/useCreateDiaryEntr
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import { ImageUploader } from "@/shared/ui/ImageUploader";
-import Input from "@/shared/ui/Input/Input";
+import TextArea from "@/shared/ui/TextArea/TextArea";
 import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import {
   CreateDiaryEntryRequestSchema,
@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -52,9 +53,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     event: DateTimePickerEvent,
     selectedDate?: Date,
   ) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
-    }
+    setShowDatePicker(false);
 
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
@@ -141,12 +140,9 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   const currentDate = form.watch("date");
 
   return (
-    <ScrollView
-      className="flex-1 bg-background px-4"
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
       {/* 아이 선택 */}
-      <View className="mb-6 pt-4">
+      <View className="mb-6">
         <Controller
           control={form.control}
           name="childId"
@@ -184,16 +180,14 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
             field: { onChange, onBlur, value },
             fieldState: { error },
           }) => (
-            <Input
+            <TextArea
               label="일기 내용"
               placeholder="오늘 아이와 함께한 특별한 순간을 기록해보세요"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
               error={error?.message}
-              multiline
-              numberOfLines={8}
-              textAlignVertical="top"
+              rows={8}
             />
           )}
         />
@@ -272,15 +266,36 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
         />
       </View>
 
-      {/* 날짜 피커 */}
-      {showDatePicker && (
-        <DateTimePicker
-          value={new Date(currentDate)}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-        />
-      )}
+      {/* 날짜 피커 모달 */}
+      <Modal
+        visible={showDatePicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-background rounded-t-lg p-4">
+            <View className="flex-row justify-between items-center mb-4">
+              <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                <Text className="text-primary text-lg font-medium">취소</Text>
+              </TouchableOpacity>
+              <Text className="text-lg font-semibold text-foreground">
+                날짜 선택
+              </Text>
+              <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                <Text className="text-primary text-lg font-medium">완료</Text>
+              </TouchableOpacity>
+            </View>
+            <DateTimePicker
+              value={new Date(currentDate)}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={handleDateChange}
+              style={{ backgroundColor: "transparent" }}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };

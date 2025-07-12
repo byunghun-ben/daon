@@ -1,17 +1,9 @@
 import { CreateDiaryForm } from "@/features/diary/CreateDiaryForm";
-import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { Stack, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
 
 export default function NewDiaryScreen() {
   const router = useRouter();
-
-  const styles = useThemedStyles((theme) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-  }));
 
   const handleSuccess = () => {
     // 성공 후 이전 화면으로 돌아가기
@@ -26,9 +18,9 @@ export default function NewDiaryScreen() {
           headerBackTitle: "뒤로",
         }}
       />
-      <SafeAreaView style={styles.container}>
+      <View className="flex-1 bg-background pt-6">
         <CreateDiaryForm onSuccess={handleSuccess} />
-      </SafeAreaView>
+      </View>
     </>
   );
 }

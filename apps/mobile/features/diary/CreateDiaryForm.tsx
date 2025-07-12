@@ -3,6 +3,7 @@ import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import { ImageUploader } from "@/shared/ui/ImageUploader";
 import Input from "@/shared/ui/Input/Input";
+import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import {
   CreateDiaryEntryRequestSchema,
   type CreateDiaryEntryRequest,
@@ -29,7 +30,7 @@ interface CreateDiaryFormProps {
 export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   onSuccess,
 }) => {
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, setActiveChild } = useActiveChild();
   const createDiaryMutation = useCreateDiaryEntry();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -70,12 +71,13 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   };
 
   const addMilestone = () => {
+    const selectedChildId = form.watch("childId");
     const newMilestone: CreateMilestoneRequest = {
       type: "custom",
       title: "",
       description: "",
       achievedAt: new Date().toISOString(),
-      childId: activeChild?.id || "",
+      childId: selectedChildId || "",
     };
 
     Alert.prompt(
@@ -110,16 +112,21 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
 
   const handleSubmit = form.handleSubmit(
     async (data: CreateDiaryEntryRequest) => {
-      if (!activeChild) {
+      if (!data.childId) {
         Alert.alert("오류", "아이를 선택해주세요.");
         return;
       }
 
       try {
-        await createDiaryMutation.mutateAsync({
-          ...data,
-          childId: activeChild.id,
-        });
+        await createDiaryMutation.mutateAsync(data);
+
+        // 일기 작성한 아이를 activeChild로 설정
+        const selectedChild = availableChildren.find(
+          (child) => child.id === data.childId,
+        );
+        if (selectedChild) {
+          setActiveChild(selectedChild.id);
+        }
 
         Alert.alert("완료", "일기가 성공적으로 저장되었습니다.", [
           { text: "확인", onPress: onSuccess },
@@ -138,8 +145,24 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       className="flex-1 bg-background px-4"
       showsVerticalScrollIndicator={false}
     >
-      {/* 날짜 선택 */}
+      {/* 아이 선택 */}
       <View className="mb-6 pt-4">
+        <Controller
+          control={form.control}
+          name="childId"
+          rules={{ required: "아이를 선택해주세요" }}
+          render={({ field: { onChange, value } }) => (
+            <ChildSelector
+              childId={value}
+              availableChildren={availableChildren}
+              onChildSelect={onChange}
+            />
+          )}
+        />
+      </View>
+
+      {/* 날짜 선택 */}
+      <View className="mb-6">
         <Text className="text-lg font-semibold text-foreground mb-3">날짜</Text>
         <TouchableOpacity
           className="bg-surface border border-border rounded-lg p-4"
@@ -191,25 +214,29 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
 
       {/* 마일스톤 */}
       <View className="mb-6">
-        <View className="bg-surface p-4 rounded-lg mb-4">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-base font-semibold text-foreground">
-              마일스톤
-            </Text>
-            <TouchableOpacity
-              className="py-2 px-4 rounded bg-primary"
-              onPress={addMilestone}
-            >
-              <Text className="text-white text-sm font-semibold">+ 추가</Text>
-            </TouchableOpacity>
-          </View>
+        <View className="flex-row justify-between items-center mb-3">
+          <Text className="text-lg font-semibold text-foreground">
+            마일스톤
+          </Text>
+          <TouchableOpacity
+            className="py-2 px-4 rounded-lg bg-primary"
+            onPress={addMilestone}
+            disabled={!form.watch("childId")}
+          >
+            <Text className="text-white text-sm font-semibold">+ 추가</Text>
+          </TouchableOpacity>
+        </View>
 
+        <View className="bg-surface p-4 rounded-lg">
           {milestones.map((milestone, index) => (
-            <View key={index} className="p-4 bg-background rounded mb-2">
-              <View className="flex-row justify-between">
-                <View className="flex-1">
+            <View
+              key={index}
+              className="p-3 bg-background rounded-lg mb-3 last:mb-0"
+            >
+              <View className="flex-row justify-between items-start">
+                <View className="flex-1 mr-3">
                   <Text className="text-base font-semibold text-foreground mb-1">
-                    {milestone.title}
+                    🏆 {milestone.title}
                   </Text>
                   {milestone.description && (
                     <Text className="text-sm text-muted-foreground">
@@ -217,16 +244,19 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
                     </Text>
                   )}
                 </View>
-                <TouchableOpacity onPress={() => removeMilestone(index)}>
-                  <Text className="text-destructive text-lg">×</Text>
+                <TouchableOpacity
+                  onPress={() => removeMilestone(index)}
+                  className="p-1"
+                >
+                  <Text className="text-destructive text-xl font-bold">×</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
 
           {milestones.length === 0 && (
-            <Text className="text-sm text-muted-foreground text-center">
-              특별한 순간이 있다면 마일스톤을 추가해보세요
+            <Text className="text-sm text-muted-foreground text-center py-4">
+              🌟 특별한 순간이 있다면 마일스톤을 추가해보세요
             </Text>
           )}
         </View>

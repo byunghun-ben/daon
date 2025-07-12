@@ -89,6 +89,7 @@ export const useActiveChild = () => {
     error: childrenError,
 
     // 액션
+    setActiveChild,
     switchChild,
     refetchChildren,
   };

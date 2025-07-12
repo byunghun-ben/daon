@@ -163,7 +163,10 @@ export default function HomeScreen() {
 
         {/* 오늘의 요약 */}
         <View className="mb-4">
-          <TodaySummary todayActivities={todayData?.activities || []} />
+          <TodaySummary
+            todayActivities={todayData?.activities || []}
+            childName={activeChild?.name}
+          />
         </View>
 
         {/* 최근 활동 */}

@@ -5,6 +5,7 @@ import Card from "../../shared/ui/Card/Card";
 
 interface TodaySummaryProps {
   todayActivities: ActivityApi[];
+  childName?: string;
 }
 
 interface ActivitySummary {
@@ -14,7 +15,10 @@ interface ActivitySummary {
   tummy_time: number;
 }
 
-const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
+const TodaySummary: React.FC<TodaySummaryProps> = ({
+  todayActivities,
+  childName,
+}) => {
   // const styles = useThemedStyles((theme) => ({
   //   card: {
   //     marginBottom: theme.spacing.xl,
@@ -73,7 +77,9 @@ const TodaySummary: React.FC<TodaySummaryProps> = ({ todayActivities }) => {
 
   return (
     <Card>
-      <Text className="text-xl font-bold mb-4">오늘 요약</Text>
+      <Text className="text-xl font-bold mb-4">
+        {childName ? `${childName} 오늘 요약` : "오늘 요약"}
+      </Text>
       <View className="flex-row justify-between">
         {summaryItems.map((item) => (
           <View key={item.key} className="flex-1 items-center">

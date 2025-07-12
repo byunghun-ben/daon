@@ -14,12 +14,9 @@ const { width: screenWidth } = Dimensions.get("window");
 
 const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
   childList,
-  activeChildId,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
-  const [currentIndex, setCurrentIndex] = useState(
-    childList.findIndex((child) => child.id === activeChildId) || 0,
-  );
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // 각 아이의 오늘 활동 데이터를 가져옴
   const childrenActivities = childList.map((child) => {

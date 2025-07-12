@@ -19,6 +19,7 @@ import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { cn } from "../../shared/lib/utils/cn";
 import Button from "../../shared/ui/Button/Button";
 import Input from "../../shared/ui/Input/Input";
+import ChildSelector from "../../widgets/ChildSelector/ChildSelector";
 
 type ActivityType = "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
 
@@ -29,7 +30,7 @@ interface CreateActivityFormProps {
 export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
   onSuccess,
 }) => {
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
   const [selectedActivityType, setSelectedActivityType] =
     useState<ActivityType>("feeding");
@@ -110,8 +111,27 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       className="flex-1 bg-background px-4"
       showsVerticalScrollIndicator={false}
     >
-      {/* 활동 유형 선택 */}
+      {/* 아이 선택 */}
       <View className="mb-6 pt-4">
+        <Text className="text-lg font-semibold text-foreground mb-3">
+          아이 선택
+        </Text>
+        <Controller
+          control={form.control}
+          name="childId"
+          render={({ field: { onChange, value } }) => (
+            <ChildSelector
+              childId={value}
+              availableChildren={availableChildren}
+              onChildSelect={onChange}
+              isLoading={isLoading}
+            />
+          )}
+        />
+      </View>
+
+      {/* 활동 유형 선택 */}
+      <View className="mb-6">
         <Text className="text-lg font-semibold text-foreground mb-3">
           활동 유형
         </Text>

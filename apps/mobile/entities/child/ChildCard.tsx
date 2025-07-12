@@ -64,7 +64,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   return (
     <TouchableOpacity
       className={cn(
-        "mb-sm",
+        "mb-sm rounded-md",
         isSelected && "border-2 border-primary",
         className,
       )}

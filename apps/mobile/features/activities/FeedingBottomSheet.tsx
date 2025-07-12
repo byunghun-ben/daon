@@ -2,6 +2,7 @@ import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import Input from "@/shared/ui/Input/Input";
+import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import type { CreateActivityRequest } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -12,6 +13,7 @@ import { z } from "zod/v4";
 
 // 수유 기록 폼 스키마
 const FeedingFormSchema = z.object({
+  childId: z.string().min(1, "아이를 선택해주세요"),
   type: z.enum(["breast", "bottle", "solid"]),
   amount: z.number().optional(),
   duration: z.number().optional(),
@@ -30,12 +32,13 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
     "bottle",
   );
 
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
 
   const form = useForm<FeedingFormData>({
     resolver: zodResolver(FeedingFormSchema),
     defaultValues: {
+      childId: activeChild?.id || "",
       type: "bottle",
       amount: undefined,
       duration: undefined,
@@ -44,14 +47,9 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
   });
 
   const handleSubmit = async (data: FeedingFormData) => {
-    if (!activeChild) {
-      Alert.alert("알림", "아이를 먼저 선택해주세요.");
-      return;
-    }
-
     try {
       const activityData: CreateActivityRequest = {
-        childId: activeChild.id,
+        childId: data.childId,
         type: "feeding",
         timestamp: selectedDate.toISOString(),
         data: {
@@ -83,156 +81,173 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View className="p-6 gap-6">
-          <Text className="text-xl font-bold mb-4">수유 기록</Text>
+        <Text className="text-xl font-bold mb-4">수유 기록</Text>
 
-          {/* 시간 선택 */}
-          <CustomDateTimePicker
-            value={selectedDate}
-            onChange={setSelectedDate}
-            mode="datetime"
-            label="시간"
-          />
-
-          {/* 수유 유형 선택 */}
-          <View className="mb-4">
-            <Text className="text-base font-medium mb-2">수유 방법</Text>
-            <Controller
-              control={form.control}
-              name="type"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex-row gap-2">
-                  <TouchableOpacity
-                    onPress={() => {
-                      onChange("breast");
-                      setFeedingType("breast");
-                    }}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "breast" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "breast" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      모유
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      onChange("bottle");
-                      setFeedingType("bottle");
-                    }}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "bottle" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "bottle" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      분유
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      onChange("solid");
-                      setFeedingType("solid");
-                    }}
-                    className={`flex-1 p-3 rounded-lg items-center ${
-                      value === "solid" ? "bg-primary" : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`font-medium ${
-                        value === "solid" ? "text-white" : "text-gray-700"
-                      }`}
-                    >
-                      이유식
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          </View>
-
-          {/* 양 입력 (분유/이유식) */}
-          {(feedingType === "bottle" || feedingType === "solid") && (
-            <Controller
-              control={form.control}
-              name="amount"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={feedingType === "bottle" ? "양 (ml)" : "양 (g)"}
-                  value={value?.toString() || ""}
-                  onChangeText={(text) => {
-                    const num = parseInt(text);
-                    onChange(isNaN(num) ? undefined : num);
-                  }}
-                  placeholder={feedingType === "bottle" ? "120" : "100"}
-                  keyboardType="numeric"
-                  error={form.formState.errors.amount?.message}
-                />
-              )}
-            />
-          )}
-
-          {/* 시간 입력 (모유) */}
-          {feedingType === "breast" && (
-            <Controller
-              control={form.control}
-              name="duration"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label="수유 시간 (분)"
-                  value={value?.toString() || ""}
-                  onChangeText={(text) => {
-                    const num = parseInt(text);
-                    onChange(isNaN(num) ? undefined : num);
-                  }}
-                  placeholder="15"
-                  keyboardType="numeric"
-                  error={form.formState.errors.duration?.message}
-                />
-              )}
-            />
-          )}
-
-          {/* 메모 */}
+        {/* 아이 선택 */}
+        <View>
+          <Text className="text-base font-medium mb-2">아이 선택</Text>
           <Controller
             control={form.control}
-            name="notes"
+            name="childId"
             render={({ field: { onChange, value } }) => (
-              <Input
-                label="메모 (선택사항)"
-                value={value || ""}
-                onChangeText={onChange}
-                placeholder="특이사항을 입력하세요"
-                multiline
-                numberOfLines={3}
-                style={{ textAlignVertical: "top" }}
+              <ChildSelector
+                childId={value}
+                availableChildren={availableChildren}
+                onChildSelect={onChange}
+                isLoading={isLoading}
               />
             )}
           />
-
-          {/* 버튼 */}
-          <View className="flex-row gap-3 mt-6">
-            <Button
-              title="취소"
-              variant="outline"
-              onPress={() => onComplete?.()}
-              className="flex-1"
-            />
-            <Button
-              title={createActivityMutation.isPending ? "저장 중..." : "저장"}
-              variant="primary"
-              onPress={form.handleSubmit(handleSubmit)}
-              disabled={createActivityMutation.isPending}
-              className="flex-1"
-            />
-          </View>
         </View>
-      </ScrollView>
+
+        {/* 시간 선택 */}
+        <CustomDateTimePicker
+          value={selectedDate}
+          onChange={setSelectedDate}
+          mode="datetime"
+          label="시간"
+        />
+
+        {/* 수유 유형 선택 */}
+        <View className="mb-4">
+          <Text className="text-base font-medium mb-2">수유 방법</Text>
+          <Controller
+            control={form.control}
+            name="type"
+            render={({ field: { onChange, value } }) => (
+              <View className="flex-row gap-2">
+                <TouchableOpacity
+                  onPress={() => {
+                    onChange("breast");
+                    setFeedingType("breast");
+                  }}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "breast" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "breast" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    모유
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    onChange("bottle");
+                    setFeedingType("bottle");
+                  }}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "bottle" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "bottle" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    분유
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    onChange("solid");
+                    setFeedingType("solid");
+                  }}
+                  className={`flex-1 p-3 rounded-lg items-center ${
+                    value === "solid" ? "bg-primary" : "bg-gray-100"
+                  }`}
+                >
+                  <Text
+                    className={`font-medium ${
+                      value === "solid" ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    이유식
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
+
+        {/* 양 입력 (분유/이유식) */}
+        {(feedingType === "bottle" || feedingType === "solid") && (
+          <Controller
+            control={form.control}
+            name="amount"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                label={feedingType === "bottle" ? "양 (ml)" : "양 (g)"}
+                value={value?.toString() || ""}
+                onChangeText={(text) => {
+                  const num = parseInt(text);
+                  onChange(isNaN(num) ? undefined : num);
+                }}
+                placeholder={feedingType === "bottle" ? "120" : "100"}
+                keyboardType="numeric"
+                error={form.formState.errors.amount?.message}
+              />
+            )}
+          />
+        )}
+
+        {/* 시간 입력 (모유) */}
+        {feedingType === "breast" && (
+          <Controller
+            control={form.control}
+            name="duration"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                label="수유 시간 (분)"
+                value={value?.toString() || ""}
+                onChangeText={(text) => {
+                  const num = parseInt(text);
+                  onChange(isNaN(num) ? undefined : num);
+                }}
+                placeholder="15"
+                keyboardType="numeric"
+                error={form.formState.errors.duration?.message}
+              />
+            )}
+          />
+        )}
+
+        {/* 메모 */}
+        <Controller
+          control={form.control}
+          name="notes"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              label="메모 (선택사항)"
+              value={value || ""}
+              onChangeText={onChange}
+              placeholder="특이사항을 입력하세요"
+              multiline
+              numberOfLines={3}
+              style={{ textAlignVertical: "top" }}
+            />
+          )}
+        />
+
+        {/* 버튼 */}
+        <View className="flex-row gap-3 mt-6">
+          <Button
+            title="취소"
+            variant="outline"
+            onPress={() => onComplete?.()}
+            className="flex-1"
+          />
+          <Button
+            title={createActivityMutation.isPending ? "저장 중..." : "저장"}
+            variant="primary"
+            onPress={form.handleSubmit(handleSubmit)}
+            disabled={createActivityMutation.isPending}
+            className="flex-1"
+          />
+        </View>
+      </View>
+    </ScrollView>
   );
 }

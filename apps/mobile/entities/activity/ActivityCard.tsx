@@ -2,6 +2,7 @@ import { cn } from "@/shared/lib/utils/cn";
 import Card from "@/shared/ui/Card/Card";
 import type {
   ActivityApi,
+  ChildApi,
   DiaperDataApi,
   FeedingDataApi,
   SleepDataApi,
@@ -14,6 +15,8 @@ interface ActivityCardProps {
   activity: ActivityApi;
   onPress?: (activity: ActivityApi) => void;
   showUser?: boolean;
+  showChild?: boolean;
+  childList?: ChildApi[];
   className?: string;
 }
 
@@ -21,6 +24,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   activity,
   onPress,
   showUser = true,
+  showChild = false,
+  childList,
   className,
 }) => {
   const getActivityConfig = (type: string) => {
@@ -198,6 +203,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
     onPress?.(activity);
   };
 
+  const getChildName = (childId: string): string | null => {
+    if (!childList) return null;
+    const child = childList.find((c) => c.id === childId);
+    return child?.name || null;
+  };
+
   return (
     <TouchableOpacity
       className={cn("mb-sm", className)}
@@ -212,6 +223,16 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             <Text className="text-base font-semibold text-text">
               {config.label}
             </Text>
+            {showChild &&
+              childList &&
+              childList.length > 1 &&
+              getChildName(activity.childId) && (
+                <View className="bg-primary px-2 py-0.5 rounded ml-2">
+                  <Text className="text-white text-xs font-semibold">
+                    {getChildName(activity.childId)}
+                  </Text>
+                </View>
+              )}
           </View>
           <Text className="text-xs text-text-secondary">
             {formatDate(activity.timestamp)}

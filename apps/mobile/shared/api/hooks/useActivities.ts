@@ -6,6 +6,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { activitiesApi } from "../activities";
 import { createQueryKeys } from "./createCrudHooks";
+import { useActiveChildStore } from "../../store/activeChildStore";
 
 // Query Keys
 export const ACTIVITIES_KEYS = createQueryKeys("activities");
@@ -29,11 +30,12 @@ export function useActivity(id: string) {
 
 export function useCreateActivity() {
   const queryClient = useQueryClient();
+  const setActiveChild = useActiveChildStore((state) => state.setActiveChild);
 
   return useMutation({
     mutationFn: (data: CreateActivityRequest) =>
       activitiesApi.createActivity(data),
-    onSuccess: (newActivity) => {
+    onSuccess: (newActivity, data) => {
       // 관련된 모든 활동 목록 쿼리를 무효화
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_KEYS.lists() });
 
@@ -42,6 +44,11 @@ export function useCreateActivity() {
         ACTIVITIES_KEYS.detail(newActivity.activity.id),
         { activity: newActivity.activity },
       );
+
+      // 방금 기록한 아이를 activeChild로 설정
+      if (data.childId) {
+        setActiveChild(data.childId);
+      }
     },
   });
 }
@@ -120,21 +127,16 @@ export function useTodayActivities(childId: string | null) {
 
 // Recent activities helper
 export function useRecentActivities(childId: string | null, limit = 10) {
+  // childId 유무에 따라 필터 객체 구성
+  const filters: ActivityFilters = {
+    limit,
+    offset: 0,
+    ...(childId && { childId }),
+  };
+
   return useQuery({
-    queryKey: [
-      ...ACTIVITIES_KEYS.list({ childId: childId || "", limit, offset: 0 }),
-      "recent",
-    ],
-    queryFn: () => {
-      if (!childId) {
-        return { activities: [], total: 0 };
-      }
-      return activitiesApi.getActivities({
-        childId,
-        limit,
-        offset: 0,
-      });
-    },
-    enabled: !!childId,
+    queryKey: [...ACTIVITIES_KEYS.list(filters), "recent"],
+    queryFn: () => activitiesApi.getActivities(filters),
+    enabled: true, // childId가 없어도 실행
   });
 }

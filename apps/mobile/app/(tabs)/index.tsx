@@ -9,9 +9,9 @@ import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
 import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
-import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import RecentActivities from "@/widgets/home/RecentActivities";
 import TodaySummary from "@/widgets/home/TodaySummary";
+import TodaySummaryCarousel from "@/widgets/home/TodaySummaryCarousel";
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import {
@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const {
     activeChildId,
     activeChild,
+    availableChildren,
     isLoading: isActiveChildLoading,
     refetchChildren,
   } = useActiveChild();
@@ -42,12 +43,12 @@ export default function HomeScreen() {
     refetch: refetchToday,
   } = useTodayActivities(activeChildId);
 
-  // 최근 활동 데이터
+  // 최근 활동 데이터 - 모든 아이의 활동
   const {
     data: recentData,
     isLoading: isRecentLoading,
     refetch: refetchRecent,
-  } = useRecentActivities(activeChildId);
+  } = useRecentActivities(null); // null을 전달하여 모든 아이의 활동 가져오기
 
   const isLoading = isActiveChildLoading || isTodayLoading || isRecentLoading;
 
@@ -113,14 +114,19 @@ export default function HomeScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* 아이 선택기 */}
+        {/* 오늘의 요약 */}
         <View className="mb-4">
-          <ChildSelector
-            onChildChange={() => {
-              refetchToday();
-              refetchRecent();
-            }}
-          />
+          {availableChildren.length > 1 ? (
+            <TodaySummaryCarousel
+              childList={availableChildren}
+              activeChildId={activeChildId}
+            />
+          ) : (
+            <TodaySummary
+              todayActivities={todayData?.activities || []}
+              childName={activeChild?.name}
+            />
+          )}
         </View>
 
         {/* 빠른 기록 */}
@@ -132,7 +138,6 @@ export default function HomeScreen() {
               variant="primary"
               className="flex-1 mx-1"
               onPress={() => {
-                console.log("수유 기록");
                 openBottomSheet({
                   content: (
                     <FeedingBottomSheet onComplete={handleActivityComplete} />
@@ -172,15 +177,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* 오늘의 요약 */}
-        <View className="mb-4">
-          <TodaySummary todayActivities={todayData?.activities || []} />
-        </View>
-
         {/* 최근 활동 */}
         <View className="mb-4">
           <RecentActivities
             activities={recentData?.activities || []}
+            childList={availableChildren}
             onActivityPress={handleNavigateToActivity}
             onViewAllPress={handleNavigateToRecord}
             onFirstActivityPress={handleNavigateToRecord}

@@ -6,6 +6,7 @@ import {
   CreateMilestoneRequestSchema,
   DiaryFiltersSchema,
   UpdateDiaryEntryRequestSchema,
+  type MilestoneDb,
 } from "@daon/shared";
 import { z } from "zod/v4";
 
@@ -64,15 +65,45 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
+    // Create milestones if provided
+    let createdMilestones: MilestoneDb[] = [];
+    if (validatedApiData.milestones && validatedApiData.milestones.length > 0) {
+      const milestoneData = validatedApiData.milestones.map((milestone) => ({
+        type: milestone.type,
+        description: milestone.description,
+        achieved_at: milestone.achievedAt,
+        child_id: validatedApiData.childId,
+        diary_entry_id: diaryEntry.id,
+      }));
+
+      const { data: milestones, error: milestoneError } = await supabaseAdmin
+        .from("milestones")
+        .insert(milestoneData)
+        .select("*");
+
+      if (milestoneError) {
+        logger.warn("Failed to create milestones", {
+          diaryEntryId: diaryEntry.id,
+          milestoneError,
+        });
+      } else {
+        createdMilestones = milestones || [];
+      }
+    }
+
     logger.info("Diary entry created successfully", {
       diaryEntryId: diaryEntry.id,
       childId: validatedApiData.childId,
       userId: req.user.id,
+      milestonesCount: createdMilestones.length,
     });
 
     res.status(201).json({
       message: "Diary entry created successfully",
-      diaryEntry,
+      diaryEntry: {
+        ...diaryEntry,
+        milestones: createdMilestones,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -389,8 +420,7 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = {
       type: validatedData.type,
-      title: validatedData.title,
-      description: validatedData.description ?? "",
+      description: validatedData.description,
       achieved_at: validatedData.achievedAt,
       child_id: validatedData.childId,
       diary_entry_id: validatedData.diaryEntryId ?? null,

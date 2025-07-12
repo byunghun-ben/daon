@@ -3,44 +3,27 @@ import z from "zod/v4";
 // Milestone schemas
 export const MilestoneDbSchema = z.object({
   id: z.uuid(),
-  diary_entry_id: z.uuid(),
-  type: z.enum([
-    "first_smile",
-    "first_step",
-    "first_word",
-    "first_tooth",
-    "custom",
-  ]),
-  title: z.string().min(1).max(100),
-  description: z.string().optional(),
-  achieved_at: z.iso.datetime({ offset: true }),
+  diary_entry_id: z.uuid().nullable(),
+  child_id: z.uuid(),
+  type: z.string(),
+  description: z.string(),
+  achieved_at: z.string(),
+  created_at: z.string(),
 });
 
 export const MilestoneApiSchema = z.object({
   id: z.uuid(),
-  diaryEntryId: z.uuid(),
-  type: z.enum([
-    "first_smile",
-    "first_step",
-    "first_word",
-    "first_tooth",
-    "custom",
-  ]),
-  title: z.string().min(1).max(100),
-  description: z.string().optional(),
+  diaryEntryId: z.uuid().nullable(),
+  childId: z.uuid(),
+  type: z.enum(["first_smile", "first_step", "first_word", "custom"]),
+  description: z.string(),
   achievedAt: z.iso.datetime({ offset: true }),
+  createdAt: z.iso.datetime({ offset: true }),
 });
 
 export const CreateMilestoneRequestSchema = z.object({
-  type: z.enum([
-    "first_smile",
-    "first_step",
-    "first_word",
-    "first_tooth",
-    "custom",
-  ]),
-  title: z.string().min(1).max(100),
-  description: z.string().optional(),
+  type: z.enum(["first_smile", "first_step", "first_word", "custom"]),
+  description: z.string().min(1).max(200),
   achievedAt: z.iso.datetime({ offset: true }),
   childId: z.uuid(),
   diaryEntryId: z.uuid().optional(),

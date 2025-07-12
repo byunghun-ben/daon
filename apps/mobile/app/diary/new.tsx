@@ -18,7 +18,7 @@ export default function NewDiaryScreen() {
           headerBackTitle: "뒤로",
         }}
       />
-      <View className="flex-1 bg-background pt-6">
+      <View className="flex-1 bg-background py-6">
         <CreateDiaryForm onSuccess={handleSuccess} />
       </View>
     </>

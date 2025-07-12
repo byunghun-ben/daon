@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Alert,
   Modal,
@@ -35,7 +35,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   const createDiaryMutation = useCreateDiaryEntry();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [milestones, setMilestones] = useState<CreateMilestoneRequest[]>([]);
 
   const form = useForm({
     resolver: zodResolver(CreateDiaryEntryRequestSchema),
@@ -49,12 +48,19 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
   });
 
+  const {
+    fields: milestoneFields,
+    append: appendMilestone,
+    remove: removeMilestone,
+  } = useFieldArray({
+    control: form.control,
+    name: "milestones",
+  });
+
   const handleDateChange = (
     event: DateTimePickerEvent,
     selectedDate?: Date,
   ) => {
-    setShowDatePicker(false);
-
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
       form.setValue("date", dateString);
@@ -70,14 +76,10 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   };
 
   const addMilestone = () => {
-    const selectedChildId = form.watch("childId");
-    const newMilestone: CreateMilestoneRequest = {
-      type: "custom",
-      title: "",
-      description: "",
-      achievedAt: new Date().toISOString(),
-      childId: selectedChildId || "",
-    };
+    const selectedChildId = useWatch({
+      control: form.control,
+      name: "childId",
+    });
 
     Alert.prompt(
       "마일스톤 추가",
@@ -91,22 +93,19 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
           text: "추가",
           onPress: (title) => {
             if (title && title.trim()) {
-              const milestone = { ...newMilestone, title: title.trim() };
-              const updatedMilestones = [...milestones, milestone];
-              setMilestones(updatedMilestones);
-              form.setValue("milestones", updatedMilestones);
+              const newMilestone: CreateMilestoneRequest = {
+                type: "custom",
+                description: title.trim(),
+                achievedAt: new Date().toISOString(),
+                childId: selectedChildId || "",
+              };
+              appendMilestone(newMilestone);
             }
           },
         },
       ],
       "plain-text",
     );
-  };
-
-  const removeMilestone = (index: number) => {
-    const updatedMilestones = milestones.filter((_, i) => i !== index);
-    setMilestones(updatedMilestones);
-    form.setValue("milestones", updatedMilestones);
   };
 
   const handleSubmit = form.handleSubmit(
@@ -137,7 +136,8 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     },
   );
 
-  const currentDate = form.watch("date");
+  const currentDate = useWatch({ control: form.control, name: "date" });
+  const currentChildId = useWatch({ control: form.control, name: "childId" });
 
   return (
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
@@ -215,28 +215,23 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
           <TouchableOpacity
             className="py-2 px-4 rounded-lg bg-primary"
             onPress={addMilestone}
-            disabled={!form.watch("childId")}
+            disabled={!currentChildId}
           >
             <Text className="text-white text-sm font-semibold">+ 추가</Text>
           </TouchableOpacity>
         </View>
 
         <View className="bg-surface p-4 rounded-lg">
-          {milestones.map((milestone, index) => (
+          {milestoneFields.map((field, index) => (
             <View
-              key={index}
+              key={field.id}
               className="p-3 bg-background rounded-lg mb-3 last:mb-0"
             >
               <View className="flex-row justify-between items-start">
                 <View className="flex-1 mr-3">
                   <Text className="text-base font-semibold text-foreground mb-1">
-                    🏆 {milestone.title}
+                    🏆 {field.description}
                   </Text>
-                  {milestone.description && (
-                    <Text className="text-sm text-muted-foreground">
-                      {milestone.description}
-                    </Text>
-                  )}
                 </View>
                 <TouchableOpacity
                   onPress={() => removeMilestone(index)}
@@ -248,7 +243,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
             </View>
           ))}
 
-          {milestones.length === 0 && (
+          {milestoneFields.length === 0 && (
             <Text className="text-sm text-muted-foreground text-center py-4">
               🌟 특별한 순간이 있다면 마일스톤을 추가해보세요
             </Text>
@@ -273,7 +268,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
         animationType="slide"
         onRequestClose={() => setShowDatePicker(false)}
       >
-        <View className="flex-1 justify-end bg-black/50">
+        <View className="flex-1 justify-end">
           <View className="bg-background rounded-t-lg p-4">
             <View className="flex-row justify-between items-center mb-4">
               <TouchableOpacity onPress={() => setShowDatePicker(false)}>
@@ -292,6 +287,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={handleDateChange}
               style={{ backgroundColor: "transparent" }}
+              locale="ko-KR"
             />
           </View>
         </View>

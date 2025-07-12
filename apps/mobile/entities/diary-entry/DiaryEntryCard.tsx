@@ -79,7 +79,7 @@ export const DiaryEntryCard: React.FC<DiaryEntryCardProps> = ({
                   className="bg-primary/20 px-2 py-1 rounded"
                 >
                   <Text className="text-primary text-xs font-semibold">
-                    {milestone.title}
+                    {milestone.description}
                   </Text>
                 </View>
               ))}

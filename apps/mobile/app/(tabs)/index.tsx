@@ -114,6 +114,21 @@ export default function HomeScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
+        {/* 오늘의 요약 */}
+        <View className="mb-4">
+          {availableChildren.length > 1 ? (
+            <TodaySummaryCarousel
+              childList={availableChildren}
+              activeChildId={activeChildId}
+            />
+          ) : (
+            <TodaySummary
+              todayActivities={todayData?.activities || []}
+              childName={activeChild?.name}
+            />
+          )}
+        </View>
+
         {/* 빠른 기록 */}
         <View className="mb-4">
           <View className="flex-row justify-between">
@@ -123,7 +138,6 @@ export default function HomeScreen() {
               variant="primary"
               className="flex-1 mx-1"
               onPress={() => {
-                console.log("수유 기록");
                 openBottomSheet({
                   content: (
                     <FeedingBottomSheet onComplete={handleActivityComplete} />
@@ -163,26 +177,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* 오늘의 요약 */}
-        <View className="mb-4">
-          {availableChildren.length > 1 ? (
-            <TodaySummaryCarousel
-              children={availableChildren}
-              activeChildId={activeChildId}
-            />
-          ) : (
-            <TodaySummary
-              todayActivities={todayData?.activities || []}
-              childName={activeChild?.name}
-            />
-          )}
-        </View>
-
         {/* 최근 활동 */}
         <View className="mb-4">
           <RecentActivities
             activities={recentData?.activities || []}
-            children={availableChildren}
+            childList={availableChildren}
             onActivityPress={handleNavigateToActivity}
             onViewAllPress={handleNavigateToRecord}
             onFirstActivityPress={handleNavigateToRecord}

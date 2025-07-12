@@ -6,7 +6,7 @@ import Card from "../../shared/ui/Card/Card";
 
 interface RecentActivitiesProps {
   activities: ActivityApi[];
-  children?: ChildApi[]; // 아이 정보를 받아서 이름을 표시
+  childList?: ChildApi[]; // 아이 정보를 받아서 이름을 표시
   onActivityPress: (activity: ActivityApi) => void;
   onViewAllPress: () => void;
   onFirstActivityPress: () => void;
@@ -14,7 +14,7 @@ interface RecentActivitiesProps {
 
 const RecentActivities: React.FC<RecentActivitiesProps> = ({
   activities,
-  children,
+  childList,
   onActivityPress,
   onViewAllPress,
   onFirstActivityPress,
@@ -39,8 +39,8 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
 
   // childId로 아이 이름 찾기
   const getChildName = (childId: string): string | null => {
-    if (!children) return null;
-    const child = children.find((c) => c.id === childId);
+    if (!childList) return null;
+    const child = childList.find((c) => c.id === childId);
     return child?.name || null;
   };
 
@@ -73,8 +73,8 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
                   <Text className="text-base font-semibold text-foreground">
                     {formatActivityType(activity.type)}
                   </Text>
-                  {children &&
-                    children.length > 1 &&
+                  {childList &&
+                    childList.length > 1 &&
                     getChildName(activity.childId) && (
                       <View className="bg-primary px-2 py-0.5 rounded ml-2">
                         <Text className="text-white text-xs font-semibold">

@@ -6,23 +6,23 @@ import { Dimensions, ScrollView, View } from "react-native";
 import TodaySummary from "./TodaySummary";
 
 interface TodaySummaryCarouselProps {
-  children: ChildApi[];
+  childList: ChildApi[];
   activeChildId: string | null;
 }
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
-  children,
+  childList,
   activeChildId,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(
-    children.findIndex((child) => child.id === activeChildId) || 0,
+    childList.findIndex((child) => child.id === activeChildId) || 0,
   );
 
   // 각 아이의 오늘 활동 데이터를 가져옴
-  const childrenActivities = children.map((child) => {
+  const childrenActivities = childList.map((child) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { data } = useTodayActivities(child.id);
     return {
@@ -39,7 +39,7 @@ const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
     setCurrentIndex(pageNum);
   };
 
-  if (children.length === 1) {
+  if (childList.length === 1) {
     // 아이가 한 명일 때는 캐러셀 없이 바로 표시
     return (
       <TodaySummary
@@ -70,9 +70,9 @@ const TodaySummaryCarousel: React.FC<TodaySummaryCarouselProps> = ({
       </ScrollView>
 
       {/* 페이지 인디케이터 */}
-      {children.length > 1 && (
+      {childList.length > 1 && (
         <View className="flex-row justify-center mt-2">
-          {children.map((_, index) => (
+          {childList.map((_, index) => (
             <View
               key={index}
               className={`h-2 mx-1 rounded-full ${

@@ -19,6 +19,7 @@ import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { cn } from "../../shared/lib/utils/cn";
 import Button from "../../shared/ui/Button/Button";
 import Input from "../../shared/ui/Input/Input";
+import ChildSelector from "../../widgets/ChildSelector/ChildSelector";
 
 type ActivityType = "feeding" | "diaper" | "sleep" | "tummy_time" | "custom";
 
@@ -110,8 +111,16 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       className="flex-1 bg-background px-4"
       showsVerticalScrollIndicator={false}
     >
-      {/* 활동 유형 선택 */}
+      {/* 아이 선택 */}
       <View className="mb-6 pt-4">
+        <Text className="text-lg font-semibold text-foreground mb-3">
+          아이 선택
+        </Text>
+        <ChildSelector />
+      </View>
+
+      {/* 활동 유형 선택 */}
+      <View className="mb-6">
         <Text className="text-lg font-semibold text-foreground mb-3">
           활동 유형
         </Text>

@@ -2,6 +2,7 @@ import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import Input from "@/shared/ui/Input/Input";
+import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import type { CreateActivityRequest } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -100,6 +101,12 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
     <ScrollView showsVerticalScrollIndicator={false}>
       <View className="p-6 gap-6">
         <Text className="text-xl font-bold mb-4">수면 기록</Text>
+
+        {/* 아이 선택 */}
+        <View>
+          <Text className="text-base font-medium mb-2">아이 선택</Text>
+          <ChildSelector />
+        </View>
 
         {/* 시작 시간 */}
         <CustomDateTimePicker

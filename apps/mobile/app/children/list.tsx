@@ -124,22 +124,20 @@ export default function ChildrenListScreen() {
       >
         {/* 헤더 */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-text mb-2">
-            등록된 아이들
-          </Text>
+          <Text className="text-2xl font-bold text-text mb-2">아이들</Text>
           <Text className="text-base text-text-secondary">
-            아이를 선택하여 활성 아이로 설정하거나 정보를 수정할 수 있습니다
+            아이를 선택하여 정보를 수정할 수 있어요.
           </Text>
         </View>
 
         {/* 현재 활성 아이 배지 */}
-        {activeChild && (
+        {/* {activeChild && (
           <View className="bg-primary px-3 py-2 rounded-lg self-start mb-4">
             <Text className="text-white text-sm font-semibold">
               현재 활성: {activeChild.name}
             </Text>
           </View>
-        )}
+        )} */}
 
         {/* 아이 목록 또는 빈 상태 */}
         {children.length === 0 ? (

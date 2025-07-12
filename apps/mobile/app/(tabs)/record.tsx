@@ -1,6 +1,10 @@
 import { ActivityCard } from "@/entities/activity/ActivityCard";
+import { DiaperBottomSheet } from "@/features/activities/DiaperBottomSheet";
+import { FeedingBottomSheet } from "@/features/activities/FeedingBottomSheet";
+import { SleepBottomSheet } from "@/features/activities/SleepBottomSheet";
 import { useRecentActivities } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
+import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
 import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
 import { type ActivityApi as Activity } from "@daon/shared";
@@ -15,19 +19,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
-import { FeedingBottomSheet } from "@/features/activities/FeedingBottomSheet";
-import { DiaperBottomSheet } from "@/features/activities/DiaperBottomSheet";
-import { SleepBottomSheet } from "@/features/activities/SleepBottomSheet";
 
 export default function RecordScreen() {
   const router = useRouter();
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren } = useActiveChild();
   const { openBottomSheet, closeBottomSheet } = useBottomSheetStore();
 
-  const { data: recentActivities, refetch } = useRecentActivities(
-    activeChild?.id || null,
-  );
+  // null을 전달하여 모든 아이의 활동 가져오기
+  const { data: recentActivities, refetch } = useRecentActivities(null);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -59,17 +58,17 @@ export default function RecordScreen() {
     if (type === "feeding") {
       openBottomSheet({
         content: <FeedingBottomSheet onComplete={handleActivityComplete} />,
-        snapPoints: ["50%", "90%"]
+        snapPoints: ["50%", "90%"],
       });
     } else if (type === "diaper") {
       openBottomSheet({
         content: <DiaperBottomSheet onComplete={handleActivityComplete} />,
-        snapPoints: ["50%", "90%"]
+        snapPoints: ["50%", "90%"],
       });
     } else if (type === "sleep") {
       openBottomSheet({
         content: <SleepBottomSheet onComplete={handleActivityComplete} />,
-        snapPoints: ["60%", "95%"]
+        snapPoints: ["60%", "95%"],
       });
     } else {
       router.push(`/record/new?type=${type}`);
@@ -118,7 +117,7 @@ export default function RecordScreen() {
       <View className="p-6">
         <Text className="text-2xl font-bold">활동 기록</Text>
         <Text className="text-sm text-text-secondary">
-          {activeChild.name}의 일상을 기록해보세요
+          아이의 일상을 기록해보세요
         </Text>
       </View>
 
@@ -176,6 +175,8 @@ export default function RecordScreen() {
                     activity={activity}
                     onPress={handleActivityPress}
                     showUser={false}
+                    showChild={true}
+                    childList={availableChildren}
                   />
                 ))
               ) : null}

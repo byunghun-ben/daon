@@ -11,6 +11,7 @@ import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
 import RecentActivities from "@/widgets/home/RecentActivities";
 import TodaySummary from "@/widgets/home/TodaySummary";
+import TodaySummaryCarousel from "@/widgets/home/TodaySummaryCarousel";
 import type { ActivityApi } from "@daon/shared";
 import { useRouter } from "expo-router";
 import {
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   const {
     activeChildId,
     activeChild,
+    availableChildren,
     isLoading: isActiveChildLoading,
     refetchChildren,
   } = useActiveChild();
@@ -163,10 +165,17 @@ export default function HomeScreen() {
 
         {/* 오늘의 요약 */}
         <View className="mb-4">
-          <TodaySummary
-            todayActivities={todayData?.activities || []}
-            childName={activeChild?.name}
-          />
+          {availableChildren.length > 1 ? (
+            <TodaySummaryCarousel
+              children={availableChildren}
+              activeChildId={activeChildId}
+            />
+          ) : (
+            <TodaySummary
+              todayActivities={todayData?.activities || []}
+              childName={activeChild?.name}
+            />
+          )}
         </View>
 
         {/* 최근 활동 */}

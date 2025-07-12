@@ -127,21 +127,16 @@ export function useTodayActivities(childId: string | null) {
 
 // Recent activities helper
 export function useRecentActivities(childId: string | null, limit = 10) {
+  // childId 유무에 따라 필터 객체 구성
+  const filters: ActivityFilters = {
+    limit,
+    offset: 0,
+    ...(childId && { childId }),
+  };
+
   return useQuery({
-    queryKey: [
-      ...ACTIVITIES_KEYS.list({ childId: childId || "", limit, offset: 0 }),
-      "recent",
-    ],
-    queryFn: () => {
-      if (!childId) {
-        return { activities: [], total: 0 };
-      }
-      return activitiesApi.getActivities({
-        childId,
-        limit,
-        offset: 0,
-      });
-    },
-    enabled: !!childId,
+    queryKey: [...ACTIVITIES_KEYS.list(filters), "recent"],
+    queryFn: () => activitiesApi.getActivities(filters),
+    enabled: true, // childId가 없어도 실행
   });
 }

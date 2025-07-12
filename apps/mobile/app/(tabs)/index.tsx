@@ -43,12 +43,12 @@ export default function HomeScreen() {
     refetch: refetchToday,
   } = useTodayActivities(activeChildId);
 
-  // 최근 활동 데이터
+  // 최근 활동 데이터 - 모든 아이의 활동
   const {
     data: recentData,
     isLoading: isRecentLoading,
     refetch: refetchRecent,
-  } = useRecentActivities(activeChildId);
+  } = useRecentActivities(null); // null을 전달하여 모든 아이의 활동 가져오기
 
   const isLoading = isActiveChildLoading || isTodayLoading || isRecentLoading;
 

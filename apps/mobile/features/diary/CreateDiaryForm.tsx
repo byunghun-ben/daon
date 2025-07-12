@@ -10,7 +10,6 @@ import {
   type CreateMilestoneRequest,
 } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -57,15 +56,8 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
     name: "milestones",
   });
 
-  const handleDateChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date,
-  ) => {
-    if (selectedDate) {
-      const dateString = selectedDate.toISOString().split("T")[0];
-      form.setValue("date", dateString);
-    }
-  };
+  const currentDate = useWatch({ control: form.control, name: "date" });
+  const currentChildId = useWatch({ control: form.control, name: "childId" });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
@@ -76,11 +68,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   };
 
   const addMilestone = () => {
-    const selectedChildId = useWatch({
-      control: form.control,
-      name: "childId",
-    });
-
     Alert.prompt(
       "마일스톤 추가",
       "마일스톤 제목을 입력하세요",
@@ -97,7 +84,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
                 type: "custom",
                 description: title.trim(),
                 achievedAt: new Date().toISOString(),
-                childId: selectedChildId || "",
+                childId: currentChildId || "",
               };
               appendMilestone(newMilestone);
             }
@@ -135,9 +122,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       }
     },
   );
-
-  const currentDate = useWatch({ control: form.control, name: "date" });
-  const currentChildId = useWatch({ control: form.control, name: "childId" });
 
   return (
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
@@ -281,13 +265,26 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
                 <Text className="text-primary text-lg font-medium">완료</Text>
               </TouchableOpacity>
             </View>
-            <DateTimePicker
-              value={new Date(currentDate)}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={handleDateChange}
-              style={{ backgroundColor: "transparent" }}
-              locale="ko-KR"
+            <Controller
+              control={form.control}
+              name="date"
+              render={({ field: { onChange, value } }) => (
+                <DateTimePicker
+                  value={new Date(value)}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(_event, selectedDate) => {
+                    if (selectedDate) {
+                      const dateString = selectedDate
+                        .toISOString()
+                        .split("T")[0];
+                      onChange(dateString);
+                    }
+                  }}
+                  style={{ backgroundColor: "transparent" }}
+                  locale="ko-KR"
+                />
+              )}
             />
           </View>
         </View>

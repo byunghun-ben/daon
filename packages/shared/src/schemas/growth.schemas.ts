@@ -51,13 +51,13 @@ export const CreateGrowthRecordRequestSchema = z
 export const UpdateGrowthRecordRequestSchema =
   CreateGrowthRecordRequestSchema.partial().omit({ childId: true });
 
-// Filter schemas
+// Filter schemas - for query parameters (all strings that need to be transformed)
 export const GrowthFiltersSchema = z.object({
   childId: z.uuid().optional(),
   startDate: z.iso.datetime({ offset: true }).optional(),
   endDate: z.iso.datetime({ offset: true }).optional(),
-  limit: z.number().positive().max(100).default(50),
-  offset: z.number().nonnegative().default(0),
+  limit: z.coerce.number().positive().max(100).default(50),
+  offset: z.coerce.number().nonnegative().default(0),
 });
 
 // Response schemas

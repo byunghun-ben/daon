@@ -4,8 +4,10 @@ import { logger } from "@/utils/logger.js";
 import {
   CreateDiaryEntryRequestSchema,
   CreateMilestoneRequestSchema,
+  dbToApi,
   DiaryFiltersSchema,
   UpdateDiaryEntryRequestSchema,
+  type MilestoneDb,
 } from "@daon/shared";
 import { z } from "zod/v4";
 
@@ -64,15 +66,45 @@ export const createDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
+    // Create milestones if provided
+    let createdMilestones: MilestoneDb[] = [];
+    if (validatedApiData.milestones && validatedApiData.milestones.length > 0) {
+      const milestoneData = validatedApiData.milestones.map((milestone) => ({
+        type: milestone.type,
+        description: milestone.description,
+        achieved_at: milestone.achievedAt,
+        child_id: validatedApiData.childId,
+        diary_entry_id: diaryEntry.id,
+      }));
+
+      const { data: milestones, error: milestoneError } = await supabaseAdmin
+        .from("milestones")
+        .insert(milestoneData)
+        .select("*");
+
+      if (milestoneError) {
+        logger.warn("Failed to create milestones", {
+          diaryEntryId: diaryEntry.id,
+          milestoneError,
+        });
+      } else {
+        createdMilestones = milestones || [];
+      }
+    }
+
     logger.info("Diary entry created successfully", {
       diaryEntryId: diaryEntry.id,
       childId: validatedApiData.childId,
       userId: req.user.id,
+      milestonesCount: createdMilestones.length,
     });
 
     res.status(201).json({
       message: "Diary entry created successfully",
-      diaryEntry,
+      diaryEntry: {
+        ...diaryEntry,
+        milestones: createdMilestones,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -96,12 +128,15 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     const filters = DiaryFiltersSchema.parse(req.query);
 
     // Build query
-    let query = supabaseAdmin.from("diary_entries").select(`
+    let query = supabaseAdmin.from("diary_entries").select(
+      `
         *,
         children(id, name),
         users(name, email),
         milestones(*)
-      `);
+      `,
+      { count: "exact" },
+    );
 
     // Get accessible child IDs first
     const { data: guardianRelations } = await supabaseAdmin
@@ -125,7 +160,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     if (allAccessibleChildIds.length === 0) {
       res.json({
         diaryEntries: [],
-        pagination: { total: 0, page: 1, limit: 10 },
+        total: 0,
       });
       return;
     }
@@ -153,8 +188,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
       count,
     } = await query
       .order("date", { ascending: false })
-      .range(filters.offset, filters.offset + filters.limit - 1)
-      .limit(filters.limit);
+      .range(filters.offset, filters.offset + filters.limit - 1);
 
     if (error) {
       logger.error("Failed to get diary entries", {
@@ -169,9 +203,9 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     res.json({
       diaryEntries,
       pagination: {
+        total: count ?? diaryEntries.length,
         limit: filters.limit,
         offset: filters.offset,
-        total: count ?? diaryEntries.length,
       },
     });
   } catch (error) {
@@ -207,7 +241,7 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
             accepted_at
           )
         ),
-        users(name, email),
+        user:users(id, name, email),
         milestones(*)
       `,
       )
@@ -233,7 +267,9 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    res.json({ diaryEntry });
+    // camelCase → snake_case
+    const snakeCaseDiaryEntry = dbToApi(diaryEntry);
+    res.json({ diaryEntry: snakeCaseDiaryEntry });
   } catch (error) {
     logger.error("Get diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -265,18 +301,15 @@ export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    const { data: updatedEntry, error } = await supabaseAdmin
+    // Separate milestones from diary entry data
+    const { milestones, ...diaryEntryData } = validatedData;
+
+    // Update diary entry (without milestones)
+    const { error } = await supabaseAdmin
       .from("diary_entries")
-      .update(validatedData)
+      .update(diaryEntryData)
       .eq("id", id)
-      .select(
-        `
-        *,
-        children(name),
-        users(name, email),
-        milestones(*)
-      `,
-      )
+      .select("*")
       .single();
 
     if (error) {
@@ -289,15 +322,80 @@ export const updateDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
+    // Handle milestones update
+    let updatedMilestones: MilestoneDb[] = [];
+
+    // Delete existing milestones for this diary entry
+    const { error: deleteError } = await supabaseAdmin
+      .from("milestones")
+      .delete()
+      .eq("diary_entry_id", id);
+
+    if (deleteError) {
+      logger.warn("Failed to delete existing milestones", {
+        diaryEntryId: id,
+        deleteError,
+      });
+    }
+
+    // Create new milestones if provided
+    if (milestones && milestones.length > 0) {
+      const milestoneData = milestones.map((milestone) => ({
+        type: milestone.type,
+        description: milestone.description,
+        achieved_at: milestone.achievedAt,
+        child_id: existing.child_id,
+        diary_entry_id: id,
+      }));
+
+      const { data: createdMilestones, error: milestoneError } =
+        await supabaseAdmin
+          .from("milestones")
+          .insert(milestoneData)
+          .select("*");
+
+      if (milestoneError) {
+        logger.warn("Failed to create milestones during update", {
+          diaryEntryId: id,
+          milestoneError,
+        });
+      } else {
+        updatedMilestones = createdMilestones || [];
+      }
+    }
+
+    // Fetch final updated entry with all relations
+    const { data: finalEntry, error: fetchError } = await supabaseAdmin
+      .from("diary_entries")
+      .select(
+        `
+        *,
+        children(name),
+        user:users(id, name, email),
+        milestones(*)
+      `,
+      )
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !finalEntry) {
+      logger.error("Failed to fetch updated diary entry", {
+        diaryEntryId: id,
+        fetchError,
+      });
+      res.status(500).json({ error: "Failed to fetch updated diary entry" });
+      return;
+    }
+
     logger.info("Diary entry updated successfully", {
       diaryEntryId: id,
       userId: req.user.id,
+      milestonesCount: updatedMilestones.length,
     });
 
-    res.json({
-      message: "Diary entry updated successfully",
-      diaryEntry: updatedEntry,
-    });
+    // camelCase → snake_case
+    const snakeCaseDiaryEntry = dbToApi(finalEntry);
+    res.json({ diaryEntry: snakeCaseDiaryEntry });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({
@@ -387,8 +485,7 @@ export const addMilestone = createAuthenticatedHandler(async (req, res) => {
     // DB 저장을 위한 데이터 변환 (camelCase → snake_case)
     const dbData = {
       type: validatedData.type,
-      title: validatedData.title,
-      description: validatedData.description ?? "",
+      description: validatedData.description,
       achieved_at: validatedData.achievedAt,
       child_id: validatedData.childId,
       diary_entry_id: validatedData.diaryEntryId ?? null,

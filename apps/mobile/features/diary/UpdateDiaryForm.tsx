@@ -1,13 +1,13 @@
-import { useCreateDiaryEntry } from "@/shared/api/diary/hooks/useCreateDiaryEntry";
+import { useUpdateDiaryEntry } from "@/shared/api/diary/hooks/useUpdateDiaryEntry";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import Button from "@/shared/ui/Button/Button";
 import { ImageUploader } from "@/shared/ui/ImageUploader";
 import TextArea from "@/shared/ui/TextArea/TextArea";
-import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import {
-  CreateDiaryEntryRequestSchema,
-  type CreateDiaryEntryRequest,
+  UpdateDiaryEntryRequestSchema,
   type CreateMilestoneRequest,
+  type DiaryEntryApi,
+  type UpdateDiaryEntryRequest,
 } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -23,27 +23,30 @@ import {
   View,
 } from "react-native";
 
-interface CreateDiaryFormProps {
+interface UpdateDiaryFormProps {
+  diaryEntry: DiaryEntryApi;
   onSuccess: () => void;
 }
 
-export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
+export const UpdateDiaryForm: React.FC<UpdateDiaryFormProps> = ({
+  diaryEntry,
   onSuccess,
 }) => {
-  const { activeChild, availableChildren, setActiveChild } = useActiveChild();
-  const createDiaryMutation = useCreateDiaryEntry();
+  const { availableChildren } = useActiveChild();
+  const updateDiaryMutation = useUpdateDiaryEntry();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<string[]>(
+    diaryEntry.photos || [],
+  );
 
   const form = useForm({
-    resolver: zodResolver(CreateDiaryEntryRequestSchema),
+    resolver: zodResolver(UpdateDiaryEntryRequestSchema),
     defaultValues: {
-      childId: activeChild?.id || "",
-      date: new Date().toISOString().split("T")[0],
-      content: "",
-      photos: [],
-      videos: [],
-      milestones: [],
+      date: diaryEntry.date,
+      content: diaryEntry.content,
+      photos: diaryEntry.photos || [],
+      videos: diaryEntry.videos || [],
+      milestones: diaryEntry.milestones || [],
     },
   });
 
@@ -57,7 +60,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   });
 
   const currentDate = useWatch({ control: form.control, name: "date" });
-  const currentChildId = useWatch({ control: form.control, name: "childId" });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
@@ -84,8 +86,8 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
                 type: "custom",
                 description: title.trim(),
                 achievedAt: new Date().toISOString(),
-                childId: currentChildId || "",
-                diaryEntryId: null,
+                childId: diaryEntry.childId,
+                diaryEntryId: diaryEntry.id,
               };
               appendMilestone(newMilestone);
             }
@@ -97,49 +99,34 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
   };
 
   const handleSubmit = form.handleSubmit(
-    async (data: CreateDiaryEntryRequest) => {
-      if (!data.childId) {
-        Alert.alert("오류", "아이를 선택해주세요.");
-        return;
-      }
-
+    async (data: UpdateDiaryEntryRequest) => {
       try {
-        await createDiaryMutation.mutateAsync(data);
+        await updateDiaryMutation.mutateAsync({
+          id: diaryEntry.id,
+          data,
+        });
 
-        // 일기 작성한 아이를 activeChild로 설정
-        const selectedChild = availableChildren.find(
-          (child) => child.id === data.childId,
-        );
-        if (selectedChild) {
-          setActiveChild(selectedChild.id);
-        }
-
-        Alert.alert("완료", "일기가 성공적으로 저장되었습니다.", [
+        Alert.alert("완료", "일기가 성공적으로 수정되었습니다.", [
           { text: "확인", onPress: onSuccess },
         ]);
       } catch (error) {
-        console.error("Create diary error:", error);
-        Alert.alert("오류", "일기 저장 중 오류가 발생했습니다.");
+        console.error("Update diary error:", error);
+        Alert.alert("오류", "일기 수정 중 오류가 발생했습니다.");
       }
     },
   );
 
   return (
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-      {/* 아이 선택 */}
+      {/* 아이 정보 (읽기 전용) */}
       <View className="mb-6">
-        <Controller
-          control={form.control}
-          name="childId"
-          rules={{ required: "아이를 선택해주세요" }}
-          render={({ field: { onChange, value } }) => (
-            <ChildSelector
-              childId={value}
-              availableChildren={availableChildren}
-              onChildSelect={onChange}
-            />
-          )}
-        />
+        <Text className="text-lg font-semibold text-foreground mb-3">아이</Text>
+        <View className="bg-surface border border-border rounded-lg p-4">
+          <Text className="text-base text-foreground">
+            {availableChildren.find((child) => child.id === diaryEntry.childId)
+              ?.name || "알 수 없음"}
+          </Text>
+        </View>
       </View>
 
       {/* 날짜 선택 */}
@@ -178,7 +165,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
         />
       </View>
 
-      {/* 사진 추가 */}
+      {/* 사진 수정 */}
       <View className="mb-6">
         <ImageUploader
           images={selectedImages}
@@ -187,7 +174,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
             form.setValue("photos", images);
           }}
           maxImages={5}
-          disabled={createDiaryMutation.isPending}
+          disabled={updateDiaryMutation.isPending}
         />
       </View>
 
@@ -200,7 +187,6 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
           <TouchableOpacity
             className="py-2 px-4 rounded-lg bg-primary"
             onPress={addMilestone}
-            disabled={!currentChildId}
           >
             <Text className="text-white text-sm font-semibold">+ 추가</Text>
           </TouchableOpacity>
@@ -239,10 +225,10 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
       {/* 저장 버튼 */}
       <View className="mt-6 mb-8">
         <Button
-          title="일기 저장"
+          title="일기 수정"
           onPress={handleSubmit}
           variant="primary"
-          loading={createDiaryMutation.isPending}
+          loading={updateDiaryMutation.isPending}
         />
       </View>
 
@@ -271,7 +257,7 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
               name="date"
               render={({ field: { onChange, value } }) => (
                 <DateTimePicker
-                  value={new Date(value)}
+                  value={new Date(value || new Date())}
                   mode="date"
                   display={Platform.OS === "ios" ? "spinner" : "default"}
                   onChange={(_event, selectedDate) => {

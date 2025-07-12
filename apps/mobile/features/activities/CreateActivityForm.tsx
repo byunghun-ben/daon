@@ -214,9 +214,10 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
       {showDatePicker && (
         <DateTimePicker
           value={new Date(currentTimestamp || new Date().toISOString())}
-          mode="datetime"
+          mode="date"
           display="default"
           onChange={handleDateTimeChange}
+          locale="ko-KR"
         />
       )}
     </ScrollView>

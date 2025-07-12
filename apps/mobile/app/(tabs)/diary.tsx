@@ -15,18 +15,18 @@ import {
 
 export default function DiaryScreen() {
   const router = useRouter();
-  const { activeChild } = useActiveChild();
+  const { availableChildren } = useActiveChild();
 
+  // 모든 접근 가능한 아이의 일기 가져오기 (childId 필터 제거)
   const {
     data: diaryData,
     isLoading,
     isError,
+    error: diaryError,
     refetch,
-  } = useDiaryEntries(
-    activeChild ? { childId: activeChild.id, limit: 20, offset: 0 } : undefined,
-  );
+  } = useDiaryEntries({ limit: 20, offset: 0 });
 
-  if (!activeChild) {
+  if (!availableChildren || availableChildren.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
@@ -62,6 +62,8 @@ export default function DiaryScreen() {
       diaryEntry={diaryEntry}
       onPress={(entry) => router.push(`/diary/${entry.id}`)}
       showUser={false}
+      showChild={availableChildren.length > 1}
+      childList={availableChildren}
       maxContentLength={100}
     />
   );
@@ -74,7 +76,7 @@ export default function DiaryScreen() {
             성장 일기
           </Text>
           <Text className="text-sm text-muted-foreground">
-            {activeChild?.name}의 소중한 순간들을 기록해보세요
+            소중한 순간들을 기록해보세요
           </Text>
         </View>
         <Text className="text-center text-muted-foreground p-6">
@@ -85,6 +87,7 @@ export default function DiaryScreen() {
   }
 
   if (isError) {
+    console.error("[DiaryScreen] isError", diaryError);
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">
@@ -92,7 +95,7 @@ export default function DiaryScreen() {
             성장 일기
           </Text>
           <Text className="text-sm text-muted-foreground">
-            {activeChild?.name}의 소중한 순간들을 기록해보세요
+            소중한 순간들을 기록해보세요
           </Text>
         </View>
         <Text className="text-center text-destructive p-6">
@@ -112,7 +115,9 @@ export default function DiaryScreen() {
           성장 일기
         </Text>
         <Text className="text-sm text-muted-foreground">
-          {activeChild?.name}의 소중한 순간들을 기록해보세요
+          {availableChildren.length === 1
+            ? `${availableChildren[0].name}의 소중한 순간들을 기록해보세요`
+            : "소중한 순간들을 기록해보세요"}
         </Text>
       </View>
 

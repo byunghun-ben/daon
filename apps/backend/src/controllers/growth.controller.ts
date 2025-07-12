@@ -126,7 +126,7 @@ export const getGrowthRecords = createAuthenticatedHandler(async (req, res) => {
     if (allAccessibleChildIds.length === 0) {
       res.json({
         growthRecords: [],
-        pagination: { total: 0, page: 1, limit: 10 },
+        total: 0,
       });
       return;
     }
@@ -169,11 +169,7 @@ export const getGrowthRecords = createAuthenticatedHandler(async (req, res) => {
 
     res.json({
       growthRecords,
-      pagination: {
-        limit: filters.limit,
-        offset: filters.offset,
-        total: count ?? growthRecords.length,
-      },
+      total: count ?? growthRecords.length,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

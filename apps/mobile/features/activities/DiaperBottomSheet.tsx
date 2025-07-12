@@ -13,6 +13,7 @@ import { z } from "zod/v4";
 
 // 기저귀 교체 폼 스키마
 const DiaperFormSchema = z.object({
+  childId: z.string().min(1, "아이를 선택해주세요"),
   type: z.enum(["wet", "dirty", "both"]),
   notes: z.string().optional(),
 });
@@ -26,26 +27,22 @@ interface DiaperBottomSheetProps {
 export function DiaperBottomSheet({ onComplete }: DiaperBottomSheetProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
 
   const form = useForm<DiaperFormData>({
     resolver: zodResolver(DiaperFormSchema),
     defaultValues: {
+      childId: activeChild?.id || "",
       type: "wet",
       notes: "",
     },
   });
 
   const handleSubmit = async (data: DiaperFormData) => {
-    if (!activeChild) {
-      Alert.alert("알림", "아이를 먼저 선택해주세요.");
-      return;
-    }
-
     try {
       const activityData: CreateActivityRequest = {
-        childId: activeChild.id,
+        childId: data.childId,
         type: "diaper",
         timestamp: selectedDate.toISOString(),
         data: {
@@ -80,7 +77,18 @@ export function DiaperBottomSheet({ onComplete }: DiaperBottomSheetProps) {
         {/* 아이 선택 */}
         <View className="mb-4">
           <Text className="text-base font-medium mb-2">아이 선택</Text>
-          <ChildSelector />
+          <Controller
+            control={form.control}
+            name="childId"
+            render={({ field: { onChange, value } }) => (
+              <ChildSelector
+                childId={value}
+                availableChildren={availableChildren}
+                onChildSelect={onChange}
+                isLoading={isLoading}
+              />
+            )}
+          />
         </View>
 
         {/* 시간 선택 */}

@@ -30,7 +30,7 @@ interface CreateActivityFormProps {
 export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
   onSuccess,
 }) => {
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
   const [selectedActivityType, setSelectedActivityType] =
     useState<ActivityType>("feeding");
@@ -116,7 +116,18 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
         <Text className="text-lg font-semibold text-foreground mb-3">
           아이 선택
         </Text>
-        <ChildSelector />
+        <Controller
+          control={form.control}
+          name="childId"
+          render={({ field: { onChange, value } }) => (
+            <ChildSelector
+              childId={value}
+              availableChildren={availableChildren}
+              onChildSelect={onChange}
+              isLoading={isLoading}
+            />
+          )}
+        />
       </View>
 
       {/* 활동 유형 선택 */}

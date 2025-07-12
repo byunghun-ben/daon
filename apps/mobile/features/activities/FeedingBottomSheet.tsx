@@ -13,6 +13,7 @@ import { z } from "zod/v4";
 
 // 수유 기록 폼 스키마
 const FeedingFormSchema = z.object({
+  childId: z.string().min(1, "아이를 선택해주세요"),
   type: z.enum(["breast", "bottle", "solid"]),
   amount: z.number().optional(),
   duration: z.number().optional(),
@@ -31,12 +32,13 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
     "bottle",
   );
 
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
 
   const form = useForm<FeedingFormData>({
     resolver: zodResolver(FeedingFormSchema),
     defaultValues: {
+      childId: activeChild?.id || "",
       type: "bottle",
       amount: undefined,
       duration: undefined,
@@ -45,14 +47,9 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
   });
 
   const handleSubmit = async (data: FeedingFormData) => {
-    if (!activeChild) {
-      Alert.alert("알림", "아이를 먼저 선택해주세요.");
-      return;
-    }
-
     try {
       const activityData: CreateActivityRequest = {
-        childId: activeChild.id,
+        childId: data.childId,
         type: "feeding",
         timestamp: selectedDate.toISOString(),
         data: {
@@ -89,7 +86,18 @@ export function FeedingBottomSheet({ onComplete }: FeedingBottomSheetProps) {
         {/* 아이 선택 */}
         <View>
           <Text className="text-base font-medium mb-2">아이 선택</Text>
-          <ChildSelector />
+          <Controller
+            control={form.control}
+            name="childId"
+            render={({ field: { onChange, value } }) => (
+              <ChildSelector
+                childId={value}
+                availableChildren={availableChildren}
+                onChildSelect={onChange}
+                isLoading={isLoading}
+              />
+            )}
+          />
         </View>
 
         {/* 시간 선택 */}

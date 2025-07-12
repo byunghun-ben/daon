@@ -1,32 +1,35 @@
+import type { ChildApi } from "@daon/shared";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
+  Animated,
+  Image,
   Modal,
   ScrollView,
-  Image,
-  Animated,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { cn } from "../../shared/lib/utils/cn";
-import type { ChildApi } from "@daon/shared";
 
 interface ChildSelectorProps {
-  onChildChange?: (child: ChildApi) => void;
+  childId: string | null;
+  availableChildren: ChildApi[];
+  onChildSelect: (childId: string) => void;
+  isLoading?: boolean;
 }
 
-const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
+const ChildSelector: React.FC<ChildSelectorProps> = ({
+  childId,
+  availableChildren,
+  onChildSelect,
+  isLoading = false,
+}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(1));
 
-  const {
-    activeChild,
-    availableChildren,
-    hasMultipleChildren,
-    switchChild,
-    isLoading,
-  } = useActiveChild();
+  const hasMultipleChildren = availableChildren.length > 1;
+  const activeChild =
+    availableChildren.find((child) => child.id === childId) || null;
 
   const handleChildPress = () => {
     if (hasMultipleChildren) {
@@ -49,9 +52,8 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
   };
 
   const handleChildSelect = (child: ChildApi) => {
-    switchChild(child.id);
+    onChildSelect(child.id);
     setIsModalVisible(false);
-    onChildChange?.(child);
   };
 
   const renderChildAvatar = (child: ChildApi, size: number = 32) => (
@@ -66,8 +68,14 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
           }}
         />
       ) : (
-        <View className="bg-primary rounded-2xl justify-center items-center" style={{ width: size, height: size }}>
-          <Text className="text-white font-semibold" style={{ fontSize: size * 0.4 }}>
+        <View
+          className="bg-primary rounded-2xl justify-center items-center"
+          style={{ width: size, height: size }}
+        >
+          <Text
+            className="text-white font-semibold"
+            style={{ fontSize: size * 0.4 }}
+          >
             {child.name.charAt(0).toUpperCase()}
           </Text>
         </View>
@@ -80,19 +88,23 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
       key={child.id}
       className={cn(
         "flex-row items-center p-4 border-b border-border",
-        isActive && "bg-surface"
+        isActive && "bg-surface",
       )}
       onPress={() => handleChildSelect(child)}
     >
       {renderChildAvatar(child, 40)}
       <View className="flex-1">
-        <Text className={cn(
-          "text-sm font-medium text-muted-foreground",
-          isActive && "text-base text-foreground font-semibold"
-        )}>
+        <Text
+          className={cn(
+            "text-sm font-medium text-muted-foreground",
+            isActive && "text-base text-foreground font-semibold",
+          )}
+        >
           {child.name}
         </Text>
-        <Text className="text-xs text-muted-foreground mt-0.5">{calculateAge(child.birthDate)}</Text>
+        <Text className="text-xs text-muted-foreground mt-0.5">
+          {calculateAge(child.birthDate)}
+        </Text>
       </View>
       {isActive && (
         <View className="w-6 h-6 rounded-full bg-primary justify-center items-center">
@@ -126,12 +138,18 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
         >
           {renderChildAvatar(activeChild)}
           <View className="flex-1">
-            <Text className="text-base font-semibold text-foreground">{activeChild.name}</Text>
+            <Text className="text-base font-semibold text-foreground">
+              {activeChild.name}
+            </Text>
             {hasMultipleChildren && (
-              <Text className="text-xs text-muted-foreground mt-0.5">탭하여 전환</Text>
+              <Text className="text-xs text-muted-foreground mt-0.5">
+                탭하여 전환
+              </Text>
             )}
           </View>
-          {hasMultipleChildren && <Text className="text-xs text-muted-foreground ml-2">▼</Text>}
+          {hasMultipleChildren && (
+            <Text className="text-xs text-muted-foreground ml-2">▼</Text>
+          )}
         </TouchableOpacity>
       </Animated.View>
 
@@ -148,12 +166,16 @@ const ChildSelector: React.FC<ChildSelectorProps> = ({ onChildChange }) => {
         >
           <View className="bg-surface rounded-2xl w-4/5 max-h-3/5 overflow-hidden">
             <View className="flex-row justify-between items-center p-4 border-b border-border">
-              <Text className="text-lg font-semibold text-foreground">아이 선택</Text>
+              <Text className="text-lg font-semibold text-foreground">
+                아이 선택
+              </Text>
               <TouchableOpacity
                 className="w-8 h-8 rounded-2xl bg-background justify-center items-center"
                 onPress={() => setIsModalVisible(false)}
               >
-                <Text className="text-xl text-muted-foreground font-light">×</Text>
+                <Text className="text-xl text-muted-foreground font-light">
+                  ×
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -185,6 +207,5 @@ const calculateAge = (birthDate: string): string => {
     return months > 0 ? `${years}세 ${months}개월` : `${years}세`;
   }
 };
-
 
 export default ChildSelector;

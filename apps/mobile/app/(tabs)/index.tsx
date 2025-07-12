@@ -9,7 +9,6 @@ import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
 import Button from "@/shared/ui/Button/Button";
 import Card from "@/shared/ui/Card/Card";
-import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import RecentActivities from "@/widgets/home/RecentActivities";
 import TodaySummary from "@/widgets/home/TodaySummary";
 import type { ActivityApi } from "@daon/shared";
@@ -113,16 +112,6 @@ export default function HomeScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* 아이 선택기 */}
-        <View className="mb-4">
-          <ChildSelector
-            onChildChange={() => {
-              refetchToday();
-              refetchRecent();
-            }}
-          />
-        </View>
-
         {/* 빠른 기록 */}
         <View className="mb-4">
           <View className="flex-row justify-between">

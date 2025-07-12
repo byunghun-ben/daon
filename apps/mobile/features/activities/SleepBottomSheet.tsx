@@ -13,6 +13,7 @@ import { z } from "zod/v4";
 
 // 수면 기록 폼 스키마
 const SleepFormSchema = z.object({
+  childId: z.string().min(1, "아이를 선택해주세요"),
   duration: z.number().min(1, "수면 시간을 입력해주세요"),
   quality: z.enum(["good", "normal", "bad"]).optional(),
   notes: z.string().optional(),
@@ -28,12 +29,13 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
 
-  const { activeChild } = useActiveChild();
+  const { activeChild, availableChildren, isLoading } = useActiveChild();
   const createActivityMutation = useCreateActivity();
 
   const form = useForm<SleepFormData>({
     resolver: zodResolver(SleepFormSchema),
     defaultValues: {
+      childId: activeChild?.id || "",
       quality: "normal",
       notes: "",
     },
@@ -46,11 +48,6 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
   };
 
   const handleSubmit = async (data: SleepFormData) => {
-    if (!activeChild) {
-      Alert.alert("알림", "아이를 먼저 선택해주세요.");
-      return;
-    }
-
     if (endTime <= startTime) {
       Alert.alert("알림", "종료 시간은 시작 시간보다 늦어야 합니다.");
       return;
@@ -59,7 +56,7 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
     try {
       const duration = calculateDuration();
       const activityData: CreateActivityRequest = {
-        childId: activeChild.id,
+        childId: data.childId,
         type: "sleep",
         timestamp: startTime.toISOString(),
         data: {
@@ -105,7 +102,18 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
         {/* 아이 선택 */}
         <View>
           <Text className="text-base font-medium mb-2">아이 선택</Text>
-          <ChildSelector />
+          <Controller
+            control={form.control}
+            name="childId"
+            render={({ field: { onChange, value } }) => (
+              <ChildSelector
+                childId={value}
+                availableChildren={availableChildren}
+                onChildSelect={onChange}
+                isLoading={isLoading}
+              />
+            )}
+          />
         </View>
 
         {/* 시작 시간 */}

@@ -96,12 +96,15 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     const filters = DiaryFiltersSchema.parse(req.query);
 
     // Build query
-    let query = supabaseAdmin.from("diary_entries").select(`
+    let query = supabaseAdmin.from("diary_entries").select(
+      `
         *,
         children(id, name),
         users(name, email),
         milestones(*)
-      `);
+      `,
+      { count: "exact" },
+    );
 
     // Get accessible child IDs first
     const { data: guardianRelations } = await supabaseAdmin
@@ -125,7 +128,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     if (allAccessibleChildIds.length === 0) {
       res.json({
         diaryEntries: [],
-        pagination: { total: 0, page: 1, limit: 10 },
+        total: 0,
       });
       return;
     }
@@ -153,8 +156,7 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
       count,
     } = await query
       .order("date", { ascending: false })
-      .range(filters.offset, filters.offset + filters.limit - 1)
-      .limit(filters.limit);
+      .range(filters.offset, filters.offset + filters.limit - 1);
 
     if (error) {
       logger.error("Failed to get diary entries", {
@@ -169,9 +171,9 @@ export const getDiaryEntries = createAuthenticatedHandler(async (req, res) => {
     res.json({
       diaryEntries,
       pagination: {
+        total: count ?? diaryEntries.length,
         limit: filters.limit,
         offset: filters.offset,
-        total: count ?? diaryEntries.length,
       },
     });
   } catch (error) {

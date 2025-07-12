@@ -98,7 +98,7 @@ export const UpdateDiaryEntryRequestSchema = z.object({
   milestones: z.array(CreateMilestoneRequestSchema).optional(),
 });
 
-// Filter schemas
+// Filter schemas - for query parameters (all strings that need to be transformed)
 export const DiaryFiltersSchema = z.object({
   childId: z.uuid().optional(),
   dateFrom: z
@@ -109,8 +109,8 @@ export const DiaryFiltersSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
-  limit: z.number().positive().max(100).default(20),
-  offset: z.number().nonnegative().default(0),
+  limit: z.coerce.number().positive().max(100).default(20),
+  offset: z.coerce.number().nonnegative().default(0),
 });
 
 // Response schemas
@@ -120,7 +120,11 @@ export const DiaryEntryResponseSchema = z.object({
 
 export const DiaryEntriesResponseSchema = z.object({
   diaryEntries: z.array(DiaryEntryApiSchema),
-  total: z.number().nonnegative(),
+  pagination: z.object({
+    total: z.number().nonnegative(),
+    limit: z.number().positive(),
+    offset: z.number().nonnegative(),
+  }),
 });
 
 // Inferred types

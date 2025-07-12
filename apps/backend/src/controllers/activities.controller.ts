@@ -145,7 +145,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
       if (allAccessibleChildIds.length === 0) {
         res.json({
           activities: [],
-          pagination: { total: 0, page: 1, limit: 10 },
+          total: 0,
         });
         return;
       }
@@ -195,11 +195,7 @@ export const getActivities: RequestHandler = createAuthenticatedHandler(
 
       res.json({
         activities: apiActivities,
-        pagination: {
-          limit: filters.limit,
-          offset: filters.offset,
-          total: count ?? activities.length,
-        },
+        total: count ?? activities.length,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {

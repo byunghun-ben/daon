@@ -22,6 +22,7 @@ export default function DiaryScreen() {
     data: diaryData,
     isLoading,
     isError,
+    error: diaryError,
     refetch,
   } = useDiaryEntries({ limit: 20, offset: 0 });
 
@@ -86,6 +87,7 @@ export default function DiaryScreen() {
   }
 
   if (isError) {
+    console.error("[DiaryScreen] isError", diaryError);
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="p-4 pb-4">

@@ -4,6 +4,7 @@ import { logger } from "@/utils/logger.js";
 import {
   CreateDiaryEntryRequestSchema,
   CreateMilestoneRequestSchema,
+  dbToApi,
   DiaryFiltersSchema,
   UpdateDiaryEntryRequestSchema,
   type MilestoneDb,
@@ -240,7 +241,7 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
             accepted_at
           )
         ),
-        users(name, email),
+        user:users(id, name, email),
         milestones(*)
       `,
       )
@@ -266,7 +267,9 @@ export const getDiaryEntry = createAuthenticatedHandler(async (req, res) => {
       return;
     }
 
-    res.json({ diaryEntry });
+    // camelCase → snake_case
+    const snakeCaseDiaryEntry = dbToApi(diaryEntry);
+    res.json({ diaryEntry: snakeCaseDiaryEntry });
   } catch (error) {
     logger.error("Get diary entry error:", error);
     res.status(500).json({ error: "Internal server error" });

@@ -1,11 +1,12 @@
 import {
-  CreateDiaryEntryRequest,
-  CreateMilestoneRequest,
-  DiaryEntriesResponse,
-  DiaryEntryResponse,
-  DiaryFilters,
-  MilestoneApi,
-  UpdateDiaryEntryRequest,
+  DiaryEntryResponseSchema,
+  type CreateDiaryEntryRequest,
+  type CreateMilestoneRequest,
+  type DiaryEntriesResponse,
+  type DiaryEntryResponse,
+  type DiaryFilters,
+  type MilestoneApi,
+  type UpdateDiaryEntryRequest,
 } from "@daon/shared";
 import { apiClient } from "../client";
 
@@ -39,7 +40,9 @@ export const diaryApi = {
   },
 
   async getDiaryEntry(id: string): Promise<DiaryEntryResponse> {
-    return apiClient.get<DiaryEntryResponse>(`/diary/${id}`);
+    const response = await apiClient.get<DiaryEntryResponse>(`/diary/${id}`);
+    console.log("[getDiaryEntry] response", response);
+    return DiaryEntryResponseSchema.parse(response);
   },
 
   async updateDiaryEntry(

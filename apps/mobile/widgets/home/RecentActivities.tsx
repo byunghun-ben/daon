@@ -1,12 +1,12 @@
-import type { ActivityApi, ActivityType } from "@daon/shared";
+import type { ActivityApi, ActivityType, ChildApi } from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import Button from "../../shared/ui/Button/Button";
 import Card from "../../shared/ui/Card/Card";
 
 interface RecentActivitiesProps {
   activities: ActivityApi[];
+  children?: ChildApi[]; // 아이 정보를 받아서 이름을 표시
   onActivityPress: (activity: ActivityApi) => void;
   onViewAllPress: () => void;
   onFirstActivityPress: () => void;
@@ -14,50 +14,11 @@ interface RecentActivitiesProps {
 
 const RecentActivities: React.FC<RecentActivitiesProps> = ({
   activities,
+  children,
   onActivityPress,
   onViewAllPress,
   onFirstActivityPress,
 }) => {
-  const styles = useThemedStyles((theme) => ({
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    emptyText: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textMuted,
-      textAlign: "center" as const,
-      paddingVertical: theme.spacing.lg,
-    },
-    activityItem: {
-      padding: theme.spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    activityHeader: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "center" as const,
-      marginBottom: theme.spacing.xs,
-    },
-    activityType: {
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: "600" as const,
-      color: theme.colors.text,
-    },
-    activityTime: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textSecondary,
-    },
-    activityNotes: {
-      fontSize: theme.typography.body2.fontSize,
-      color: theme.colors.textMuted,
-      marginTop: theme.spacing.xs,
-    },
-  }));
-
   const formatActivityType = (type: ActivityType): string => {
     const typeMap = {
       feeding: "수유",
@@ -76,12 +37,23 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
     });
   };
 
+  // childId로 아이 이름 찾기
+  const getChildName = (childId: string): string | null => {
+    if (!children) return null;
+    const child = children.find((c) => c.id === childId);
+    return child?.name || null;
+  };
+
   return (
     <Card>
-      <Text style={styles.sectionTitle}>최근 활동</Text>
+      <Text className="text-lg font-semibold text-foreground mb-4">
+        최근 활동
+      </Text>
       {activities.length === 0 ? (
         <>
-          <Text style={styles.emptyText}>아직 기록된 활동이 없습니다.</Text>
+          <Text className="text-sm text-muted-foreground text-center py-6">
+            아직 기록된 활동이 없습니다.
+          </Text>
           <Button
             title="첫 활동 기록하기"
             variant="outline"
@@ -93,19 +65,33 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
           {activities.map((activity) => (
             <TouchableOpacity
               key={activity.id}
-              style={styles.activityItem}
+              className="p-4 border-b border-border"
               onPress={() => onActivityPress(activity)}
             >
-              <View style={styles.activityHeader}>
-                <Text style={styles.activityType}>
-                  {formatActivityType(activity.type)}
-                </Text>
-                <Text style={styles.activityTime}>
+              <View className="flex-row justify-between items-center mb-1">
+                <View className="flex-row items-center">
+                  <Text className="text-base font-semibold text-foreground">
+                    {formatActivityType(activity.type)}
+                  </Text>
+                  {children &&
+                    children.length > 1 &&
+                    getChildName(activity.childId) && (
+                      <View className="bg-primary px-2 py-0.5 rounded ml-2">
+                        <Text className="text-white text-xs font-semibold">
+                          {getChildName(activity.childId)}
+                        </Text>
+                      </View>
+                    )}
+                </View>
+                <Text className="text-sm text-muted-foreground">
                   {formatTime(activity.timestamp)}
                 </Text>
               </View>
               {activity.notes && (
-                <Text style={styles.activityNotes} numberOfLines={2}>
+                <Text
+                  className="text-sm text-muted-foreground mt-1"
+                  numberOfLines={2}
+                >
                   {activity.notes}
                 </Text>
               )}

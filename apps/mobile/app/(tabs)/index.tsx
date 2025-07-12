@@ -182,6 +182,7 @@ export default function HomeScreen() {
         <View className="mb-4">
           <RecentActivities
             activities={recentData?.activities || []}
+            children={availableChildren}
             onActivityPress={handleNavigateToActivity}
             onViewAllPress={handleNavigateToRecord}
             onFirstActivityPress={handleNavigateToRecord}

@@ -39,9 +39,9 @@ export const buttonTextVariants = cva("font-medium text-center", {
       link: "text-primary",
     },
     size: {
-      default: "text-sm",
+      default: "text-base",
       sm: "text-sm",
-      lg: "text-base",
+      lg: "text-lg",
       icon: "text-sm",
     },
   },

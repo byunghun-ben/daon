@@ -26,7 +26,6 @@ import { GlobalBottomSheet } from "@/shared/ui/GlobalBottomSheet";
 import { NotificationInitializer } from "@/shared/components/NotificationInitializer";
 import "../global.css";
 
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -53,25 +52,15 @@ export default function RootLayout() {
       return;
     }
 
-    // +not-found 페이지에서 kakao 관련 경로인 경우에만 리디렉션
-    // (실제 /auth/kakao/callback 페이지가 있으므로 더 이상 필요 없지만, 다른 잘못된 경로를 위해 유지)
-    if (segments.includes("+not-found") && pathname.includes("auth/kakao")) {
-      console.log("[RootLayout] Redirecting from not-found kakao path");
+    // +not-found 페이지에서 기타 잘못된 경로인 경우 홈으로 리디렉션
+    if (segments.includes("+not-found") && user) {
+      console.log("[RootLayout] Redirecting from not-found page");
 
-      // setTimeout을 사용하여 다음 렌더링 사이클에서 실행
       setTimeout(() => {
-        // 사용자가 로그인되어 있는지 확인 후 적절한 페이지로 리디렉션
-        if (user) {
-          // 로그인된 상태라면 홈으로
-          router.replace("/(tabs)/");
-        } else {
-          // 로그인되지 않은 상태라면 로그인 페이지로
-          router.replace("/(auth)/sign-in");
-        }
+        router.replace("/(tabs)/");
       }, 0);
     }
   }, [pathname, segments, user, loaded, isInitialized]);
-
 
   // Initialize i18n on app start
   useEffect(() => {
@@ -130,12 +119,17 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
           <BottomSheetModalProvider>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(onboarding)"
+                options={{ headerShown: false }}
+              />
               <Stack.Screen name="+not-found" />
             </Stack>
             <NotificationInitializer />

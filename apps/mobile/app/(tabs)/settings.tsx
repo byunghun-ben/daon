@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/shared/store/authStore";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import { useRouter } from "expo-router";
 import {
@@ -30,60 +30,6 @@ export default function SettingsScreen() {
       },
     ]);
   };
-
-  // const styles = useThemedStyles((theme) => ({
-  //   container: {
-  //     flex: 1,
-  //     backgroundColor: theme.colors.background,
-  //   },
-  //   header: {
-  //     padding: SCREEN_PADDING,
-  //     paddingBottom: theme.spacing.md,
-  //   },
-  //   title: {
-  //     fontSize: theme.typography.title.fontSize,
-  //     fontWeight: theme.typography.title.fontWeight,
-  //     color: theme.colors.text,
-  //     marginBottom: theme.spacing.sm,
-  //   },
-  //   subtitle: {
-  //     fontSize: theme.typography.body2.fontSize,
-  //     color: theme.colors.textSecondary,
-  //   },
-  //   content: {
-  //     flex: 1,
-  //     padding: SCREEN_PADDING,
-  //   },
-  //   section: {
-  //     marginBottom: theme.spacing.xl,
-  //   },
-  //   sectionTitle: {
-  //     fontSize: theme.typography.subtitle.fontSize,
-  //     fontWeight: theme.typography.subtitle.fontWeight,
-  //     color: theme.colors.text,
-  //     marginBottom: theme.spacing.md,
-  //   },
-  //   menuItem: {
-  //     padding: theme.spacing.lg,
-  //     borderBottomWidth: 1,
-  //     borderBottomColor: theme.colors.border,
-  //   },
-  //   menuItemLast: {
-  //     borderBottomWidth: 0,
-  //   },
-  //   menuItemText: {
-  //     fontSize: theme.typography.body1.fontSize,
-  //     color: theme.colors.text,
-  //   },
-  //   menuItemSubtext: {
-  //     fontSize: theme.typography.body2.fontSize,
-  //     color: theme.colors.textSecondary,
-  //     marginTop: theme.spacing.xs,
-  //   },
-  //   logoutButton: {
-  //     marginTop: theme.spacing.xl,
-  //   },
-  // }));
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -148,9 +94,7 @@ export default function SettingsScreen() {
               onPress={() => router.push("/settings/language")}
             >
               <Text className="text-lg font-bold mb-2">언어 설정</Text>
-              <Text className="text-sm text-gray-500">
-                앱 언어 변경
-              </Text>
+              <Text className="text-sm text-gray-500">앱 언어 변경</Text>
             </TouchableOpacity>
             <View className="h-px bg-gray-200" />
             <TouchableOpacity
@@ -213,7 +157,9 @@ export default function SettingsScreen() {
 
         {/* 로그아웃 */}
         <View className="p-6">
-          <Button title="로그아웃" onPress={handleLogout} variant="secondary" />
+          <ButtonV2 onPress={handleLogout} variant="outline">
+            <ButtonText>로그아웃</ButtonText>
+          </ButtonV2>
         </View>
       </ScrollView>
     </SafeAreaView>

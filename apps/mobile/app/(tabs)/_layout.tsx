@@ -109,6 +109,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="auth/kakao/callback"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

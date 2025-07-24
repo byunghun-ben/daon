@@ -221,6 +221,7 @@ export class KakaoAuthService {
    * 초기 딥링크 확인 (앱이 딥링크로 시작된 경우)
    */
   public async checkInitialURL(): Promise<void> {
+    console.log("🔗 Checking initial URL");
     try {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {

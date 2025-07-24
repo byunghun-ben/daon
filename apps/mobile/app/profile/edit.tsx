@@ -1,6 +1,6 @@
 import { authApi } from "@/shared/api/auth";
 import { useAuthStore } from "@/shared/store/authStore";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import { UpdateUserProfileRequestSchema } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,7 @@ import type { z } from "zod/v4";
 
 type UpdateProfileFormData = z.infer<typeof UpdateUserProfileRequestSchema>;
 
-export default function EditProfileScreen() {
+export default function EditProfilePage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -69,115 +69,116 @@ export default function EditProfileScreen() {
 
   return (
     <>
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: "프로필 편집",
           headerBackTitle: "설정",
           headerShown: true,
-        }} 
+        }}
       />
       <SafeAreaView className="flex-1 bg-background">
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1"
         >
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="p-6">
-
-            {/* 이메일 (읽기 전용) */}
-            <View className="mb-6">
-              <Text className="text-base font-medium mb-2 text-text">
-                이메일
-              </Text>
-              <View className="bg-gray-100 p-3 rounded-lg">
-                <Text className="text-gray-600">{user?.email}</Text>
-              </View>
-              <Text className="text-sm text-gray-500 mt-1">
-                이메일은 변경할 수 없습니다.
-              </Text>
-            </View>
-
-            {/* 이름 */}
-            <View className="mb-6">
-              <Controller
-                control={form.control}
-                name="name"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    label="이름"
-                    value={value || ""}
-                    onChangeText={onChange}
-                    placeholder="이름을 입력하세요"
-                    error={form.formState.errors.name?.message}
-                  />
-                )}
-              />
-            </View>
-
-            {/* 전화번호 */}
-            <View className="mb-8">
-              <Controller
-                control={form.control}
-                name="phone"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    label="전화번호"
-                    value={value || ""}
-                    onChangeText={onChange}
-                    placeholder="전화번호를 입력하세요 (선택사항)"
-                    keyboardType="phone-pad"
-                    error={form.formState.errors.phone?.message}
-                  />
-                )}
-              />
-            </View>
-
-            {/* 가입 정보 */}
-            <View className="mb-8 p-4 bg-gray-50 rounded-lg">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                가입 정보
-              </Text>
-              <View className="space-y-1">
-                <Text className="text-sm text-gray-600">
-                  가입일:{" "}
-                  {user?.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString("ko-KR")
-                    : "정보 없음"}
+          <ScrollView
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View className="p-6">
+              {/* 이메일 (읽기 전용) */}
+              <View className="mb-6">
+                <Text className="text-base font-medium mb-2 text-text">
+                  이메일
                 </Text>
-                <Text className="text-sm text-gray-600">
-                  최근 업데이트:{" "}
-                  {user?.updatedAt
-                    ? new Date(user.updatedAt).toLocaleDateString("ko-KR")
-                    : "정보 없음"}
+                <View className="bg-gray-100 p-3 rounded-lg">
+                  <Text className="text-gray-600">{user?.email}</Text>
+                </View>
+                <Text className="text-sm text-gray-500 mt-1">
+                  이메일은 변경할 수 없습니다.
                 </Text>
               </View>
-            </View>
 
-            {/* 버튼 */}
-            <View className="flex-row gap-3">
-              <Button
-                title="취소"
-                variant="outline"
-                onPress={handleCancel}
-                className="flex-1"
-                disabled={isLoading}
-              />
-              <Button
-                title={isLoading ? "저장 중..." : "저장"}
-                variant="primary"
-                onPress={form.handleSubmit(handleSubmit)}
-                disabled={isLoading}
-                className="flex-1"
-              />
+              {/* 이름 */}
+              <View className="mb-6">
+                <Controller
+                  control={form.control}
+                  name="name"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      label="이름"
+                      value={value || ""}
+                      onChangeText={onChange}
+                      placeholder="이름을 입력하세요"
+                      error={form.formState.errors.name?.message}
+                    />
+                  )}
+                />
+              </View>
+
+              {/* 전화번호 */}
+              <View className="mb-8">
+                <Controller
+                  control={form.control}
+                  name="phone"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      label="전화번호"
+                      value={value || ""}
+                      onChangeText={onChange}
+                      placeholder="전화번호를 입력하세요 (선택사항)"
+                      keyboardType="phone-pad"
+                      error={form.formState.errors.phone?.message}
+                    />
+                  )}
+                />
+              </View>
+
+              {/* 가입 정보 */}
+              <View className="mb-8 p-4 bg-gray-50 rounded-lg">
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  가입 정보
+                </Text>
+                <View className="space-y-1">
+                  <Text className="text-sm text-gray-600">
+                    가입일:{" "}
+                    {user?.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString("ko-KR")
+                      : "정보 없음"}
+                  </Text>
+                  <Text className="text-sm text-gray-600">
+                    최근 업데이트:{" "}
+                    {user?.updatedAt
+                      ? new Date(user.updatedAt).toLocaleDateString("ko-KR")
+                      : "정보 없음"}
+                  </Text>
+                </View>
+              </View>
+
+              {/* 버튼 */}
+              <View className="flex-row gap-3">
+                <ButtonV2
+                  variant="outline"
+                  onPress={handleCancel}
+                  className="flex-1"
+                  disabled={isLoading}
+                >
+                  <ButtonText>취소</ButtonText>
+                </ButtonV2>
+                <ButtonV2
+                  variant="default"
+                  onPress={form.handleSubmit(handleSubmit)}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  <ButtonText>저장</ButtonText>
+                </ButtonV2>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </>
   );
 }

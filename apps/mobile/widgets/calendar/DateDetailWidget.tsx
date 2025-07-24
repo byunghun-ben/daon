@@ -4,7 +4,7 @@ import React from "react";
 import { Text, View } from "react-native";
 
 interface DateDetailWidgetProps {
-  selectedDate?: string;
+  selectedDate?: Date;
   activities?: ActivityApi[];
   diaryEntries?: DiaryEntryApi[];
   children?: ChildApi[];
@@ -21,18 +21,21 @@ const DateDetailWidget: React.FC<DateDetailWidgetProps> = ({
     return null;
   }
 
+  // 선택된 날짜를 문자열로 변환
+  const selectedDateString = selectedDate.toISOString().split("T")[0];
+
   // 선택된 날짜의 활동 필터링
   const selectedDateActivities = activities.filter((activity) => {
     const activityDate = new Date(activity.timestamp)
       .toISOString()
       .split("T")[0];
-    return activityDate === selectedDate;
+    return activityDate === selectedDateString;
   });
 
   // 선택된 날짜의 일기 필터링
   const selectedDateDiaryEntries = diaryEntries.filter((entry) => {
     const entryDate = new Date(entry.date).toISOString().split("T")[0];
-    return entryDate === selectedDate;
+    return entryDate === selectedDateString;
   });
 
   // 아이 이름 가져오기 함수
@@ -54,8 +57,7 @@ const DateDetailWidget: React.FC<DateDetailWidgetProps> = ({
   };
 
   // 날짜 포맷팅
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+  const formatDate = (date: Date): string => {
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "long",

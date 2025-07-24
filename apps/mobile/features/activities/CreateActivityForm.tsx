@@ -17,7 +17,7 @@ import {
 import { useCreateActivity } from "../../shared/api/hooks/useActivities";
 import { useActiveChild } from "../../shared/hooks/useActiveChild";
 import { cn } from "../../shared/lib/utils/cn";
-import Button from "../../shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "../../shared/ui/Button/ButtonV2";
 import Input from "../../shared/ui/Input/Input";
 import ChildSelector from "../../widgets/ChildSelector/ChildSelector";
 
@@ -202,12 +202,12 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
 
       {/* 저장 버튼 */}
       <View className="mb-8">
-        <Button
-          title="활동 저장"
+        <ButtonV2
           onPress={form.handleSubmit(handleSubmit)}
-          variant="primary"
-          loading={createActivityMutation.isPending}
-        />
+          disabled={createActivityMutation.isPending}
+        >
+          <ButtonText>활동 저장</ButtonText>
+        </ButtonV2>
       </View>
 
       {/* 날짜 시간 피커 */}

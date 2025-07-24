@@ -9,7 +9,7 @@ import {
   type JoinChildFormData,
   JoinChildFormSchema,
 } from "../../shared/types/forms";
-import Button from "../../shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "../../shared/ui/Button/ButtonV2";
 import Card from "../../shared/ui/Card/Card";
 import Input from "../../shared/ui/Input/Input";
 
@@ -274,11 +274,9 @@ export const JoinChildForm = ({
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button
-            title="참여하기"
-            onPress={handleSubmit(onSubmit)}
-            loading={isLoading}
-          />
+          <ButtonV2 onPress={handleSubmit(onSubmit)} disabled={isLoading}>
+            <ButtonText>참여하기</ButtonText>
+          </ButtonV2>
         </View>
       </ScrollView>
     </View>

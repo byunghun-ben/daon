@@ -2,7 +2,7 @@ import { GrowthRecordCard } from "@/entities/growth-record/GrowthRecordCard";
 import { useDeleteGrowthRecord } from "@/shared/api/growth/hooks/useDeleteGrowthRecord";
 import { useGrowthRecord } from "@/shared/api/growth/hooks/useGrowthRecord";
 import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -107,7 +107,9 @@ export default function GrowthDetailScreen() {
           <Text style={styles.errorText}>
             성장 기록을 불러오는데 실패했습니다.
           </Text>
-          <Button title="다시 시도" onPress={() => router.back()} />
+          <ButtonV2 onPress={() => router.back()}>
+            <ButtonText>다시 시도</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );
@@ -132,13 +134,16 @@ export default function GrowthDetailScreen() {
       </ScrollView>
 
       <View style={styles.actionsContainer}>
-        <Button title="수정" onPress={handleEdit} variant="outline" />
-        <Button
-          title="삭제"
+        <ButtonV2 onPress={handleEdit} variant="outline">
+          <ButtonText>수정</ButtonText>
+        </ButtonV2>
+        <ButtonV2
           onPress={handleDelete}
           style={styles.deleteButton}
           disabled={deleteGrowthRecordMutation.isPending}
-        />
+        >
+          <ButtonText>삭제</ButtonText>
+        </ButtonV2>
       </View>
     </SafeAreaView>
   );

@@ -1,7 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
-import Button from "../Button/Button";
+import { ButtonV2, ButtonText } from "../Button/ButtonV2";
 
 interface CustomDateTimePickerProps {
   value: Date;
@@ -61,7 +61,9 @@ export function CustomDateTimePicker({
   return (
     <View>
       {label && (
-        <Text className="text-base font-medium mb-2 text-gray-700">{label}</Text>
+        <Text className="text-base font-medium mb-2 text-gray-700">
+          {label}
+        </Text>
       )}
       <TouchableOpacity
         onPress={() => !disabled && setIsVisible(true)}
@@ -84,7 +86,7 @@ export function CustomDateTimePicker({
             <Text className="text-lg font-bold mb-4 text-center">
               {label || "날짜/시간 선택"}
             </Text>
-            
+
             <View className="mb-6">
               <DateTimePicker
                 value={tempDate}
@@ -101,18 +103,20 @@ export function CustomDateTimePicker({
             </View>
 
             <View className="flex-row gap-3">
-              <Button
-                title="취소"
+              <ButtonV2
                 variant="outline"
                 onPress={handleCancel}
                 className="flex-1"
-              />
-              <Button
-                title="확인"
-                variant="primary"
+              >
+                <ButtonText>취소</ButtonText>
+              </ButtonV2>
+              <ButtonV2
+                variant="default"
                 onPress={handleConfirm}
                 className="flex-1"
-              />
+              >
+                <ButtonText>확인</ButtonText>
+              </ButtonV2>
             </View>
           </View>
         </View>

@@ -4,9 +4,9 @@ import type {
   UpdateActivityRequest,
 } from "@daon/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useActiveChildStore } from "../../store/activeChildStore";
 import { activitiesApi } from "../activities";
 import { createQueryKeys } from "./createCrudHooks";
-import { useActiveChildStore } from "../../store/activeChildStore";
 
 // Query Keys
 export const ACTIVITIES_KEYS = createQueryKeys("activities");
@@ -17,6 +17,7 @@ export function useActivities(params: ActivityFilters) {
     queryKey: ACTIVITIES_KEYS.list(params),
     queryFn: () => activitiesApi.getActivities(params),
     enabled: !!params.childId,
+    select: (data) => data.activities,
   });
 }
 
@@ -138,5 +139,24 @@ export function useRecentActivities(childId: string | null, limit = 10) {
     queryKey: [...ACTIVITIES_KEYS.list(filters), "recent"],
     queryFn: () => activitiesApi.getActivities(filters),
     enabled: true, // childId가 없어도 실행
+  });
+}
+
+// Calendar activities helper - 월별 모든 아이들의 활동 조회
+export function useCalendarActivities(dateFrom: string, dateTo: string) {
+  const filters: ActivityFilters = {
+    dateFrom,
+    dateTo,
+    limit: 1000, // 한 달 치 데이터이므로 충분한 limit 설정
+    offset: 0,
+    // childId를 지정하지 않아서 모든 아이들의 활동을 가져옴
+  };
+
+  return useQuery({
+    queryKey: [...ACTIVITIES_KEYS.list(filters), "calendar"],
+    queryFn: () => activitiesApi.getActivities(filters),
+    select: (data) => data.activities,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 30 * 60 * 1000, // 30분간 가비지 컬렉션 방지
   });
 }

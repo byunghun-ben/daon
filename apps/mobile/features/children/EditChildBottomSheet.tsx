@@ -1,5 +1,5 @@
 import { useUpdateChild } from "@/shared/api/hooks/useChildren";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import { CustomDateTimePicker } from "@/shared/ui/DateTimePicker/DateTimePicker";
 import Input from "@/shared/ui/Input/Input";
 import type { ChildApi } from "@daon/shared";
@@ -197,20 +197,24 @@ export function EditChildBottomSheet({
 
         {/* 버튼 */}
         <View className="flex-row gap-3 mt-6">
-          <Button
-            title="취소"
+          <ButtonV2
             variant="outline"
             onPress={() => onComplete?.()}
             className="flex-1"
             disabled={updateChildMutation.isPending}
-          />
-          <Button
-            title={updateChildMutation.isPending ? "저장 중..." : "저장"}
-            variant="primary"
+          >
+            <ButtonText>취소</ButtonText>
+          </ButtonV2>
+          <ButtonV2
+            variant="default"
             onPress={form.handleSubmit(handleSubmit)}
             disabled={updateChildMutation.isPending}
             className="flex-1"
-          />
+          >
+            <ButtonText>
+              {updateChildMutation.isPending ? "저장 중..." : "저장"}
+            </ButtonText>
+          </ButtonV2>
         </View>
       </View>
     </ScrollView>

@@ -2,7 +2,7 @@ import { GrowthRecordCard } from "@/entities/growth-record/GrowthRecordCard";
 import { useGrowthRecords } from "@/shared/api/growth/hooks/useGrowthRecords";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { cn } from "@/shared/lib/utils/cn";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import type { GrowthRecordApi } from "@daon/shared";
 import { useRouter } from "expo-router";
@@ -50,11 +50,12 @@ export default function GrowthScreen() {
                 등록된 아이가 없습니다.{"\n"}
                 먼저 아이를 등록해주세요.
               </Text>
-              <Button
-                title="아이 등록하기"
+              <ButtonV2
                 onPress={() => router.push("/children/create")}
-                variant="primary"
-              />
+                variant="default"
+              >
+                <ButtonText>아이 등록하기</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         </View>
@@ -207,7 +208,9 @@ export default function GrowthScreen() {
         <Text className="text-center text-destructive p-6">
           성장 기록을 불러오는 중 오류가 발생했습니다.
         </Text>
-        <Button title="다시 시도" onPress={() => refetch()} variant="primary" />
+        <ButtonV2 onPress={() => refetch()} variant="default">
+          <ButtonText>다시 시도</ButtonText>
+        </ButtonV2>
       </SafeAreaView>
     );
   }
@@ -233,11 +236,12 @@ export default function GrowthScreen() {
                 아직 기록된 성장 데이터가 없습니다.{"\n"}첫 번째 성장 기록을
                 추가해보세요!
               </Text>
-              <Button
-                title="성장 기록 추가"
+              <ButtonV2
                 onPress={() => router.push("/growth/new")}
-                variant="primary"
-              />
+                variant="default"
+              >
+                <ButtonText>성장 기록 추가</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         </ScrollView>
@@ -278,11 +282,12 @@ export default function GrowthScreen() {
           </View>
 
           <View className="mt-4">
-            <Button
-              title="새 성장 기록 추가"
+            <ButtonV2
               onPress={() => router.push("/growth/new")}
-              variant="primary"
-            />
+              variant="default"
+            >
+              <ButtonText>새 성장 기록 추가</ButtonText>
+            </ButtonV2>
           </View>
         </ScrollView>
       )}

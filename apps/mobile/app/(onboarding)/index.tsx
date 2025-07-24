@@ -1,4 +1,4 @@
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import { Stack, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,11 +28,9 @@ export default function OnboardingWelcomeScreen() {
           </Text>
         </View>
 
-        <Button
-          title="아이 프로필 만들기"
-          onPress={handleStartSetup}
-          variant="primary"
-        />
+        <ButtonV2 onPress={handleStartSetup} variant="default">
+          <ButtonText>아이 프로필 만들기</ButtonText>
+        </ButtonV2>
       </SafeAreaView>
     </>
   );

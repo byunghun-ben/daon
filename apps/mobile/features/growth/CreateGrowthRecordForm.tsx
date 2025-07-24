@@ -1,6 +1,6 @@
 import { useCreateGrowthRecord } from "@/shared/api/growth/hooks/useCreateGrowthRecord";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import {
   CreateGrowthRecordRequestSchema,
@@ -364,13 +364,13 @@ export const CreateGrowthRecordForm: React.FC<CreateGrowthRecordFormProps> = ({
 
       {/* 저장 버튼 */}
       <View className="mb-8">
-        <Button
-          title="성장 기록 저장"
+        <ButtonV2
           onPress={form.handleSubmit(handleSubmit)}
-          variant="primary"
+          variant="default"
           disabled={!hasAnyMeasurement()}
-          loading={createGrowthRecordMutation.isPending}
-        />
+        >
+          <ButtonText>성장 기록 저장</ButtonText>
+        </ButtonV2>
       </View>
 
       {/* 날짜 피커 */}

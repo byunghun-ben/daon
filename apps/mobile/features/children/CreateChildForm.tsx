@@ -1,5 +1,5 @@
 import { useCreateChild } from "@/shared/api/children/hooks/useCreateChild";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import {
   CreateChildRequestSchema,
@@ -149,24 +149,27 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
             name="gender"
             render={({ field: { onChange, value } }) => (
               <View className="flex flex-row gap-2">
-                <Button
-                  title="남아"
-                  variant={value === GENDERS.MALE ? "primary" : "outline"}
+                <ButtonV2
+                  variant={value === GENDERS.MALE ? "default" : "outline"}
                   onPress={() => onChange(GENDERS.MALE)}
                   className="flex-1"
-                />
-                <Button
-                  title="여아"
-                  variant={value === GENDERS.FEMALE ? "primary" : "outline"}
+                >
+                  <ButtonText>남아</ButtonText>
+                </ButtonV2>
+                <ButtonV2
+                  variant={value === GENDERS.FEMALE ? "default" : "outline"}
                   onPress={() => onChange(GENDERS.FEMALE)}
                   className="flex-1"
-                />
-                <Button
-                  title="선택 안함"
-                  variant={value === null ? "primary" : "outline"}
+                >
+                  <ButtonText>여아</ButtonText>
+                </ButtonV2>
+                <ButtonV2
+                  variant={value === null ? "default" : "outline"}
                   onPress={() => onChange(null)}
                   className="flex-1"
-                />
+                >
+                  <ButtonText>선택 안함</ButtonText>
+                </ButtonV2>
               </View>
             )}
           />
@@ -176,11 +179,9 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
       {/* 사진 */}
       <View className="gap-2">
         <Text className="text-lg font-bold text-gray-500">프로필 사진</Text>
-        <Button
-          title={selectedImage ? "사진 변경" : "사진 선택"}
-          variant="outline"
-          onPress={handleSelectPhoto}
-        />
+        <ButtonV2 variant="outline" onPress={handleSelectPhoto}>
+          <ButtonText>{selectedImage ? "사진 변경" : "사진 선택"}</ButtonText>
+        </ButtonV2>
         <Text className="text-sm text-gray-500">
           선택사항입니다. 나중에 언제든지 추가하거나 변경할 수 있어요.
         </Text>
@@ -245,15 +246,16 @@ export const CreateChildForm: React.FC<CreateChildFormProps> = ({
       </View>
 
       {/* 제출 버튼 */}
-      <Button
-        title={
-          createChildMutation.isPending ? "생성 중..." : "아이 프로필 만들기"
-        }
+      <ButtonV2
+        variant="default"
         onPress={form.handleSubmit(handleSubmit)}
         disabled={createChildMutation.isPending}
-        variant="primary"
         className="mt-4"
-      />
+      >
+        <ButtonText>
+          {createChildMutation.isPending ? "생성 중..." : "아이 프로필 만들기"}
+        </ButtonText>
+      </ButtonV2>
     </View>
   );
 };

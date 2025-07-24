@@ -1,6 +1,6 @@
 import { useAnalytics } from "@/shared/api/analytics/hooks";
 import { useActiveChildStore } from "@/shared/store/activeChildStore";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import type { AnalyticsRequest } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
@@ -94,11 +94,12 @@ export default function AnalyticsScreen() {
             아이를 선택해주세요.{"\n"}분석 데이터를 확인하려면 활성 아이가
             필요합니다.
           </Text>
-          <Button
-            title="아이 선택"
+          <ButtonV2
             onPress={() => router.push("/children/list")}
-            variant="primary"
-          />
+            variant="default"
+          >
+            <ButtonText>아이 선택</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );
@@ -131,7 +132,9 @@ export default function AnalyticsScreen() {
           <Text className="text-sm text-text-secondary">
             분석 데이터를 불러오는 중 오류가 발생했습니다.
           </Text>
-          <Button title="다시 시도" onPress={() => refetch()} />
+          <ButtonV2 onPress={() => refetch()}>
+            <ButtonText>다시 시도</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );

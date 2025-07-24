@@ -1,14 +1,36 @@
+import { useCalendarActivities } from "@/shared/api/hooks/useActivities";
+import { useChildren } from "@/shared/api/hooks/useChildren";
 import CalendarWidget from "@/widgets/calendar/CalendarWidget";
 import DateDetailWidget from "@/widgets/calendar/DateDetailWidget";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SafeAreaView, ScrollView, Text, View } from "react-native";
 
 export default function CalendarScreen() {
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const { data: children } = useChildren();
+
+  // 현재 표시된 월의 시작과 끝 날짜 계산
+  const monthRange = useMemo(() => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+
+    return {
+      dateFrom: startOfMonth.toISOString(),
+      dateTo: endOfMonth.toISOString(),
+    };
+  }, [selectedDate]);
+
+  // 모든 아이들의 월별 활동 데이터 가져오기
+  const { data: activities } = useCalendarActivities(
+    monthRange.dateFrom,
+    monthRange.dateTo,
   );
 
-  const handleDateSelect = (date: string) => {
+  const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
 
@@ -26,8 +48,10 @@ export default function CalendarScreen() {
         {/* 캘린더 위젯 */}
         <View className="mb-4">
           <CalendarWidget
+            activities={activities || []}
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
+            childrenList={children || []}
           />
         </View>
 

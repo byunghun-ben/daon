@@ -9,7 +9,7 @@ import { SCREEN_PADDING } from "../../shared/config/theme";
 import { useThemedStyles } from "../../shared/lib/hooks/useTheme";
 import type { ChildFormData } from "../../shared/types/child.forms";
 import { ChildFormSchema } from "../../shared/types/child.forms";
-import Button from "../../shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "../../shared/ui/Button/ButtonV2";
 import Card from "../../shared/ui/Card/Card";
 import ImagePicker from "../../shared/ui/ImagePicker";
 import Input from "../../shared/ui/Input/Input";
@@ -178,22 +178,22 @@ export const CreateChildForm = ({
               <View style={styles.genderContainer}>
                 <Text style={styles.genderLabel}>성별 (선택사항)</Text>
                 <View style={styles.genderButtons}>
-                  <Button
-                    title="남아"
-                    variant={value === GENDERS.MALE ? "primary" : "outline"}
-                    size="small"
+                  <ButtonV2
+                    variant={value === GENDERS.MALE ? "default" : "outline"}
                     className="flex-1 mx-1"
                     onPress={() => onChange(GENDERS.MALE)}
-                    loading={isLoading}
-                  />
-                  <Button
-                    title="여아"
-                    variant={value === GENDERS.FEMALE ? "primary" : "outline"}
-                    size="small"
+                    disabled={isLoading}
+                  >
+                    <ButtonText>남아</ButtonText>
+                  </ButtonV2>
+                  <ButtonV2
+                    variant={value === GENDERS.FEMALE ? "default" : "outline"}
                     className="flex-1 mx-1"
                     onPress={() => onChange(GENDERS.FEMALE)}
-                    loading={isLoading}
-                  />
+                    disabled={isLoading}
+                  >
+                    <ButtonText>여아</ButtonText>
+                  </ButtonV2>
                 </View>
               </View>
             )}
@@ -244,11 +244,9 @@ export const CreateChildForm = ({
           />
 
           <View style={styles.buttonContainer}>
-            <Button
-              title="프로필 생성"
-              onPress={handleSubmit(onSubmit)}
-              loading={isLoading}
-            />
+            <ButtonV2 onPress={handleSubmit(onSubmit)} disabled={isLoading}>
+              <ButtonText>프로필 생성</ButtonText>
+            </ButtonV2>
           </View>
         </Card>
       </ScrollView>

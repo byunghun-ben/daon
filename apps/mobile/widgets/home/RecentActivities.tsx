@@ -1,7 +1,7 @@
 import type { ActivityApi, ActivityType, ChildApi } from "@daon/shared";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import Button from "../../shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "../../shared/ui/Button/ButtonV2";
 import Card from "../../shared/ui/Card/Card";
 
 interface RecentActivitiesProps {
@@ -54,11 +54,9 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
           <Text className="text-sm text-muted-foreground text-center py-6">
             아직 기록된 활동이 없습니다.
           </Text>
-          <Button
-            title="첫 활동 기록하기"
-            variant="outline"
-            onPress={onFirstActivityPress}
-          />
+          <ButtonV2 variant="outline" onPress={onFirstActivityPress}>
+            <ButtonText>첫 활동 기록하기</ButtonText>
+          </ButtonV2>
         </>
       ) : (
         <>
@@ -97,11 +95,9 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({
               )}
             </TouchableOpacity>
           ))}
-          <Button
-            title="모든 활동 보기"
-            variant="outline"
-            onPress={onViewAllPress}
-          />
+          <ButtonV2 variant="outline" onPress={onViewAllPress}>
+            <ButtonText>모든 활동 보기</ButtonText>
+          </ButtonV2>
         </>
       )}
     </Card>

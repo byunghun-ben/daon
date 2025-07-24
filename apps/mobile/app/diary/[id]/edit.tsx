@@ -1,7 +1,6 @@
 import { UpdateDiaryForm } from "@/features/diary/UpdateDiaryForm";
 import { useDiaryEntry } from "@/shared/api/diary/hooks/useDiaryEntry";
-import { useTranslation } from "@/shared/hooks/useTranslation";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,7 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function EditDiaryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { t } = useTranslation();
 
   const { data: diaryEntryData, isLoading, error } = useDiaryEntry(id!);
   const diaryEntry = diaryEntryData?.diaryEntry;
@@ -49,7 +47,9 @@ export default function EditDiaryScreen() {
             <Text className="text-base text-destructive text-center mb-4">
               일기를 불러오는데 실패했습니다.
             </Text>
-            <Button title="다시 시도" onPress={() => router.back()} />
+            <ButtonV2 onPress={() => router.back()}>
+              <ButtonText>다시 시도</ButtonText>
+            </ButtonV2>
           </View>
         </ScrollView>
       </SafeAreaView>

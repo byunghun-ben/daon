@@ -6,7 +6,7 @@ import {
 } from "@/shared/api/subscription/hooks";
 import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { useIsActive, useIsPremium } from "@/shared/store/subscription.store";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import type { SubscriptionPlan } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
@@ -310,7 +310,9 @@ export default function SubscriptionPlansScreen() {
           <Text style={styles.errorText}>
             플랜을 불러오는 중 오류가 발생했습니다.
           </Text>
-          <Button title="다시 시도" onPress={() => refetch()} />
+          <ButtonV2 onPress={() => refetch()}>
+            <ButtonText>다시 시도</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );
@@ -447,14 +449,7 @@ export default function SubscriptionPlansScreen() {
                 ))}
               </View>
 
-              <Button
-                title={
-                  plan.name === "free"
-                    ? "현재 플랜"
-                    : isActive
-                      ? "플랜 변경"
-                      : "무료 체험 시작"
-                }
+              <ButtonV2
                 onPress={() => {
                   if (plan.name === "free") return;
                   if (isActive) {
@@ -463,11 +458,22 @@ export default function SubscriptionPlansScreen() {
                     handleStartTrial(plan.id);
                   }
                 }}
-                variant={plan.name === "premium" ? "primary" : "outline"}
-                disabled={plan.name === "free" && !isPremium}
-                loading={createSubscription.isPending || startTrial.isPending}
+                variant={plan.name === "premium" ? "default" : "outline"}
+                disabled={
+                  (plan.name === "free" && !isPremium) ||
+                  createSubscription.isPending ||
+                  startTrial.isPending
+                }
                 style={styles.planButton}
-              />
+              >
+                <ButtonText>
+                  {plan.name === "free"
+                    ? "현재 플랜"
+                    : isActive
+                      ? "플랜 변경"
+                      : "무료 체험 시작"}
+                </ButtonText>
+              </ButtonV2>
             </Card>
           </TouchableOpacity>
         ))}

@@ -1,6 +1,6 @@
 import { useCreateActivity } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
 import type { CreateActivityRequest } from "@daon/shared";
@@ -224,19 +224,23 @@ export function SleepBottomSheet({ onComplete }: SleepBottomSheetProps) {
 
         {/* 버튼 */}
         <View className="flex-row gap-3 mt-6">
-          <Button
-            title="취소"
+          <ButtonV2
             variant="outline"
             onPress={() => onComplete?.()}
             className="flex-1"
-          />
-          <Button
-            title={createActivityMutation.isPending ? "저장 중..." : "저장"}
-            variant="primary"
+          >
+            <ButtonText>취소</ButtonText>
+          </ButtonV2>
+          <ButtonV2
+            variant="default"
             onPress={form.handleSubmit(handleSubmit)}
             disabled={createActivityMutation.isPending}
             className="flex-1"
-          />
+          >
+            <ButtonText>
+              {createActivityMutation.isPending ? "저장 중..." : "저장"}
+            </ButtonText>
+          </ButtonV2>
         </View>
       </View>
     </ScrollView>

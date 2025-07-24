@@ -5,7 +5,7 @@ import {
   SignInFormSchema,
   type SignInFormSchemaType,
 } from "@/shared/types/auth.forms";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import KakaoButton from "@/shared/ui/Button/KakaoButton";
 import Input from "@/shared/ui/Input/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -183,13 +183,16 @@ export const SignInForm = () => {
         )}
       />
 
-      <Button
-        title={form.formState.isSubmitting ? "로그인 중..." : "로그인"}
+      <ButtonV2
         onPress={form.handleSubmit(handleSignIn)}
         disabled={form.formState.isSubmitting}
         accessibilityLabel="로그인 버튼"
         accessibilityHint="입력한 정보로 로그인합니다"
-      />
+      >
+        <ButtonText>
+          {form.formState.isSubmitting ? "로그인 중..." : "로그인"}
+        </ButtonText>
+      </ButtonV2>
 
       <View style={styles.divider}>
         <View style={styles.dividerLine} />

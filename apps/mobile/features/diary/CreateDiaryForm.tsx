@@ -1,6 +1,6 @@
 import { useCreateDiaryEntry } from "@/shared/api/diary/hooks/useCreateDiaryEntry";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import { ImageUploader } from "@/shared/ui/ImageUploader";
 import TextArea from "@/shared/ui/TextArea/TextArea";
 import ChildSelector from "@/widgets/ChildSelector/ChildSelector";
@@ -238,12 +238,13 @@ export const CreateDiaryForm: React.FC<CreateDiaryFormProps> = ({
 
       {/* 저장 버튼 */}
       <View className="mt-6 mb-8">
-        <Button
-          title="일기 저장"
+        <ButtonV2
+          variant="default"
           onPress={handleSubmit}
-          variant="primary"
-          loading={createDiaryMutation.isPending}
-        />
+          disabled={createDiaryMutation.isPending}
+        >
+          <ButtonText>일기 저장</ButtonText>
+        </ButtonV2>
       </View>
 
       {/* 날짜 피커 모달 */}

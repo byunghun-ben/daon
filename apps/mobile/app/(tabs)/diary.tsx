@@ -1,7 +1,7 @@
 import { DiaryEntryCard } from "@/entities/diary-entry/DiaryEntryCard";
 import { useDiaryEntries } from "@/shared/api/diary/hooks/useDiaryEntries";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import type { DiaryEntryApi } from "@daon/shared";
 import { useRouter } from "expo-router";
@@ -44,11 +44,12 @@ export default function DiaryScreen() {
                 등록된 아이가 없습니다.{"\n"}
                 먼저 아이를 등록해주세요.
               </Text>
-              <Button
-                title="아이 등록하기"
+              <ButtonV2
                 onPress={() => router.push("/children/create")}
-                variant="primary"
-              />
+                variant="default"
+              >
+                <ButtonText>아이 등록하기</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         </View>
@@ -101,7 +102,9 @@ export default function DiaryScreen() {
         <Text className="text-center text-destructive p-6">
           일기를 불러오는 중 오류가 발생했습니다.
         </Text>
-        <Button title="다시 시도" onPress={() => refetch()} variant="primary" />
+        <ButtonV2 onPress={() => refetch()} variant="default">
+          <ButtonText>다시 시도</ButtonText>
+        </ButtonV2>
       </SafeAreaView>
     );
   }
@@ -128,11 +131,12 @@ export default function DiaryScreen() {
               <Text className="text-base text-muted-foreground text-center mb-6">
                 아직 작성된 일기가 없습니다.{"\n"}첫 번째 일기를 작성해보세요!
               </Text>
-              <Button
-                title="일기 작성하기"
+              <ButtonV2
                 onPress={() => router.push("/diary/new")}
-                variant="primary"
-              />
+                variant="default"
+              >
+                <ButtonText>일기 작성하기</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         </ScrollView>
@@ -147,11 +151,12 @@ export default function DiaryScreen() {
           {diaryEntries.map(renderDiaryItem)}
 
           <View className="mt-4">
-            <Button
-              title="새 일기 작성"
+            <ButtonV2
               onPress={() => router.push("/diary/new")}
-              variant="primary"
-            />
+              variant="default"
+            >
+              <ButtonText>새 일기 작성</ButtonText>
+            </ButtonV2>
           </View>
         </ScrollView>
       )}

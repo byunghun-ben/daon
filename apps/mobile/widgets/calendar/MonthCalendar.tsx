@@ -16,7 +16,7 @@ const MonthCalendar: React.FC<MonthCalendarProps> = ({
 
   return (
     <CalendarList
-      style={{ width: screenWidth - 56, backgroundColor: "red" }} // 패딩 고려한 정확한 너비 설정
+      style={{ width: screenWidth - 56 }} // 패딩 고려한 정확한 너비 설정
       onDayPress={onDayPress}
       markedDates={markedDates}
       markingType="multi-dot"

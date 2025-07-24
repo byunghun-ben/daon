@@ -1,4 +1,4 @@
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import type {
   ActivityType,
   CreateActivityRequest,
@@ -104,7 +104,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
 
   const handleSubmit = async () => {
     try {
-      let data: any = {};
+      let data = {};
 
       switch (activityType) {
         case "feeding":
@@ -125,7 +125,7 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
         childId,
         type: activityType,
         timestamp: new Date().toISOString(),
-        data,
+        data: data as CreateActivityRequest["data"],
         notes: notes.trim() || undefined,
       };
 
@@ -142,9 +142,8 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       <Text style={styles.sectionTitle}>수유 정보</Text>
       <Text style={styles.label}>수유 타입</Text>
       <View style={styles.buttonRow}>
-        <Button
-          title="모유"
-          variant={feedingData.type === "breast" ? "primary" : "outline"}
+        <ButtonV2
+          variant={feedingData.type === "breast" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setFeedingData((prev: Partial<CreateFeedingDataRequest>) => ({
@@ -152,10 +151,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "breast",
             }))
           }
-        />
-        <Button
-          title="분유"
-          variant={feedingData.type === "bottle" ? "primary" : "outline"}
+        >
+          <ButtonText>모유</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={feedingData.type === "bottle" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setFeedingData((prev: Partial<CreateFeedingDataRequest>) => ({
@@ -163,10 +163,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "bottle",
             }))
           }
-        />
-        <Button
-          title="이유식"
-          variant={feedingData.type === "solid" ? "primary" : "outline"}
+        >
+          <ButtonText>분유</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={feedingData.type === "solid" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setFeedingData((prev: Partial<CreateFeedingDataRequest>) => ({
@@ -174,7 +175,9 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "solid",
             }))
           }
-        />
+        >
+          <ButtonText>이유식</ButtonText>
+        </ButtonV2>
       </View>
       {feedingData.type !== "breast" && (
         <>
@@ -214,9 +217,8 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       <Text style={styles.sectionTitle}>기저귀 정보</Text>
       <Text style={styles.label}>타입</Text>
       <View style={styles.buttonRow}>
-        <Button
-          title="소변"
-          variant={diaperData.type === "wet" ? "primary" : "outline"}
+        <ButtonV2
+          variant={diaperData.type === "wet" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setDiaperData((prev: Partial<CreateDiaperDataRequest>) => ({
@@ -224,10 +226,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "wet",
             }))
           }
-        />
-        <Button
-          title="대변"
-          variant={diaperData.type === "dirty" ? "primary" : "outline"}
+        >
+          <ButtonText>소변</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={diaperData.type === "dirty" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setDiaperData((prev: Partial<CreateDiaperDataRequest>) => ({
@@ -235,10 +238,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "dirty",
             }))
           }
-        />
-        <Button
-          title="둘 다"
-          variant={diaperData.type === "both" ? "primary" : "outline"}
+        >
+          <ButtonText>대변</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={diaperData.type === "both" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setDiaperData((prev: Partial<CreateDiaperDataRequest>) => ({
@@ -246,7 +250,9 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               type: "both",
             }))
           }
-        />
+        >
+          <ButtonText>둘 다</ButtonText>
+        </ButtonV2>
       </View>
     </View>
   );
@@ -256,9 +262,8 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       <Text style={styles.sectionTitle}>수면 정보</Text>
       <Text style={styles.label}>수면 품질</Text>
       <View style={styles.buttonRow}>
-        <Button
-          title="좋음"
-          variant={sleepData.quality === "good" ? "primary" : "outline"}
+        <ButtonV2
+          variant={sleepData.quality === "good" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setSleepData((prev: Partial<CreateSleepDataRequest>) => ({
@@ -266,10 +271,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               quality: "good",
             }))
           }
-        />
-        <Button
-          title="보통"
-          variant={sleepData.quality === "fair" ? "primary" : "outline"}
+        >
+          <ButtonText>좋음</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={sleepData.quality === "fair" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setSleepData((prev: Partial<CreateSleepDataRequest>) => ({
@@ -277,10 +283,11 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               quality: "fair",
             }))
           }
-        />
-        <Button
-          title="나쁨"
-          variant={sleepData.quality === "poor" ? "primary" : "outline"}
+        >
+          <ButtonText>보통</ButtonText>
+        </ButtonV2>
+        <ButtonV2
+          variant={sleepData.quality === "poor" ? "default" : "outline"}
           style={styles.optionButton}
           onPress={() =>
             setSleepData((prev: Partial<CreateSleepDataRequest>) => ({
@@ -288,7 +295,9 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
               quality: "poor",
             }))
           }
-        />
+        >
+          <ButtonText>나쁨</ButtonText>
+        </ButtonV2>
       </View>
     </View>
   );
@@ -331,18 +340,12 @@ const QuickActivityRecord: React.FC<QuickActivityRecordProps> = ({
       </View>
 
       <View style={styles.actions}>
-        <Button
-          title="취소"
-          variant="outline"
-          style={styles.actionButton}
-          onPress={onCancel}
-        />
-        <Button
-          title="저장"
-          style={styles.actionButton}
-          onPress={handleSubmit}
-          loading={createActivityMutation.isPending}
-        />
+        <ButtonV2 variant="outline" onPress={onCancel}>
+          <ButtonText>취소</ButtonText>
+        </ButtonV2>
+        <ButtonV2 onPress={handleSubmit} variant="default">
+          <ButtonText>저장</ButtonText>
+        </ButtonV2>
       </View>
     </ScrollView>
   );

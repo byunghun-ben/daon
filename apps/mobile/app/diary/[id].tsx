@@ -2,7 +2,7 @@ import { useDeleteDiaryEntry } from "@/shared/api/diary/hooks/useDeleteDiaryEntr
 import { useDiaryEntry } from "@/shared/api/diary/hooks/useDiaryEntry";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { useTranslation } from "@/shared/hooks/useTranslation";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -84,7 +84,9 @@ export default function DiaryDetailScreen() {
           <Text className="text-base text-destructive text-center mb-4">
             일기를 불러오는데 실패했습니다.
           </Text>
-          <Button title="다시 시도" onPress={() => router.back()} />
+          <ButtonV2 onPress={() => router.back()}>
+            <ButtonText>다시 시도</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );
@@ -209,13 +211,16 @@ export default function DiaryDetailScreen() {
 
       {/* Action buttons */}
       <View className="p-4 gap-3 border-t border-border bg-background">
-        <Button title="수정" onPress={handleEdit} variant="outline" />
-        <Button
-          title="삭제"
+        <ButtonV2 onPress={handleEdit} variant="outline">
+          <ButtonText>수정</ButtonText>
+        </ButtonV2>
+        <ButtonV2
           onPress={handleDelete}
-          className="bg-destructive"
+          variant="destructive"
           disabled={deleteDiaryEntryMutation.isPending}
-        />
+        >
+          <ButtonText>삭제</ButtonText>
+        </ButtonV2>
       </View>
     </SafeAreaView>
   );

@@ -5,7 +5,7 @@ import { SleepBottomSheet } from "@/features/activities/SleepBottomSheet";
 import { useRecentActivities } from "@/shared/api/hooks/useActivities";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import { type ActivityApi as Activity } from "@daon/shared";
 import { useRouter } from "expo-router";
@@ -100,11 +100,12 @@ export default function RecordScreen() {
                 등록된 아이가 없습니다.{"\n"}
                 먼저 아이를 등록해주세요.
               </Text>
-              <Button
-                title="아이 등록하기"
+              <ButtonV2
                 onPress={() => router.push("/children/create")}
-                variant="primary"
-              />
+                variant="default"
+              >
+                <ButtonText>아이 등록하기</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         </View>
@@ -161,11 +162,9 @@ export default function RecordScreen() {
                       아직 기록된 활동이 없습니다.{"\n"}첫 번째 활동을
                       기록해보세요!
                     </Text>
-                    <Button
-                      title="활동 기록하기"
-                      onPress={handleNewRecord}
-                      variant="primary"
-                    />
+                    <ButtonV2 onPress={handleNewRecord} variant="default">
+                      <ButtonText>활동 기록하기</ButtonText>
+                    </ButtonV2>
                   </View>
                 </Card>
               ) : Array.isArray(recentActivities?.activities) ? (

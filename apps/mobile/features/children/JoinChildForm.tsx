@@ -1,6 +1,6 @@
 import { useJoinChild } from "@/shared/api/children/hooks/useJoinChild";
 import { ApiError } from "@/shared/api/client";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonText, ButtonV2 } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import { GUARDIAN_ROLES, JoinChildRequestSchema } from "@daon/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -96,13 +96,13 @@ export const JoinChildForm: React.FC<JoinChildFormProps> = ({ onSuccess }) => {
       </View>
 
       <View className="mt-6">
-        <Button
-          title="참여하기"
+        <ButtonV2
+          variant="default"
           onPress={handleSubmit}
-          variant="primary"
-          loading={joinChild.isPending}
           disabled={!form.formState.isValid || joinChild.isPending}
-        />
+        >
+          <ButtonText>참여하기</ButtonText>
+        </ButtonV2>
       </View>
     </View>
   );

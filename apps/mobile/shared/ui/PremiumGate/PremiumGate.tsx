@@ -7,7 +7,7 @@ import {
   useCanUseFeature,
   useHasFeature,
 } from "../../store/subscription.store";
-import Button from "../Button/Button";
+import { ButtonV2, ButtonText } from "../Button/ButtonV2";
 import Card from "../Card/Card";
 
 interface PremiumGateProps {
@@ -158,14 +158,15 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
 
         {showUpgrade && (
           <>
-            <Button
-              title={upgradeButtonText}
+            <ButtonV2
               onPress={handleUpgrade}
-              variant="primary"
+              variant="default"
               style={styles.upgradeButton}
               accessibilityLabel="프리미엄으로 업그레이드"
               accessibilityHint="프리미엄 기능을 사용하기 위해 구독을 시작합니다"
-            />
+            >
+              <ButtonText>{upgradeButtonText}</ButtonText>
+            </ButtonV2>
 
             <TouchableOpacity
               style={styles.learnMoreButton}
@@ -221,18 +222,20 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
               </ScrollView>
 
               <View style={styles.buttonRow}>
-                <Button
-                  title="취소"
+                <ButtonV2
                   onPress={() => setShowModal(false)}
                   variant="outline"
                   style={styles.modalButton}
-                />
-                <Button
-                  title="업그레이드"
+                >
+                  <ButtonText>취소</ButtonText>
+                </ButtonV2>
+                <ButtonV2
                   onPress={handleUpgrade}
-                  variant="primary"
+                  variant="default"
                   style={styles.modalButton}
-                />
+                >
+                  <ButtonText>업그레이드</ButtonText>
+                </ButtonV2>
               </View>
             </View>
           </TouchableOpacity>

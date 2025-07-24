@@ -20,6 +20,7 @@ export function useChildren() {
   return useQuery({
     queryKey: CHILDREN_KEYS.list(),
     queryFn: () => childrenApi.getChildren(),
+    select: (data) => data.children,
   });
 }
 

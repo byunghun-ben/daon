@@ -3,7 +3,7 @@ import { EditChildBottomSheet } from "@/features/children/EditChildBottomSheet";
 import { useChildren } from "@/shared/api/hooks/useChildren";
 import { useActiveChild } from "@/shared/hooks/useActiveChild";
 import { useBottomSheetStore } from "@/shared/store/bottomSheetStore";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Card from "@/shared/ui/Card/Card";
 import type { ChildApi } from "@daon/shared";
 import { Stack, useRouter } from "expo-router";
@@ -25,7 +25,7 @@ export default function ChildrenListScreen() {
 
   const { data: childrenData, isLoading, error, refetch } = useChildren();
 
-  const children = childrenData?.children || [];
+  const childrenList = childrenData || [];
 
   const handleChildPress = (child: ChildApi) => {
     Alert.alert("아이 관리", `${child.name}에 대해 어떤 작업을 하시겠습니까?`, [
@@ -99,7 +99,9 @@ export default function ChildrenListScreen() {
           <Text className="text-center text-red-500 p-6">
             아이 목록을 불러오는 중 오류가 발생했습니다.
           </Text>
-          <Button title="다시 시도" onPress={() => refetch()} />
+          <ButtonV2 onPress={() => refetch()}>
+            <ButtonText>다시 시도</ButtonText>
+          </ButtonV2>
         </View>
       </SafeAreaView>
     );
@@ -140,23 +142,21 @@ export default function ChildrenListScreen() {
         )} */}
 
         {/* 아이 목록 또는 빈 상태 */}
-        {children.length === 0 ? (
+        {childrenList.length === 0 ? (
           <Card>
             <View className="items-center justify-center p-8">
               <Text className="text-base text-text-secondary text-center mb-6">
                 등록된 아이가 없습니다.{"\n"}첫 번째 아이를 등록해보세요!
               </Text>
-              <Button
-                title="아이 추가"
-                onPress={handleAddChild}
-                variant="primary"
-              />
+              <ButtonV2 onPress={handleAddChild} variant="default">
+                <ButtonText>아이 추가</ButtonText>
+              </ButtonV2>
             </View>
           </Card>
         ) : (
           <>
             {/* 아이 카드들 */}
-            {children.map((child) => (
+            {childrenList.map((child) => (
               <View key={child.id} className="mb-4">
                 <ChildCard
                   child={child}
@@ -169,11 +169,9 @@ export default function ChildrenListScreen() {
 
             {/* 새 아이 추가 버튼 */}
             <View className="mt-6">
-              <Button
-                title="새 아이 추가"
-                onPress={handleAddChild}
-                variant="outline"
-              />
+              <ButtonV2 onPress={handleAddChild} variant="outline">
+                <ButtonText>새 아이 추가</ButtonText>
+              </ButtonV2>
             </View>
           </>
         )}

@@ -2,7 +2,7 @@ import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
 import { useAuthStore } from "@/shared/store/authStore";
 import type { SignUpFormSchemaType } from "@/shared/types/auth.forms";
 import { SignUpFormSchema } from "@/shared/types/auth.forms";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import Input from "@/shared/ui/Input/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
@@ -171,11 +171,14 @@ export const SignUpForm = () => {
         )}
       />
 
-      <Button
-        title={form.formState.isSubmitting ? "가입 중..." : "회원가입"}
+      <ButtonV2
         onPress={form.handleSubmit(handleSignUp)}
         disabled={form.formState.isSubmitting}
-      />
+      >
+        <ButtonText>
+          {form.formState.isSubmitting ? "가입 중..." : "회원가입"}
+        </ButtonText>
+      </ButtonV2>
     </View>
   );
 };

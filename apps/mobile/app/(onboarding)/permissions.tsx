@@ -1,5 +1,5 @@
 import { useThemedStyles } from "@/shared/lib/hooks/useTheme";
-import Button from "@/shared/ui/Button/Button";
+import { ButtonV2, ButtonText } from "@/shared/ui/Button/ButtonV2";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as Notifications from "expo-notifications";
@@ -102,18 +102,24 @@ export default function PermissionsScreen() {
         <Text style={styles.title}>앱 권한 설정</Text>
         <Text style={styles.subtitle}>
           다온의 모든 기능을 사용하려면{"\n"}다음 권한들이 필요해요:{"\n\n"}•
-          사진/카메라: 아이 사진을 저장하고 촬영{"\n"}• 미디어 라이브러리: 기존 사진 선택{"\n"}• 알림: 중요한 일정과 활동 알림
+          사진/카메라: 아이 사진을 저장하고 촬영{"\n"}• 미디어 라이브러리: 기존
+          사진 선택{"\n"}• 알림: 중요한 일정과 활동 알림
         </Text>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title={isRequesting ? "권한 요청 중..." : "권한 허용"}
+        <ButtonV2
           onPress={handleRequestPermissions}
           disabled={isRequesting}
-          variant="primary"
-        />
-        <Button title="나중에 설정" onPress={handleSkip} variant="secondary" />
+          variant="default"
+        >
+          <ButtonText>
+            {isRequesting ? "권한 요청 중..." : "권한 허용"}
+          </ButtonText>
+        </ButtonV2>
+        <ButtonV2 onPress={handleSkip} variant="secondary">
+          <ButtonText>나중에 설정</ButtonText>
+        </ButtonV2>
       </View>
     </View>
   );

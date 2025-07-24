@@ -70,34 +70,30 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "캘린더",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="growth"
         options={{
-          title: "성장",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol
-              size={28}
-              name="chart.line.uptrend.xyaxis"
-              color={color}
-            />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
         name="analytics"
         options={{
-          title: "분석",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="chart.bar.fill" color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
-          title: "채팅",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="message.fill" color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

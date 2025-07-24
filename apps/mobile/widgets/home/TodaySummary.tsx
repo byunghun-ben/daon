@@ -19,36 +19,6 @@ const TodaySummary: React.FC<TodaySummaryProps> = ({
   todayActivities,
   childName,
 }) => {
-  // const styles = useThemedStyles((theme) => ({
-  //   card: {
-  //     marginBottom: theme.spacing.xl,
-  //   },
-  //   cardTitle: {
-  //     fontSize: 18,
-  //     fontWeight: "600" as const,
-  //     color: theme.colors.text,
-  //     marginBottom: theme.spacing.md,
-  //   },
-  //   summaryGrid: {
-  //     flexDirection: "row" as const,
-  //     justifyContent: "space-between" as const,
-  //   },
-  //   summaryItem: {
-  //     alignItems: "center" as const,
-  //     flex: 1,
-  //   },
-  //   summaryValue: {
-  //     fontSize: 24,
-  //     fontWeight: "700" as const,
-  //     color: theme.colors.primary,
-  //     marginBottom: theme.spacing.xs,
-  //   },
-  //   summaryLabel: {
-  //     fontSize: theme.typography.body2.fontSize,
-  //     color: theme.colors.textSecondary,
-  //   },
-  // }));
-
   // 오늘 활동 요약 계산
   const getSummary = (): ActivitySummary => {
     const summary: ActivitySummary = {

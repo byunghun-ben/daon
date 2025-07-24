@@ -1,102 +1,103 @@
-import type { TouchableOpacityProps } from "react-native";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { cn } from "../../lib/utils/cn";
+import { buttonTextVariants, buttonVariants } from "./Button.styles";
+import type { ButtonProps } from "./Button.types";
 
-interface ButtonProps extends TouchableOpacityProps {
-  title: string;
-  variant?: "primary" | "secondary" | "outline";
-  size?: "small" | "medium" | "large";
-  className?: string;
-  textClassName?: string;
-  loading?: boolean;
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-}
-
-export default function Button({
+function Button({
+  children,
   title,
-  variant = "primary",
-  size = "medium",
-  className,
-  textClassName,
+  variant,
+  size,
+  fullWidth,
+  rounded,
+  shadow,
+  leftIcon,
+  rightIcon,
   loading = false,
   disabled,
+  className,
+  textClassName,
   accessibilityLabel,
   accessibilityHint,
+  hapticFeedback = true,
   ...props
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
-  const getButtonClasses = () => {
-    const baseClasses = "rounded-lg justify-center items-center";
-    
-    const variantClasses = {
-      primary: "bg-primary",
-      secondary: "bg-secondary", 
-      outline: "bg-transparent border border-primary",
-    };
-    
-    const sizeClasses = {
-      small: "px-md h-9",
-      medium: "px-lg h-12",
-      large: "px-xl h-14",
-    };
-    
-    const disabledClasses = isDisabled ? "opacity-60" : "";
-    
-    return cn(
-      baseClasses,
-      variantClasses[variant],
-      sizeClasses[size],
-      disabledClasses,
-      className
-    );
+  // Haptic feedback handler
+  const handlePress = (
+    event: Parameters<NonNullable<ButtonProps["onPress"]>>[0],
+  ) => {
+    if (hapticFeedback) {
+      // React Native haptic feedback would go here
+      // HapticFeedback.impact(HapticFeedbackTypes.light);
+    }
+    props.onPress?.(event);
   };
 
-  const getTextClasses = () => {
-    const baseClasses = "text-base font-semibold";
-    
-    const variantTextClasses = {
-      primary: "text-white",
-      secondary: "text-white",
-      outline: "text-primary",
-    };
-    
-    return cn(
-      baseClasses,
-      variantTextClasses[variant],
-      textClassName
-    );
-  };
+  const buttonClasses = cn(
+    buttonVariants({
+      variant,
+      size,
+      fullWidth,
+      rounded,
+      shadow,
+    }),
+    isDisabled && "opacity-50",
+    className,
+  );
+
+  const textClasses = cn(buttonTextVariants({ variant, size }), textClassName);
+
+  const content = children || title;
+  const showText = content && size !== "icon";
 
   return (
     <TouchableOpacity
-      className={getButtonClasses()}
+      className={buttonClasses}
       disabled={isDisabled}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel || title}
+      accessibilityLabel={
+        accessibilityLabel ||
+        (typeof content === "string" ? content : undefined)
+      }
       accessibilityHint={accessibilityHint}
       accessibilityState={{
         disabled: isDisabled,
         busy: loading,
       }}
       {...props}
+      onPress={handlePress}
     >
       {loading ? (
-        <View className="flex-row items-center justify-center">
+        <View className="flex-row items-center justify-center gap-2">
           <ActivityIndicator
             size="small"
-            color={variant === "outline" ? "#007AFF" : "#FFFFFF"}
+            color={
+              variant === "outline" || variant === "ghost"
+                ? "#4CAF50"
+                : "#FFFFFF"
+            }
           />
-          <Text className={cn(getTextClasses(), "ml-sm")}>
-            {title}
-          </Text>
+          {showText && (
+            <Text className={textClasses}>
+              {typeof content === "string" ? content : "Loading..."}
+            </Text>
+          )}
         </View>
       ) : (
-        <Text className={getTextClasses()}>
-          {title}
-        </Text>
+        <View className="flex-row items-center justify-center gap-2">
+          {leftIcon}
+          {showText && <Text className={textClasses}>{content}</Text>}
+          {rightIcon}
+        </View>
       )}
     </TouchableOpacity>
   );
 }
+
+Button.displayName = "Button";
+
+export default Button;
+export { Button, buttonVariants };
+export type { ButtonProps };

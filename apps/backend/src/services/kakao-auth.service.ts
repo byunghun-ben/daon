@@ -24,8 +24,9 @@ export class KakaoAuthService {
     // 프로덕션 환경에서는 daon.app을 사용하여 프로덕션 환경에 접근
     const redirectUri =
       process.env.NODE_ENV === "development"
-        ? "http://10.0.2.2:3001/api/v1/auth/kakao/callback"
-        : "https://daon.app/api/v1/auth/kakao/callback";
+        ? "http://localhost:3001/api/v1/auth/kakao/callback"
+        : // ? "http://10.0.2.2:3001/api/v1/auth/kakao/callback"
+          "https://daon.app/api/v1/auth/kakao/callback";
 
     if (!clientId || !clientSecret || !redirectUri) {
       throw new Error("Kakao OAuth configuration is missing");

@@ -1,12 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase.js";
 import { logger } from "@/utils/logger.js";
 import {
-  KakaoUserInfoSchema,
   KakaoTokenResponseSchema,
+  KakaoUserInfoSchema,
   type KakaoCallbackQuery,
   type KakaoLoginUrlResponse,
-  type KakaoUserInfo,
   type KakaoTokenResponse,
+  type KakaoUserInfo,
 } from "@daon/shared";
 import crypto from "crypto";
 
@@ -18,7 +18,14 @@ export class KakaoAuthService {
   constructor() {
     const clientId = process.env.KAKAO_CLIENT_ID;
     const clientSecret = process.env.KAKAO_CLIENT_SECRET;
-    const redirectUri = process.env.KAKAO_REDIRECT_URI;
+    // Android 환경에서는 10.0.2.2를 사용하여 로컬 호스트에 접근
+    // iOS 환경에서는 localhost를 사용하여 로컬 호스트에 접근
+    // 모든 환경에서는 3001 포트를 사용하여 로컬 호스트에 접근
+    // 프로덕션 환경에서는 daon.app을 사용하여 프로덕션 환경에 접근
+    const redirectUri =
+      process.env.NODE_ENV === "development"
+        ? "http://10.0.2.2:3001/api/v1/auth/kakao/callback"
+        : "https://daon.app/api/v1/auth/kakao/callback";
 
     if (!clientId || !clientSecret || !redirectUri) {
       throw new Error("Kakao OAuth configuration is missing");

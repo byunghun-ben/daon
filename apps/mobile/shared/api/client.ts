@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import axios from "axios";
 import axiosRetry from "axios-retry";
+import { Platform } from "react-native";
 
 // Add type declaration for _retry property
 declare module "axios" {
@@ -12,7 +13,9 @@ declare module "axios" {
 
 // API base configuration
 const API_BASE_URL = __DEV__
-  ? "http://localhost:3001/api/v1"
+  ? Platform.OS === "ios"
+    ? "http://localhost:3001/api/v1"
+    : "http://10.0.2.2:3001/api/v1"
   : "https://api.daon.app/v1"; // Replace with your production URL
 
 // Storage keys
